@@ -1,3 +1,4 @@
+import pickle
 import pandas as pd
 import ast
 from nltk.stem.porter import PorterStemmer
@@ -100,3 +101,5 @@ def recommend(movie):
 
 # Test
 recommend("Avatar")
+pickle.dump(new_df, open('models/movie_list.pkl', 'wb'))
+pickle.dump(similarity, open('models/similarity.pkl', 'wb'))

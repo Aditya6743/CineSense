@@ -15,9 +15,9 @@ movies = movies.merge(credits, on="title")
 
 # Keep useful columns
 movies = movies[['movie_id','title','overview','genres','keywords','cast','crew']]
-
-# Remove null values
 movies.dropna(inplace=True)
+
+# ---------- Functions ----------
 
 def convert(obj):
     L = []
@@ -43,6 +43,8 @@ def fetch_director(obj):
             L.append(i['name'])
             break
     return L
+
+# ---------- Cleaning ----------
 
 movies['genres'] = movies['genres'].apply(convert)
 movies['keywords'] = movies['keywords'].apply(convert)
@@ -71,20 +73,30 @@ def stem(text):
 
 new_df['tags'] = new_df['tags'].apply(stem)
 
-# ================= MACHINE LEARNING =================
+# ---------- ML ----------
 
 cv = CountVectorizer(max_features=5000, stop_words='english')
-
 vectors = cv.fit_transform(new_df['tags']).toarray()
 
 similarity = cosine_similarity(vectors)
 
-print("Vector Shape:", vectors.shape)
-print("Similarity Shape:", similarity.shape)
+# ---------- Recommendation ----------
 
-# Example
-print("\nSimilarity between Avatar and Avatar:")
-print(similarity[0][0])
+def recommend(movie):
+    movie_index = new_df[new_df['title'] == movie].index[0]
 
-print("\nSimilarity between Avatar and Pirates:")
-print(similarity[0][1])
+    distances = similarity[movie_index]
+
+    movies_list = sorted(
+        list(enumerate(distances)),
+        reverse=True,
+        key=lambda x: x[1]
+    )[1:6]
+
+    print(f"\nMovies similar to {movie}:\n")
+
+    for i in movies_list:
+        print(new_df.iloc[i[0]].title)
+
+# Test
+recommend("Avatar")

@@ -6,11 +6,15 @@ import Footer from "../components/Footer";
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-[#030712] text-white">
+    <main className="min-h-screen text-white">
       <Navbar />
+
       <Hero />
+
       <Trending />
+
       <Features />
+
       <Footer />
     </main>
   );

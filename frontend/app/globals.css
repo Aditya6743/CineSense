@@ -20,14 +20,16 @@
 }
 
 body {
-  background: #030712;
+  background:
+    radial-gradient(circle at top, #312e81 0%, #111827 35%, #030712 100%);
   color: white;
+  overflow-x: hidden;
 }
 
+html {
+  scroll-behavior: smooth;
+}
 .hero-bg {
   background:
-    radial-gradient(circle at top left, rgba(139, 92, 246, 0.18), transparent 30%),
-    radial-gradient(circle at top right, rgba(59, 130, 246, 0.18), transparent 30%),
-    radial-gradient(circle at bottom, rgba(236, 72, 153, 0.12), transparent 35%),
-    #030712;
+    radial-gradient(circle at center, rgba(168,85,247,0.18), transparent 60%);
 }

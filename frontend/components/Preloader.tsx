@@ -95,11 +95,11 @@ export default function Preloader({ onComplete }: { onComplete: () => void }) {
             <div className="absolute inset-0 border border-white/10" />
             
             {loading ? (
-              <div className="flex flex-col items-center gap-4">
+              <div className="relative z-10 flex flex-col items-center gap-4 -translate-y-10 md:-translate-y-16">
                 <span className="text-gray-500 font-mono text-sm md:text-base tracking-[0.5em] uppercase animate-pulse">
                   Preparing Theater
                 </span>
-                <div className="text-5xl md:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-r from-gray-300 via-white to-gray-500 tracking-tighter">
+                <div className="text-5xl md:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-r from-gray-300 via-white to-gray-500 tracking-tighter drop-shadow-xl">
                   {progress}<span className="text-3xl md:text-5xl text-gray-600">%</span>
                 </div>
               </div>
@@ -110,7 +110,7 @@ export default function Preloader({ onComplete }: { onComplete: () => void }) {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={handleEnter}
-                className="group relative px-8 py-4 md:px-12 md:py-5 rounded-full bg-white text-black font-black tracking-widest uppercase text-sm md:text-lg shadow-[0_0_40px_rgba(255,255,255,0.5)] transition-all overflow-hidden flex items-center gap-3"
+                className="group relative z-10 -translate-y-10 md:-translate-y-16 px-8 py-4 md:px-12 md:py-5 rounded-full bg-white text-black font-black tracking-widest uppercase text-sm md:text-lg shadow-[0_0_40px_rgba(255,255,255,0.5)] transition-all overflow-hidden flex items-center gap-3"
               >
                 <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-black/10 to-transparent group-hover:animate-[shimmer_1.5s_infinite]" />
                 <Sparkles className="w-5 h-5" />

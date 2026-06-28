@@ -72,7 +72,7 @@ export default function Preloader({ onComplete }: { onComplete: () => void }) {
 
           {/* The Cinema Screen */}
           <motion.div
-            className="absolute top-1/4 md:top-[12%] w-[80vw] md:w-[60vw] max-w-4xl aspect-video bg-black flex items-center justify-center overflow-hidden rounded-lg shadow-[0_0_100px_rgba(78,168,255,0.1)]"
+            className="absolute top-[15%] md:top-[20%] w-[80vw] md:w-[60vw] max-w-4xl aspect-video bg-black flex items-center justify-center overflow-hidden rounded-lg shadow-[0_0_100px_rgba(78,168,255,0.1)]"
             style={{ 
               transformOrigin: 'bottom center',
               rotateX: 10, 
@@ -95,7 +95,7 @@ export default function Preloader({ onComplete }: { onComplete: () => void }) {
             <div className="absolute inset-0 border border-white/10" />
             
             {loading ? (
-              <div className="relative z-10 flex flex-col items-center gap-4 -translate-y-6 md:-translate-y-10">
+              <div className="relative z-10 flex flex-col items-center gap-4">
                 <span className="text-gray-500 font-mono text-sm md:text-base tracking-[0.5em] uppercase animate-pulse">
                   Preparing Theater
                 </span>
@@ -110,7 +110,7 @@ export default function Preloader({ onComplete }: { onComplete: () => void }) {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={handleEnter}
-                className="group relative z-10 -translate-y-6 md:-translate-y-10 px-8 py-4 md:px-12 md:py-5 rounded-full bg-white text-black font-black tracking-widest uppercase text-sm md:text-lg shadow-[0_0_40px_rgba(255,255,255,0.5)] transition-all overflow-hidden flex items-center gap-3"
+                className="group relative z-10 px-8 py-4 md:px-12 md:py-5 rounded-full bg-white text-black font-black tracking-widest uppercase text-sm md:text-lg shadow-[0_0_40px_rgba(255,255,255,0.5)] transition-all overflow-hidden flex items-center gap-3"
               >
                 <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-black/10 to-transparent group-hover:animate-[shimmer_1.5s_infinite]" />
                 <Sparkles className="w-5 h-5" />
@@ -123,7 +123,7 @@ export default function Preloader({ onComplete }: { onComplete: () => void }) {
           </motion.div>
 
           {/* Foreground Silhouette (Person watching) */}
-          <div className="absolute -bottom-[10%] md:-bottom-[10%] left-1/2 -translate-x-1/2 w-[350px] md:w-[600px] h-[450px] md:h-[750px] z-50 pointer-events-none">
+          <div className="absolute top-1/2 -translate-y-[34%] left-1/2 -translate-x-1/2 w-[350px] md:w-[600px] h-[450px] md:h-[750px] z-50 pointer-events-none">
             <svg 
               viewBox="0 0 200 250" 
               className="w-full h-full" 

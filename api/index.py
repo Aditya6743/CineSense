@@ -45,30 +45,23 @@ if DB_URL and DB_URL.count("@") > 1 and "%40" not in DB_URL:
         credentials = user_pass[1].replace("@", "%40")
         DB_URL = f"{scheme}://{credentials}@{rest}"
 
-# --- Lifespan for Global Connection Pooling & DB Pool ---
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    logger.info("Initializing global HTTP connection pool...")
-    app.state.client = httpx.AsyncClient(limits=httpx.Limits(max_keepalive_connections=50, max_connections=100))
-    
-    logger.info("Initializing PostgreSQL connection pool...")
-    try:
-        app.state.db = await asyncpg.create_pool(DB_URL, min_size=1, max_size=10)
-        logger.info("PostgreSQL pool created successfully.")
-    except Exception as e:
-        logger.error(f"Failed to create PostgreSQL pool: {e}")
-        app.state.db = None
-        
-    yield
-    
-    logger.info("Closing HTTP connection pool...")
-    await app.state.client.aclose()
-    
-    if app.state.db:
-        logger.info("Closing PostgreSQL pool...")
-        await app.state.db.close()
+app = FastAPI(title="CineSense API")
 
-app = FastAPI(title="CineSense API", lifespan=lifespan)
+# --- Lazy Initialization for Serverless ---
+async def get_db_pool():
+    if not hasattr(app.state, 'db') or app.state.db is None:
+        try:
+            logger.info("Initializing PostgreSQL pool lazily...")
+            app.state.db = await asyncpg.create_pool(DB_URL, min_size=1, max_size=10, ssl="require")
+        except Exception as e:
+            logger.error(f"Failed to create PostgreSQL pool: {e}")
+            app.state.db = None
+    return app.state.db
+
+async def get_http_client():
+    if not hasattr(app.state, 'client') or app.state.client is None:
+        app.state.client = httpx.AsyncClient(limits=httpx.Limits(max_keepalive_connections=50, max_connections=100))
+    return app.state.client
 
 app.add_middleware(
     CORSMiddleware,
@@ -88,11 +81,11 @@ async def get_suggestions(request: Request, query: str = ""):
     if not query:
         return []
     
-    if not request.app.state.db:
+    if not await get_db_pool():
         return []
 
     try:
-        async with request.app.state.db.acquire() as conn:
+        async with await get_db_pool().acquire() as conn:
             records = await conn.fetch(
                 "SELECT title FROM movies WHERE title ILIKE $1 LIMIT 10",
                 f"%{query}%"
@@ -201,16 +194,16 @@ async def fetch_movie_details(client: httpx.AsyncClient, movie_info: dict, max_r
 
 @app.get("/api/recommend/{movie_name}")
 async def get_recommendations(request: Request, movie_name: str):
-    if not request.app.state.db:
+    if not await get_db_pool():
         raise HTTPException(status_code=500, detail="Database connection failed")
         
     try:
-        similar_movies = await get_similar_movies_db(request.app.state.db, movie_name)
+        similar_movies = await get_similar_movies_db(await get_db_pool(), movie_name)
     except ValueError as e:
         logger.warning(f"Recommendation failed: {e}")
         raise HTTPException(status_code=404, detail=str(e))
 
-    client = request.app.state.client
+    client = await get_http_client()
     tasks = [fetch_movie_details(client, m) for m in similar_movies]
     movies_data = await asyncio.gather(*tasks)
 
@@ -226,7 +219,7 @@ async def get_trending(request: Request):
         
     try:
         url = "https://api.themoviedb.org/3/trending/movie/week"
-        client = request.app.state.client
+        client = await get_http_client()
         response = await client.get(url, headers=HEADERS, timeout=10)
         response.raise_for_status()
         data = response.json()

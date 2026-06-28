@@ -75,6 +75,7 @@ app.add_middleware(
 def home():
     return {"message": "Welcome to CineSense API 🚀", "status": "Postgres Optimized & Ready"}
 
+@app.get("/search/suggestions")
 @app.get("/api/search/suggestions")
 async def get_suggestions(request: Request, query: str = ""):
     """Returns autocomplete suggestions for movie titles from Postgres"""
@@ -192,6 +193,7 @@ async def fetch_movie_details(client: httpx.AsyncClient, movie_info: dict, max_r
                     "language": None
                 }
 
+@app.get("/recommend/{movie_name}")
 @app.get("/api/recommend/{movie_name}")
 async def get_recommendations(request: Request, movie_name: str):
     if not await get_db_pool():
@@ -212,6 +214,7 @@ async def get_recommendations(request: Request, movie_name: str):
         "recommendations": movies_data
     }
 
+@app.get("/trending")
 @app.get("/api/trending")
 async def get_trending(request: Request):
     if "data" in trending_cache:
@@ -242,6 +245,7 @@ async def get_trending(request: Request):
         logger.error(f"Trending Error: {e}")
         return []
 
+@app.get("/generate-pitch")
 @app.get("/api/generate-pitch")
 async def generate_pitch(query: str, recommended: str):
     cache_key = f"{query}_{recommended}"

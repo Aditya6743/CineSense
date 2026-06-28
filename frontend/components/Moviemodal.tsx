@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useColor } from "color-thief-react";
 import { useTheme } from "./ThemeProvider";
-import { useSoundDesign } from "../hooks/useSoundDesign";
 import axios from "axios";
 import { Heart, Play, Clock, Globe } from "lucide-react";
 import { useWatchlist } from "../hooks/useWatchlist";
@@ -31,7 +30,6 @@ type Props = {
 
 export default function MovieModal({ movie, searchedMovieTitle, onClose }: Props) {
   const { setAccentColor } = useTheme();
-  const { playWhoosh } = useSoundDesign();
   const [pitch, setPitch] = useState<string | null>(null);
   const [loadingPitch, setLoadingPitch] = useState(false);
   const { isInWatchlist, toggleWatchlist } = useWatchlist();
@@ -41,7 +39,6 @@ export default function MovieModal({ movie, searchedMovieTitle, onClose }: Props
 
   useEffect(() => {
     if (movie) {
-      playWhoosh();
       setPitch(null);
       
       // Fetch AI Pitch
@@ -56,7 +53,7 @@ export default function MovieModal({ movie, searchedMovieTitle, onClose }: Props
           .finally(() => setLoadingPitch(false));
       }
     }
-  }, [movie, searchedMovieTitle, playWhoosh]);
+  }, [movie, searchedMovieTitle]);
 
   useEffect(() => {
     if (extractedColor) {

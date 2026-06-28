@@ -2,12 +2,10 @@
 
 import { useEffect, useState, useRef } from "react";
 import { motion, useMotionValue, useSpring } from "framer-motion";
-import { useSoundDesign } from "../hooks/useSoundDesign";
 
 export default function CustomCursor() {
   const [isHovering, setIsHovering] = useState(false);
   const [magneticElement, setMagneticElement] = useState<HTMLElement | null>(null);
-  const { playHoverTick } = useSoundDesign();
   const wasHoveringRef = useRef(false);
 
   // Smooth springs for cursor position
@@ -62,19 +60,18 @@ export default function CustomCursor() {
         setMagneticElement(null);
       }
 
-      if (shouldHover && !wasHoveringRef.current) {
-        playHoverTick();
-      }
       wasHoveringRef.current = shouldHover;
       setIsHovering(shouldHover);
     };
 
     window.addEventListener("mousemove", updateMousePosition);
     return () => window.removeEventListener("mousemove", updateMousePosition);
-  }, [magneticElement, cursorX, cursorY, playHoverTick]);
+  }, [magneticElement, cursorX, cursorY]);
 
-  // Hide default cursor
+  // Hide default cursor on desktop
   useEffect(() => {
+    if (window.innerWidth < 768) return;
+    
     document.body.style.cursor = "none";
     const style = document.createElement("style");
     style.innerHTML = `* { cursor: none !important; }`;
@@ -89,7 +86,7 @@ export default function CustomCursor() {
     <>
       {/* Massive Glowing Ambient Light Aura */}
       <motion.div
-        className="pointer-events-none fixed top-0 left-0 z-0 w-[40rem] h-[40rem] rounded-full mix-blend-screen bg-[radial-gradient(circle,rgba(124,92,255,0.12)_0%,transparent_70%)]"
+        className="hidden md:block pointer-events-none fixed top-0 left-0 z-0 w-[40rem] h-[40rem] rounded-full mix-blend-screen bg-[radial-gradient(circle,rgba(124,92,255,0.12)_0%,transparent_70%)]"
         style={{
           x: smoothX,
           y: smoothY,
@@ -99,7 +96,7 @@ export default function CustomCursor() {
       />
       {/* Outer Ring */}
       <motion.div
-        className="pointer-events-none fixed top-0 left-0 z-[999999] rounded-full mix-blend-screen bg-[#4EA8FF]/20 backdrop-blur-md border border-[#4EA8FF]/30 shadow-[0_0_20px_rgba(78,168,255,0.2)]"
+        className="hidden md:block pointer-events-none fixed top-0 left-0 z-[999999] rounded-full mix-blend-screen bg-[#4EA8FF]/20 backdrop-blur-md border border-[#4EA8FF]/30 shadow-[0_0_20px_rgba(78,168,255,0.2)]"
         style={{
           x: smoothX,
           y: smoothY,
@@ -115,7 +112,7 @@ export default function CustomCursor() {
       />
       {/* Inner Dot */}
       <motion.div
-        className="pointer-events-none fixed top-0 left-0 z-[1000000] h-2 w-2 rounded-full bg-[#7C5CFF] shadow-[0_0_15px_rgba(124,92,255,1)] mix-blend-screen"
+        className="hidden md:block pointer-events-none fixed top-0 left-0 z-[1000000] h-2 w-2 rounded-full bg-[#7C5CFF] shadow-[0_0_15px_rgba(124,92,255,1)] mix-blend-screen"
         style={{
           x: cursorX,
           y: cursorY,

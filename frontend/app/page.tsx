@@ -31,17 +31,17 @@ function MainContent() {
       
       {isLoaded && (
         <>
-          {/* Global Background Glows that adapt to theme */}
+          {/* Global Background Glows that adapt to theme (Hidden on mobile for performance) */}
           <div 
-            className="pointer-events-none absolute left-[-200px] top-[-150px] h-[500px] w-[500px] rounded-full blur-[150px] transition-colors duration-1000" 
+            className="hidden md:block pointer-events-none absolute left-[-200px] top-[-150px] h-[500px] w-[500px] rounded-full blur-[150px] transition-colors duration-1000" 
             style={{ backgroundColor: `${accentColor}20` }} // 20% opacity hex equivalent approx
           />
           <div 
-            className="pointer-events-none absolute right-[-150px] top-[1500px] h-[600px] w-[600px] rounded-full blur-[150px] transition-colors duration-1000" 
+            className="hidden md:block pointer-events-none absolute right-[-150px] top-[1500px] h-[600px] w-[600px] rounded-full blur-[150px] transition-colors duration-1000" 
             style={{ backgroundColor: `${accentColor}15` }}
           />
           <div 
-            className="pointer-events-none absolute left-[-150px] top-[3000px] h-[700px] w-[700px] rounded-full blur-[170px] transition-colors duration-1000" 
+            className="hidden md:block pointer-events-none absolute left-[-150px] top-[3000px] h-[700px] w-[700px] rounded-full blur-[170px] transition-colors duration-1000" 
             style={{ backgroundColor: `${accentColor}10` }}
           />
 

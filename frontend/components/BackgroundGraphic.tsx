@@ -24,7 +24,7 @@ export default function BackgroundGraphic() {
   return (
     <motion.div 
       style={{ opacity: masterOpacity }}
-      className="fixed inset-0 z-0 pointer-events-none overflow-hidden mix-blend-screen flex flex-col justify-center gap-[30vh]"
+      className="hidden md:flex fixed inset-0 z-0 pointer-events-none overflow-hidden mix-blend-screen flex-col justify-center gap-[30vh]"
     >
       
       {/* Top Graphic - Scrolling Left */}

@@ -2,7 +2,6 @@
 
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { useEffect, useState } from "react";
-import { useSoundDesign } from "../hooks/useSoundDesign";
 
 const LOADING_STATUSES = [
   "Initializing neural pathways...",
@@ -16,7 +15,6 @@ export default function Preloader({ onComplete }: { onComplete: () => void }) {
   const [progress, setProgress] = useState(0);
   const [loading, setLoading] = useState(true);
   const [readyToEnter, setReadyToEnter] = useState(false);
-  const { playWhoosh } = useSoundDesign();
 
   // Mouse tracking for 3D tilt effect
   const mouseX = useMotionValue(0);
@@ -58,11 +56,6 @@ export default function Preloader({ onComplete }: { onComplete: () => void }) {
 
   const handleEnter = () => {
     if (!readyToEnter) return;
-    try {
-      playWhoosh();
-    } catch (e) {
-      console.warn("Audio playback failed on mobile:", e);
-    }
     setReadyToEnter(false);
     setTimeout(() => {
       onComplete();
@@ -77,7 +70,7 @@ export default function Preloader({ onComplete }: { onComplete: () => void }) {
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [readyToEnter, playWhoosh, onComplete]);
+  }, [readyToEnter, onComplete]);
 
   // Determine current status text based on progress
   const statusIndex = Math.min(

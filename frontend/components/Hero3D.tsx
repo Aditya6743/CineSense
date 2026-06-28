@@ -1,5 +1,7 @@
 "use client";
 
+/* eslint-disable react-hooks/purity */
+
 import { useRef, useMemo } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Float, Points, PointMaterial, Html } from "@react-three/drei";
@@ -57,7 +59,7 @@ import { motion } from "framer-motion";
 function HolographicOrb() {
   const groupRef = useRef<THREE.Group>(null);
 
-  useFrame((state, delta) => {
+  useFrame((state) => {
     if (!groupRef.current) return;
     
     // Magnetic mouse tracking

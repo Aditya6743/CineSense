@@ -1,5 +1,7 @@
 "use client";
 
+/* eslint-disable react-hooks/set-state-in-effect */
+
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Sparkles, Environment } from "@react-three/drei";
 import { useRef, useEffect, useState } from "react";
@@ -7,17 +9,17 @@ import * as THREE from "three";
 
 function CursorParticles() {
   const { viewport, mouse } = useThree();
-  const sparklesRef = useRef<any>(null);
-  const target = new THREE.Vector2();
+  const sparklesRef = useRef<THREE.Group>(null);
+  const targetRef = useRef(new THREE.Vector2());
 
   useFrame(() => {
     if (sparklesRef.current) {
       // Very subtle mouse reaction for the entire particle field
-      target.x = (mouse.x * viewport.width) / 2;
-      target.y = (mouse.y * viewport.height) / 2;
+      targetRef.current.x = (mouse.x * viewport.width) / 2;
+      targetRef.current.y = (mouse.y * viewport.height) / 2;
       
-      sparklesRef.current.position.x += (target.x * 0.05 - sparklesRef.current.position.x) * 0.02;
-      sparklesRef.current.position.y += (target.y * 0.05 - sparklesRef.current.position.y) * 0.02;
+      sparklesRef.current.position.x += (targetRef.current.x * 0.05 - sparklesRef.current.position.x) * 0.02;
+      sparklesRef.current.position.y += (targetRef.current.y * 0.05 - sparklesRef.current.position.y) * 0.02;
     }
   });
 

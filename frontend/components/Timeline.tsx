@@ -82,7 +82,6 @@ function TimelineCard({ step }: { step: Step }) {
   const x = useMotionValue(0);
   const y = useMotionValue(0);
   const mouseXSpring = useSpring(x, { stiffness: 300, damping: 20 });
-  const mouseYSpring = useSpring(y, { stiffness: 300, damping: 20 });
   const glowOpacity = useTransform(mouseXSpring, [-0.5, 0, 0.5], [0, 0.15, 0]);
 
   return (

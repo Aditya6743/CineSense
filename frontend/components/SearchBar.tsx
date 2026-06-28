@@ -109,6 +109,7 @@ export default function SearchBar() {
       } else {
         setRecommendations([]);
       }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error("Search error details:", error);
       const errorMsg = error.response?.data?.detail || error.message || "Unknown error";

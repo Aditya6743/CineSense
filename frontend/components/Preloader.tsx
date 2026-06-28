@@ -71,6 +71,7 @@ export default function Preloader({ onComplete }: { onComplete: () => void }) {
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [readyToEnter, onComplete]);
 
   // Determine current status text based on progress

@@ -64,7 +64,14 @@ async def get_db_pool():
             if not DB_URL:
                 raise ValueError("DATABASE_URL environment variable is missing on Vercel!")
             logger.info("Initializing PostgreSQL pool lazily...")
-            app.state.db = await asyncpg.create_pool(DB_URL, min_size=1, max_size=10, ssl="require")
+            app.state.db = await asyncpg.create_pool(
+                DB_URL, 
+                min_size=1, 
+                max_size=10, 
+                ssl="require",
+                server_settings={'statement_timeout': '10000'},
+                statement_cache_size=0 # REQUIRED FOR SUPABASE PGBOUNCER TRANSACTION POOLING (PORT 6543)
+            )
         except Exception as e:
             logger.error(f"Failed to create PostgreSQL pool: {e}")
             app.state.db_error = str(e)

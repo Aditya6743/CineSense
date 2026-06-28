@@ -45,19 +45,19 @@ export function useUISound() {
       const osc = ctx.createOscillator();
       const gainNode = ctx.createGain();
       
+      // Extremely subtle, high-pitched, very short "tick"
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(600, ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(1200, ctx.currentTime + 0.05);
+      osc.frequency.setValueAtTime(1200, ctx.currentTime);
       
       gainNode.gain.setValueAtTime(0.0, ctx.currentTime);
-      gainNode.gain.linearRampToValueAtTime(0.02, ctx.currentTime + 0.01);
-      gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
+      gainNode.gain.linearRampToValueAtTime(0.005, ctx.currentTime + 0.005);
+      gainNode.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.015);
       
       osc.connect(gainNode);
       gainNode.connect(ctx.destination);
       
       osc.start();
-      osc.stop(ctx.currentTime + 0.05);
+      osc.stop(ctx.currentTime + 0.015);
     } catch (e) {
       // Ignore audio context errors
     }
@@ -71,19 +71,20 @@ export function useUISound() {
       const osc = ctx.createOscillator();
       const gainNode = ctx.createGain();
       
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(300, ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(100, ctx.currentTime + 0.15);
+      // Soft, satisfying "pop" for clicks
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(800, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(300, ctx.currentTime + 0.03);
       
       gainNode.gain.setValueAtTime(0.0, ctx.currentTime);
-      gainNode.gain.linearRampToValueAtTime(0.05, ctx.currentTime + 0.02);
-      gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
+      gainNode.gain.linearRampToValueAtTime(0.02, ctx.currentTime + 0.005);
+      gainNode.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.03);
       
       osc.connect(gainNode);
       gainNode.connect(ctx.destination);
       
       osc.start();
-      osc.stop(ctx.currentTime + 0.15);
+      osc.stop(ctx.currentTime + 0.03);
     } catch (e) {
       // Ignore audio context errors
     }

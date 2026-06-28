@@ -50,7 +50,7 @@ export function useUISound() {
       osc.frequency.setValueAtTime(1200, ctx.currentTime);
       
       gainNode.gain.setValueAtTime(0.0, ctx.currentTime);
-      gainNode.gain.linearRampToValueAtTime(0.005, ctx.currentTime + 0.005);
+      gainNode.gain.linearRampToValueAtTime(0.015, ctx.currentTime + 0.005);
       gainNode.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.015);
       
       osc.connect(gainNode);
@@ -77,7 +77,7 @@ export function useUISound() {
       osc.frequency.exponentialRampToValueAtTime(300, ctx.currentTime + 0.03);
       
       gainNode.gain.setValueAtTime(0.0, ctx.currentTime);
-      gainNode.gain.linearRampToValueAtTime(0.02, ctx.currentTime + 0.005);
+      gainNode.gain.linearRampToValueAtTime(0.06, ctx.currentTime + 0.005);
       gainNode.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.03);
       
       osc.connect(gainNode);

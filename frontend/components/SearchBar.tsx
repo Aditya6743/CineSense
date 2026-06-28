@@ -219,16 +219,16 @@ export default function SearchBar() {
             </p>
           </div>
 
-          <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-3">
+          <div className="flex gap-10 overflow-x-auto pb-12 pt-4 px-4 -mx-4 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
             {recommendations.map((recMovie, index) => (
               <motion.div
                 key={recMovie.title}
-                initial={{ opacity: 0, y: 40 }}
-                animate={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0, x: 50 }}
+                animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.1 }}
-                className="group relative"
+                className="group relative min-w-[280px] md:min-w-[340px] shrink-0 snap-center"
               >
-                <div className="absolute -inset-4 rounded-3xl bg-gradient-to-b from-violet-600/30 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100 blur-xl" />
+                <div className="absolute -inset-4 rounded-3xl bg-gradient-to-b from-violet-600/30 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100 blur-xl pointer-events-none" />
                 <MovieCard
                   title={recMovie.title}
                   poster={recMovie.poster}

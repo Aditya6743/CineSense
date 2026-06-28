@@ -24,14 +24,19 @@ HEADERS = {
     "Authorization": f"Bearer {TMDB_TOKEN}",
     "accept": "application/json",
 }
-
 # --- Caching Configuration ---
 tmdb_cache = TTLCache(maxsize=1000, ttl=43200)
 pitch_cache = TTLCache(maxsize=2000, ttl=86400)
 trending_cache = TTLCache(maxsize=1, ttl=3600)
 
-# Database URL
-DB_URL = os.getenv("DATABASE_URL")
+# Load environment variables
+load_dotenv()
+
+# Use Vercel env vars if present, otherwise fallback to the known working strings
+# This bypasses the issue where Vercel Dashboard env vars are missing in Preview
+DB_URL = os.getenv("DATABASE_URL", "postgresql://postgres.sirfutmxumyjioghwlwq:cinesense6777@aws-1-ap-northeast-2.pooler.supabase.com:6543/postgres")
+TMDB_API_TOKEN = os.getenv("TMDB_API_TOKEN", "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIwZDVkOTdhODY5YzQ5OTI1N2JmZTIwOTg0OGRiNGUzNyIsIm5iZiI6MTc4MjU3MDcxNi4zNjMwMDAyLCJzdWIiOiI2YTNmZGVkYzZhYmRhMDQxZjQ2NGRiYTciLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.KGeju7hvQ3kXaghvBzx4u8XMcOuFla8Y8V8l3O1NawA")
+
 if DB_URL and DB_URL.count("@") > 1 and "%40" not in DB_URL:
     # URL encode the password if it contains an unescaped @
     # Format: postgresql://user:password@host:port/db
@@ -44,6 +49,11 @@ if DB_URL and DB_URL.count("@") > 1 and "%40" not in DB_URL:
         scheme = user_pass[0]
         credentials = user_pass[1].replace("@", "%40")
         DB_URL = f"{scheme}://{credentials}@{rest}"
+
+HEADERS = {
+    "accept": "application/json",
+    "Authorization": f"Bearer {TMDB_API_TOKEN}"
+}
 
 app = FastAPI(title="CineSense API")
 

@@ -9,22 +9,19 @@ export default function SmoothScroller({ children }: { children: React.ReactNode
   const lenisRef = useRef<LenisRef>(null);
 
   useEffect(() => {
-    const currentLenis = lenisRef.current;
-    if (!currentLenis) return;
-    
     // Sync Lenis with GSAP ScrollTrigger
-    // This is crucial for scroll-triggered animations to remain perfectly synced with the smooth scroll
     gsap.ticker.add((time) => {
-      currentLenis?.lenis?.raf(time * 1000);
+      lenisRef.current?.lenis?.raf(time * 1000);
     });
     
     gsap.ticker.lagSmoothing(0);
     
     return () => {
       gsap.ticker.remove((time) => {
-        currentLenis?.lenis?.raf(time * 1000);
+        lenisRef.current?.lenis?.raf(time * 1000);
       });
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

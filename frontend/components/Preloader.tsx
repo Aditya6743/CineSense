@@ -147,9 +147,8 @@ export default function Preloader({ onComplete }: { onComplete: () => void }) {
         <motion.div
           key="flash-transition"
           initial={{ opacity: 0, scale: 1 }}
-          animate={{ opacity: 1, scale: 20 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+          animate={{ opacity: [0, 1, 0], scale: [1, 20, 20] }}
+          transition={{ duration: 1.5, times: [0, 0.5, 1], ease: "easeInOut" }}
           className="fixed inset-0 z-[999999] bg-white pointer-events-none flex items-center justify-center origin-center"
         >
           <div className="w-[10vw] h-[10vw] bg-white shadow-[0_0_200px_200px_white] rounded-full" />

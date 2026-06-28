@@ -72,7 +72,7 @@ export default function Preloader({ onComplete }: { onComplete: () => void }) {
 
           {/* The Cinema Screen */}
           <motion.div
-            className="absolute top-[15%] md:top-[20%] w-[80vw] md:w-[60vw] max-w-4xl aspect-video bg-black flex items-center justify-center overflow-hidden rounded-lg shadow-[0_0_100px_rgba(78,168,255,0.1)]"
+            className="absolute top-[10vh] md:top-[12vh] w-[90vw] md:w-[70vw] max-w-5xl h-[35vh] md:h-[45vh] bg-black flex items-center justify-center overflow-hidden rounded-lg shadow-[0_0_100px_rgba(78,168,255,0.1)]"
             style={{ 
               transformOrigin: 'bottom center',
               rotateX: 10, 
@@ -95,8 +95,8 @@ export default function Preloader({ onComplete }: { onComplete: () => void }) {
             <div className="absolute inset-0 border border-white/10" />
             
             {loading ? (
-              <div className="relative z-10 flex flex-col items-center gap-4">
-                <span className="text-gray-500 font-mono text-sm md:text-base tracking-[0.5em] uppercase animate-pulse">
+              <div className="relative z-10 flex flex-col items-center gap-2 md:gap-4 -translate-y-4">
+                <span className="text-gray-500 font-mono text-xs md:text-base tracking-[0.5em] uppercase animate-pulse">
                   Preparing Theater
                 </span>
                 <div className="text-5xl md:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-r from-gray-300 via-white to-gray-500 tracking-tighter drop-shadow-xl">
@@ -110,7 +110,7 @@ export default function Preloader({ onComplete }: { onComplete: () => void }) {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={handleEnter}
-                className="group relative z-10 px-8 py-4 md:px-12 md:py-5 rounded-full bg-white text-black font-black tracking-widest uppercase text-sm md:text-lg shadow-[0_0_40px_rgba(255,255,255,0.5)] transition-all overflow-hidden flex items-center gap-3"
+                className="group relative z-10 -translate-y-4 px-8 py-4 md:px-12 md:py-5 rounded-full bg-white text-black font-black tracking-widest uppercase text-sm md:text-lg shadow-[0_0_40px_rgba(255,255,255,0.5)] transition-all overflow-hidden flex items-center gap-3"
               >
                 <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-black/10 to-transparent group-hover:animate-[shimmer_1.5s_infinite]" />
                 <Sparkles className="w-5 h-5" />
@@ -123,7 +123,7 @@ export default function Preloader({ onComplete }: { onComplete: () => void }) {
           </motion.div>
 
           {/* Foreground Silhouette (Person watching) */}
-          <div className="absolute top-1/2 -translate-y-[34%] left-1/2 -translate-x-1/2 w-[350px] md:w-[600px] h-[450px] md:h-[750px] z-50 pointer-events-none">
+          <div className="absolute bottom-[-5vh] left-1/2 -translate-x-1/2 h-[55vh] md:h-[65vh] w-[45vh] md:w-[55vh] z-50 pointer-events-none">
             <svg 
               viewBox="0 0 200 250" 
               className="w-full h-full" 
@@ -139,7 +139,7 @@ export default function Preloader({ onComplete }: { onComplete: () => void }) {
             
             {/* Animated Light reflection on the back of the head */}
             <motion.div 
-              className="absolute top-[8%] md:top-[10%] left-1/2 -translate-x-1/2 w-[80px] md:w-[120px] h-[20px] md:h-[30px] bg-blue-400/30 blur-2xl md:blur-3xl rounded-full"
+              className="absolute top-[10%] left-1/2 -translate-x-1/2 w-[20%] h-[5%] bg-blue-400/30 blur-2xl md:blur-3xl rounded-full"
               animate={{ opacity: [0.3, 0.8, 0.3], scale: [1, 1.2, 1] }}
               transition={{ duration: 0.8, repeat: Infinity, repeatType: "reverse", ease: "linear" }}
             />

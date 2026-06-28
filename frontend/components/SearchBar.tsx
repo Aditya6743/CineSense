@@ -210,7 +210,7 @@ export default function SearchBar() {
           className="mt-24 scroll-mt-32"
         >
           <div className="mb-14 text-center">
-            <h2 className="text-5xl font-black bg-gradient-to-r from-white via-blue-100 to-violet-300 bg-clip-text text-transparent">
+            <h2 className="text-3xl md:text-5xl font-black bg-gradient-to-r from-white via-blue-100 to-violet-300 bg-clip-text text-transparent">
               🍿 Recommended Movies
             </h2>
 

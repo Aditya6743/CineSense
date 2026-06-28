@@ -29,11 +29,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={geist.className}>
-        <div className="noise-bg" />
-        <AmbientCanvas />
-        <SmoothScroller>
-          {children}
-        </SmoothScroller>
+        <div className="relative w-full overflow-hidden min-h-screen">
+          <div className="noise-bg" />
+          <AmbientCanvas />
+          <SmoothScroller>
+            {children}
+          </SmoothScroller>
+        </div>
       </body>
     </html>
   );

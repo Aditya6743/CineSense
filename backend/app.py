@@ -32,13 +32,18 @@ trending_cache = TTLCache(maxsize=1, ttl=3600)
 
 # Database URL
 DB_URL = os.getenv("DATABASE_URL")
-if DB_URL and "@" in DB_URL.split("://")[1].split("@")[0] and "%40" not in DB_URL:
+if DB_URL and DB_URL.count("@") > 1 and "%40" not in DB_URL:
     # URL encode the password if it contains an unescaped @
-    auth_part, rest = DB_URL.split("://")[1].split("@", 1)
-    if "@" in auth_part:
-        user, pwd = auth_part.split(":", 1)
-        pwd = pwd.replace("@", "%40")
-        DB_URL = f"postgresql://{user}:{pwd}@{rest}"
+    # Format: postgresql://user:password@host:port/db
+    parts = DB_URL.rsplit("@", 1)
+    auth_part = parts[0]
+    rest = parts[1]
+    
+    user_pass = auth_part.split("://", 1)
+    if len(user_pass) == 2:
+        scheme = user_pass[0]
+        credentials = user_pass[1].replace("@", "%40")
+        DB_URL = f"{scheme}://{credentials}@{rest}"
 
 # --- Lifespan for Global Connection Pooling & DB Pool ---
 @asynccontextmanager

@@ -4,10 +4,31 @@ import psycopg2
 from urllib.parse import quote_plus
 import numpy as np
 import pandas as pd
+import os
+from dotenv import load_dotenv
 
-# The raw password from the user contains an @ symbol, which breaks URL parsing.
-# We must URL encode it: cinesense@123 -> cinesense%40123
-DB_URL = "postgresql://postgres:cinesense%40123@db.sirfutmxumyjioghwlwq.supabase.co:5432/postgres"
+load_dotenv()
+
+# The raw password from the user might contain an @ symbol, which breaks URL parsing.
+DB_URL = os.getenv("DATABASE_URL")
+if DB_URL and DB_URL.count("@") > 1 and "%40" not in DB_URL:
+    # URL encode the password if it contains an unescaped @
+    # Format: postgresql://user:password@host:port/db
+    parts = DB_URL.rsplit("@", 1)
+    auth_part = parts[0]
+    rest = parts[1]
+    
+    # URL encode the auth part
+    # Replace any @ with %40 in the auth part
+    user_pass = auth_part.split("://", 1)
+    if len(user_pass) == 2:
+        scheme = user_pass[0]
+        credentials = user_pass[1].replace("@", "%40")
+        DB_URL = f"{scheme}://{credentials}@{rest}"
+
+if not DB_URL:
+    print("Error: DATABASE_URL not found in environment")
+    exit(1)
 
 print("Connecting to Supabase PostgreSQL...")
 try:
@@ -39,8 +60,12 @@ print("Calculating top 5 recommendations for each movie and inserting into Postg
 batch_size = 500
 insert_data = []
 
-for index, row in movies.iterrows():
-    distances = similarity[index]
+for row_idx, (index, row) in enumerate(movies.iterrows()):
+    try:
+        distances = similarity[row_idx]
+    except Exception as e:
+        print(f"Skipping row_idx {row_idx} due to error: {e}")
+        continue
     # Fetch top 15 similar and then sort them by our weighted score for top 5
     movies_list = sorted(list(enumerate(distances)), reverse=True, key=lambda x: x[1])[1:16]
     
@@ -65,7 +90,7 @@ for index, row in movies.iterrows():
 
     if len(insert_data) >= batch_size:
         args_str = ','.join(cursor.mogrify("(%s,%s,%s,%s)", x).decode('utf-8') for x in insert_data)
-        cursor.execute(f"INSERT INTO movies (movie_id, title, score, recommendations) VALUES {args_str}")
+        cursor.execute(f"INSERT INTO movies (movie_id, title, score, recommendations) VALUES {args_str} ON CONFLICT (movie_id) DO NOTHING")
         conn.commit()
         print(f"Inserted {index + 1} / {len(movies)} movies...")
         insert_data = []
@@ -73,7 +98,7 @@ for index, row in movies.iterrows():
 # Insert remaining
 if insert_data:
     args_str = ','.join(cursor.mogrify("(%s,%s,%s,%s)", x).decode('utf-8') for x in insert_data)
-    cursor.execute(f"INSERT INTO movies (movie_id, title, score, recommendations) VALUES {args_str}")
+    cursor.execute(f"INSERT INTO movies (movie_id, title, score, recommendations) VALUES {args_str} ON CONFLICT (movie_id) DO NOTHING")
     conn.commit()
     print(f"Inserted remaining movies.")
 

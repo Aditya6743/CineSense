@@ -78,35 +78,44 @@ function HolographicOrb() {
     groupRef.current.rotation.y = THREE.MathUtils.lerp(groupRef.current.rotation.y, state.mouse.x * 0.5, 0.05);
   });
 
-  return (
-    <Float floatIntensity={3} rotationIntensity={1} speed={2}>
-      <group ref={groupRef}>
-        <Html transform center distanceFactor={12}>
-          <div className="relative flex h-20 w-20 items-center justify-center">
-            {/* Outer Rotating Square */}
-            <motion.div 
-              animate={{ 
-                rotate: 360,
-                boxShadow: [
-                  "0 0 20px rgba(124,92,255,0.4), inset 0 0 10px rgba(255,255,255,0.1)",
-                  "0 0 40px rgba(124,92,255,0.8), inset 0 0 15px rgba(255,255,255,0.3)",
-                  "0 0 20px rgba(124,92,255,0.4), inset 0 0 10px rgba(255,255,255,0.1)"
-                ]
-              }}
-              transition={{ 
-                rotate: { duration: 25, repeat: Infinity, ease: "linear" },
-                boxShadow: { duration: 4, repeat: Infinity, ease: "easeInOut" }
-              }}
-              className="absolute inset-0 rounded-[1.5rem] bg-gradient-to-br from-violet-600/30 to-blue-600/30 border border-white/20"
-            />
-            
-            {/* Static Inner Logo (Smaller) */}
-            <div className="relative z-10 flex items-center justify-center">
-              <Film className="w-10 h-10 text-violet-400 drop-shadow-[0_0_10px_rgba(167,139,250,0.6)]" />
-            </div>
+  const content = (
+    <group ref={groupRef}>
+      <Html transform center distanceFactor={12}>
+        <div className="relative flex h-20 w-20 items-center justify-center">
+          {/* Outer Rotating Square (Static on mobile) */}
+          <motion.div 
+            animate={isMobile ? {} : { 
+              rotate: 360,
+              boxShadow: [
+                "0 0 20px rgba(124,92,255,0.4), inset 0 0 10px rgba(255,255,255,0.1)",
+                "0 0 40px rgba(124,92,255,0.8), inset 0 0 15px rgba(255,255,255,0.3)",
+                "0 0 20px rgba(124,92,255,0.4), inset 0 0 10px rgba(255,255,255,0.1)"
+              ]
+            }}
+            transition={isMobile ? {} : { 
+              rotate: { duration: 25, repeat: Infinity, ease: "linear" },
+              boxShadow: { duration: 4, repeat: Infinity, ease: "easeInOut" }
+            }}
+            style={isMobile ? {
+              boxShadow: "0 0 20px rgba(124,92,255,0.4), inset 0 0 10px rgba(255,255,255,0.1)"
+            } : {}}
+            className="absolute inset-0 rounded-[1.5rem] bg-gradient-to-br from-violet-600/30 to-blue-600/30 border border-white/20"
+          />
+          
+          {/* Static Inner Logo (Smaller) */}
+          <div className="relative z-10 flex items-center justify-center">
+            <Film className="w-10 h-10 text-violet-400 drop-shadow-[0_0_10px_rgba(167,139,250,0.6)]" />
           </div>
-        </Html>
-      </group>
+        </div>
+      </Html>
+    </group>
+  );
+
+  return isMobile ? (
+    <>{content}</>
+  ) : (
+    <Float floatIntensity={3} rotationIntensity={1} speed={2}>
+      {content}
     </Float>
   );
 }

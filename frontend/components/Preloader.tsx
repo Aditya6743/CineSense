@@ -72,7 +72,7 @@ export default function Preloader({ onComplete }: { onComplete: () => void }) {
 
           {/* The Cinema Screen */}
           <motion.div
-            className="absolute top-1/4 md:top-1/3 w-[80vw] md:w-[60vw] max-w-4xl aspect-video bg-black flex items-center justify-center overflow-hidden rounded-lg shadow-[0_0_100px_rgba(78,168,255,0.1)]"
+            className="absolute top-1/4 md:top-[12%] w-[80vw] md:w-[60vw] max-w-4xl aspect-video bg-black flex items-center justify-center overflow-hidden rounded-lg shadow-[0_0_100px_rgba(78,168,255,0.1)]"
             style={{ 
               transformOrigin: 'bottom center',
               rotateX: 10, 
@@ -123,7 +123,7 @@ export default function Preloader({ onComplete }: { onComplete: () => void }) {
           </motion.div>
 
           {/* Foreground Silhouette (Person watching) */}
-          <div className="absolute -bottom-[10%] md:-bottom-[35%] left-1/2 -translate-x-1/2 w-[350px] md:w-[600px] h-[450px] md:h-[750px] z-50 pointer-events-none">
+          <div className="absolute -bottom-[10%] md:-bottom-[10%] left-1/2 -translate-x-1/2 w-[350px] md:w-[600px] h-[450px] md:h-[750px] z-50 pointer-events-none">
             <svg 
               viewBox="0 0 200 250" 
               className="w-full h-full" 

@@ -280,3 +280,9 @@ async def generate_pitch(query: str, recommended: str):
     except Exception as e:
         logger.error(f"GenAI Error: {e}")
         return {"pitch": fallback_pitch}
+
+@app.get("/debug-env")
+@app.get("/api/debug-env")
+async def debug_env():
+    # Only return keys for security
+    return {"env_keys": list(os.environ.keys())}

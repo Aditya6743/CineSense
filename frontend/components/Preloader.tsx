@@ -120,23 +120,23 @@ export default function Preloader({ onComplete }: { onComplete: () => void }) {
           </motion.div>
 
           {/* Foreground Silhouette (Person watching) */}
-          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[250px] md:w-[400px] h-[300px] md:h-[450px] z-50 pointer-events-none">
+          <div className="absolute bottom-[-5%] md:bottom-[-10%] left-1/2 -translate-x-1/2 w-[350px] md:w-[600px] h-[450px] md:h-[750px] z-50 pointer-events-none">
             <svg 
-              viewBox="0 0 200 200" 
+              viewBox="0 0 200 250" 
               className="w-full h-full" 
-              style={{ filter: "drop-shadow(0px -10px 40px rgba(78, 168, 255, 0.15))" }}
+              style={{ filter: "drop-shadow(0px -10px 50px rgba(78, 168, 255, 0.2))" }}
             >
               {/* Chair backrest */}
-              <path d="M 10 250 L 20 120 C 20 90, 40 80, 60 80 L 140 80 C 160 80, 180 90, 180 120 L 190 250 Z" fill="#010101" />
+              <path d="M 10 250 L 20 120 C 20 90, 40 80, 60 80 L 140 80 C 160 80, 180 90, 180 120 L 190 250 Z" fill="#020305" />
               {/* Person Shoulders/Body */}
-              <path d="M 100 110 C 65 110, 45 140, 40 180 L 35 250 L 165 250 L 160 180 C 155 140, 135 110, 100 110 Z" fill="#000" />
+              <path d="M 100 110 C 50 110, 30 150, 20 250 L 180 250 C 170 150, 150 110, 100 110 Z" fill="#000" />
               {/* Person Head */}
-              <circle cx="100" cy="85" r="32" fill="#000" />
+              <circle cx="100" cy="85" r="35" fill="#000" />
             </svg>
             
             {/* Animated Light reflection on the back of the head */}
             <motion.div 
-              className="absolute top-[10%] left-1/2 -translate-x-1/2 w-[80px] h-[20px] bg-blue-400/30 blur-2xl rounded-full"
+              className="absolute top-[8%] md:top-[10%] left-1/2 -translate-x-1/2 w-[80px] md:w-[120px] h-[20px] md:h-[30px] bg-blue-400/30 blur-2xl md:blur-3xl rounded-full"
               animate={{ opacity: [0.3, 0.8, 0.3], scale: [1, 1.2, 1] }}
               transition={{ duration: 0.8, repeat: Infinity, repeatType: "reverse", ease: "linear" }}
             />

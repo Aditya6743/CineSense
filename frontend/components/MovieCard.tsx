@@ -1,4 +1,10 @@
+"use client";
+
+import { motion } from "framer-motion";
 import Image from "next/image";
+import { Star, Heart } from "lucide-react";
+import Tilt from "react-parallax-tilt";
+import { useWatchlist } from "../hooks/useWatchlist";
 
 type MovieCardProps = {
   title: string;
@@ -17,43 +23,84 @@ export default function MovieCard({
   overview,
   onClick,
 }: MovieCardProps) {
+  const { isInWatchlist, toggleWatchlist } = useWatchlist();
+  const saved = isInWatchlist(title);
+
   return (
-    <div
-      onClick={onClick}
-      className="group cursor-pointer overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md transition-all duration-500 hover:-translate-y-2 hover:border-purple-500 hover:shadow-2xl hover:shadow-purple-500/20"
+    <Tilt
+      tiltMaxAngleX={12}
+      tiltMaxAngleY={12}
+      glareEnable={true}
+      glareMaxOpacity={0.3}
+      glareColor="#7C5CFF"
+      glarePosition="all"
+      transitionSpeed={2000}
+      scale={1.05}
+      className="cursor-pointer"
     >
-      {poster ? (
-        <div className="relative h-80 w-full overflow-hidden">
-          <Image
-            src={poster}
-            alt={title}
-            fill
-            sizes="(max-width:768px) 100vw, (max-width:1200px) 50vw, 33vw"
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
-          />
-        </div>
-      ) : (
-        <div className="flex h-80 items-center justify-center bg-gradient-to-br from-gray-800 to-gray-900 text-7xl">
-          🎬
-        </div>
-      )}
+      <motion.div
+        onClick={onClick}
+        className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl transition-all duration-300 hover:border-[#4EA8FF]/50 hover:shadow-[0_0_30px_rgba(78,168,255,0.4)]"
+      >
+        {/* Poster */}
+        <div className="relative h-[460px] overflow-hidden">
+          {poster ? (
+            <Image
+              src={poster}
+              alt={title}
+              fill
+              sizes="(max-width:768px)100vw,(max-width:1200px)50vw,33vw"
+              className="object-cover transition duration-700 group-hover:scale-110"
+            />
+          ) : (
+            <div className="flex h-full items-center justify-center bg-gradient-to-br from-slate-800 to-slate-950 text-8xl">
+              🎬
+            </div>
+          )}
 
-      <div className="space-y-3 p-5">
-        <h3 className="line-clamp-2 text-xl font-bold text-white">
-          {title}
-        </h3>
+          {/* Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent transition-opacity duration-300 group-hover:opacity-80" />
 
-        <div className="flex items-center justify-between text-sm text-gray-300">
-          <span>⭐ {rating ? rating.toFixed(1) : "N/A"}</span>
-          <span>📅 {release_date ? release_date.slice(0, 4) : "N/A"}</span>
+          {/* Rating Badge */}
+          <div className="absolute left-4 top-4 flex items-center gap-1 rounded-full bg-black/60 px-3 py-2 backdrop-blur-xl border border-white/10 group-hover:border-blue-400/30 transition-colors">
+            <Star className="h-4 w-4 fill-violet-400 text-violet-400" />
+            <span className="text-sm font-semibold text-white">
+              {rating ? rating.toFixed(1) : "N/A"}
+            </span>
+          </div>
+
+          {/* Watchlist Button */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleWatchlist({ title, poster, rating, release_date });
+            }}
+            className="absolute right-4 top-4 rounded-full bg-black/60 p-2.5 backdrop-blur-xl border border-white/10 hover:border-pink-500/50 hover:bg-pink-500/20 transition-all z-20 group/heart"
+          >
+            <Heart 
+              className={`h-5 w-5 transition-all ${saved ? "fill-pink-500 text-pink-500" : "text-white group-hover/heart:text-pink-400"}`} 
+            />
+          </button>
+
+          {/* Bottom */}
+          <div className="absolute bottom-0 w-full p-6 translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+            <h2 className="line-clamp-2 text-2xl font-bold text-white group-hover:text-blue-300 transition-colors pr-12">
+              {title}
+            </h2>
+            
+            {/* Year */}
+            <div className="mt-2 inline-block rounded-full bg-gradient-to-r from-violet-600/80 to-blue-600/80 px-2.5 py-0.5 text-xs font-semibold text-white shadow-[0_0_15px_rgba(124,92,255,0.4)] border border-white/10">
+              {release_date ? release_date.slice(0, 4) : "N/A"}
+            </div>
+
+            <p className="mt-3 line-clamp-3 text-sm leading-6 text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">
+              {overview?.trim()
+                ? overview
+                : "No overview available."}
+            </p>
+          </div>
         </div>
-
-        <p className="line-clamp-4 text-sm leading-6 text-gray-400">
-          {overview?.trim()
-            ? overview
-            : "No overview available for this movie."}
-        </p>
-      </div>
-    </div>
+      </motion.div>
+    </Tilt>
   );
 }

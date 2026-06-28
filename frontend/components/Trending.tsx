@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { motion } from "framer-motion";
 import MovieCard from "./MovieCard";
 
 type Movie = {
@@ -16,37 +17,79 @@ export default function Trending() {
   const [movies, setMovies] = useState<Movie[]>([]);
 
   useEffect(() => {
-  const fetchTrending = async () => {
-    try {
-      const res = await axios.get("http://127.0.0.1:8000/trending");
-      setMovies(res.data);
-    } catch (err) {
-      console.error("Trending fetch failed:", err);
-      setMovies([]);
-    }
-  };
+    const fetchTrending = async () => {
+      try {
+        const res = await axios.get("/api/trending");
+        setMovies(res.data);
+      } catch (err) {
+        console.error("Trending fetch failed:", err);
+        setMovies([]);
+      }
+    };
 
-  fetchTrending();
-}, []);
+    fetchTrending();
+  }, []);
 
   return (
-    <section className="mx-auto max-w-7xl px-6 py-20">
-      <h2 className="mb-10 text-center text-4xl font-bold text-white">
-        🔥 Trending This Week
-      </h2>
+    <motion.section
+      id="trending"
+      initial={{ opacity: 0, y: 80 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.8 }}
+      className="relative mx-auto max-w-7xl px-6 py-24"
+    >
+      {/* Section Glass */}
+      <div className="rounded-[40px] border border-white/10 bg-white/5 p-10 backdrop-blur-2xl shadow-[0_0_80px_rgba(124,58,237,0.15)]">
 
-      <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
-        {movies.map((movie) => (
-          <MovieCard
-            key={movie.title}
-            title={movie.title}
-            poster={movie.poster}
-            rating={movie.rating}
-            release_date={movie.release_date}
-            overview={movie.overview}
-          />
-        ))}
+        <div className="mb-12 text-center">
+          <motion.h2
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-5xl font-black tracking-tight bg-gradient-to-r from-violet-400 to-blue-400 bg-clip-text text-transparent"
+          >
+            🔥 Trending
+          </motion.h2>
+
+          <p className="mt-4 text-lg text-gray-400">
+            The hottest movies everyone watching this week.
+          </p>
+        </div>
+
+        {movies.length === 0 ? (
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="h-[460px] animate-pulse rounded-3xl bg-white/5 border border-white/10 relative overflow-hidden">
+                <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/5 to-transparent" />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+            {movies.map((movie, index) => (
+              <motion.div
+                key={movie.title}
+                initial={{ opacity: 0, y: 50 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{
+                  delay: index * 0.08,
+                  duration: 0.5,
+                }}
+              >
+                <MovieCard
+                  title={movie.title}
+                  poster={movie.poster}
+                  rating={movie.rating}
+                  release_date={movie.release_date}
+                  overview={movie.overview}
+                />
+              </motion.div>
+            ))}
+          </div>
+        )}
       </div>
-    </section>
+    </motion.section>
   );
 }

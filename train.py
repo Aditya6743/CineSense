@@ -1,9 +1,12 @@
 import pickle
 import pandas as pd
 import ast
+import json
 from nltk.stem.porter import PorterStemmer
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+import warnings
+warnings.filterwarnings('ignore')
 
 ps = PorterStemmer()
 
@@ -14,8 +17,8 @@ credits = pd.read_csv("data/tmdb_5000_credits.csv")
 # Merge datasets
 movies = movies.merge(credits, on="title")
 
-# Keep useful columns
-movies = movies[['movie_id','title','overview','genres','keywords','cast','crew']]
+# Keep useful columns including vote_average and vote_count for sorting ties (optional, but good to have)
+movies = movies[['movie_id', 'title', 'overview', 'genres', 'keywords', 'cast', 'crew', 'vote_average', 'vote_count']]
 movies.dropna(inplace=True)
 
 # ---------- Functions ----------
@@ -59,9 +62,20 @@ movies['keywords'] = movies['keywords'].apply(lambda x:[i.replace(" ","") for i 
 movies['cast'] = movies['cast'].apply(lambda x:[i.replace(" ","") for i in x])
 movies['crew'] = movies['crew'].apply(lambda x:[i.replace(" ","") for i in x])
 
-movies['tags'] = movies['overview'] + movies['genres'] + movies['keywords'] + movies['cast'] + movies['crew']
+movies['tags'] = movies['overview'] + (movies['genres'] * 2) + movies['keywords'] + (movies['cast'] * 2) + (movies['crew'] * 3)
 
-new_df = movies[['movie_id','title','tags']]
+# Adding weighted score calculation just to have it available in new_df for better sorting in backend
+C = movies['vote_average'].mean()
+m = movies['vote_count'].quantile(0.9)
+
+def weighted_rating(x, m=m, C=C):
+    v = x['vote_count']
+    R = x['vote_average']
+    return (v/(v+m) * R) + (m/(m+v) * C)
+
+movies['score'] = movies.apply(weighted_rating, axis=1)
+
+new_df = movies[['movie_id', 'title', 'tags', 'score']]
 
 new_df['tags'] = new_df['tags'].apply(lambda x: " ".join(x))
 new_df['tags'] = new_df['tags'].apply(lambda x: x.lower())
@@ -76,7 +90,8 @@ new_df['tags'] = new_df['tags'].apply(stem)
 
 # ---------- ML ----------
 
-cv = CountVectorizer(max_features=5000, stop_words='english')
+# Use CountVectorizer with 10k features instead of Tfidf (TF-IDF penalizes popular actors/directors, which is bad for movie similarity)
+cv = CountVectorizer(max_features=10000, stop_words='english')
 vectors = cv.fit_transform(new_df['tags']).toarray()
 
 similarity = cosine_similarity(vectors)
@@ -85,21 +100,33 @@ similarity = cosine_similarity(vectors)
 
 def recommend(movie):
     movie_index = new_df[new_df['title'] == movie].index[0]
-
     distances = similarity[movie_index]
-
-    movies_list = sorted(
-        list(enumerate(distances)),
-        reverse=True,
-        key=lambda x: x[1]
-    )[1:6]
-
-    print(f"\nMovies similar to {movie}:\n")
-
+    
+    # We can fetch top 15 similar and then sort them by our weighted score for top 5
+    movies_list = sorted(list(enumerate(distances)), reverse=True, key=lambda x: x[1])[1:16]
+    
+    # Sort top 15 by score
+    top_movies = []
     for i in movies_list:
-        print(new_df.iloc[i[0]].title)
+        idx = i[0]
+        top_movies.append({
+            'title': new_df.iloc[idx].title,
+            'score': new_df.iloc[idx].score,
+            'similarity': i[1]
+        })
+        
+    top_movies = sorted(top_movies, key=lambda x: (x['similarity'] * 0.7 + (x['score']/10) * 0.3), reverse=True)[:5]
+    
+    print(f"\nMovies similar to {movie}:\n")
+    for m in top_movies:
+        print(f"{m['title']} (Score: {m['score']:.2f}, Sim: {m['similarity']:.2f})")
 
 # Test
 recommend("Avatar")
 pickle.dump(new_df, open('models/movie_list.pkl', 'wb'))
 pickle.dump(similarity, open('models/similarity.pkl', 'wb'))
+
+# Export movie titles for backend autocomplete
+titles = new_df['title'].tolist()
+with open('models/movie_titles.json', 'w') as f:
+    json.dump(titles, f)

@@ -1,161 +1,274 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 from dotenv import load_dotenv
-import requests
-import pickle
+import httpx
+import asyncio
 import os
+import time
+import logging
+from contextlib import asynccontextmanager
+from cachetools import TTLCache
+from google import genai
+import asyncpg
+import json
+
+# Setup Structured Logging
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
+logger = logging.getLogger("CineSenseAPI")
 
 load_dotenv()
 
 TMDB_TOKEN = os.getenv("TMDB_API_TOKEN")
-
 HEADERS = {
     "Authorization": f"Bearer {TMDB_TOKEN}",
     "accept": "application/json",
 }
 
-app = FastAPI()
+# --- Caching Configuration ---
+tmdb_cache = TTLCache(maxsize=1000, ttl=43200)
+pitch_cache = TTLCache(maxsize=2000, ttl=86400)
+trending_cache = TTLCache(maxsize=1, ttl=3600)
+
+# Database URL
+DB_URL = os.getenv("DATABASE_URL")
+if DB_URL and "@" in DB_URL.split("://")[1].split("@")[0] and "%40" not in DB_URL:
+    # URL encode the password if it contains an unescaped @
+    auth_part, rest = DB_URL.split("://")[1].split("@", 1)
+    if "@" in auth_part:
+        user, pwd = auth_part.split(":", 1)
+        pwd = pwd.replace("@", "%40")
+        DB_URL = f"postgresql://{user}:{pwd}@{rest}"
+
+# --- Lifespan for Global Connection Pooling & DB Pool ---
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    logger.info("Initializing global HTTP connection pool...")
+    app.state.client = httpx.AsyncClient(limits=httpx.Limits(max_keepalive_connections=50, max_connections=100))
+    
+    logger.info("Initializing PostgreSQL connection pool...")
+    try:
+        app.state.db = await asyncpg.create_pool(DB_URL, min_size=1, max_size=10)
+        logger.info("PostgreSQL pool created successfully.")
+    except Exception as e:
+        logger.error(f"Failed to create PostgreSQL pool: {e}")
+        app.state.db = None
+        
+    yield
+    
+    logger.info("Closing HTTP connection pool...")
+    await app.state.client.aclose()
+    
+    if app.state.db:
+        logger.info("Closing PostgreSQL pool...")
+        await app.state.db.close()
+
+app = FastAPI(title="CineSense API", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=["*"], # Allow Vercel frontend domains
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Load ML model
-movies = pickle.load(open("../models/movie_list.pkl", "rb"))
-similarity = pickle.load(open("../models/similarity.pkl", "rb"))
-
-
 @app.get("/")
 def home():
-    return {"message": "Welcome to CineSense API 🚀"}
+    return {"message": "Welcome to CineSense API 🚀", "status": "Postgres Optimized & Ready"}
 
+@app.get("/search/suggestions")
+async def get_suggestions(request: Request, query: str = ""):
+    """Returns autocomplete suggestions for movie titles from Postgres"""
+    if not query:
+        return []
+    
+    if not request.app.state.db:
+        return []
 
-# Recommendation Function
-def recommend(movie):
-    movie_index = movies[movies["title"] == movie].index[0]
+    try:
+        async with request.app.state.db.acquire() as conn:
+            records = await conn.fetch(
+                "SELECT title FROM movies WHERE title ILIKE $1 LIMIT 10",
+                f"%{query}%"
+            )
+            return [r['title'] for r in records]
+    except Exception as e:
+        logger.error(f"Search error: {e}")
+        return []
 
-    distances = similarity[movie_index]
+async def get_similar_movies_db(db_pool, movie: str):
+    async with db_pool.acquire() as conn:
+        record = await conn.fetchrow("SELECT recommendations FROM movies WHERE title = $1", movie)
+        
+        if not record:
+            raise ValueError(f"Movie '{movie}' not found in dataset")
+            
+        # recommendations is stored as JSONB
+        if isinstance(record['recommendations'], str):
+            recommendations = json.loads(record['recommendations'])
+        else:
+            recommendations = record['recommendations']
+            
+        return recommendations
 
-    movies_list = sorted(
-        list(enumerate(distances)),
-        reverse=True,
-        key=lambda x: x[1]
-    )[1:6]
+# Fetch Movie Details from TMDB asynchronously with Retry Logic and Caching
+async def fetch_movie_details(client: httpx.AsyncClient, movie_info: dict, max_retries: int = 3):
+    movie_id = movie_info['movie_id']
+    title = movie_info['title']
+    
+    # Check cache first to save API calls
+    if movie_id in tmdb_cache:
+        logger.info(f"Cache HIT for {title}")
+        cached_data = tmdb_cache[movie_id].copy()
+        cached_data["score"] = movie_info.get("score")
+        cached_data["similarity"] = movie_info.get("similarity")
+        return cached_data
 
-    recommendations = []
+    logger.info(f"Cache MISS for {title}. Fetching from TMDB...")
+    
+    url = f"https://api.themoviedb.org/3/movie/{movie_id}"
+    
+    for attempt in range(max_retries):
+        try:
+            response = await client.get(
+                url,
+                headers=HEADERS,
+                params={"append_to_response": "credits,videos"},
+                timeout=10,
+            )
+            response.raise_for_status()
+            movie = response.json()
 
-    for i in movies_list:
-        recommendations.append(movies.iloc[i[0]].title)
+            poster = f"https://image.tmdb.org/t/p/w500{movie.get('poster_path')}" if movie.get("poster_path") else None
+            
+            genres = [g["name"] for g in movie.get("genres", [])]
+            cast = [c["name"] for c in movie.get("credits", {}).get("cast", [])[:5]]
+            
+            trailer_url = None
+            videos = movie.get("videos", {}).get("results", [])
+            trailers = [v for v in videos if v.get("type") == "Trailer" and v.get("site") == "YouTube"]
+            if trailers:
+                trailer_url = f"https://www.youtube.com/watch?v={trailers[0]['key']}"
 
-    return recommendations
-
-
-# Fetch Movie Details from TMDB
-def get_movie_details(title):
-    url = "https://api.themoviedb.org/3/search/movie"
-
-    response = requests.get(
-        url,
-        headers=HEADERS,
-        params={"query": title},
-        timeout=10,
-    )
-
-    response.raise_for_status()
-
-    data = response.json()
-
-    if not data["results"]:
-        return {
-            "title": title,
-            "poster": None,
-            "rating": None,
-            "release_date": None,
-            "overview": None,
-        }
-
-    movie = data["results"][0]
-
-    poster = None
-
-    if movie.get("poster_path"):
-        poster = "https://image.tmdb.org/t/p/w500" + movie["poster_path"]
-
-    return {
-        "title": movie["title"],
-        "poster": poster,
-        "rating": movie["vote_average"],
-        "release_date": movie["release_date"],
-        "overview": movie["overview"],
-    }
-
+            result = {
+                "movie_id": movie_id,
+                "title": movie.get("title", title),
+                "poster": poster,
+                "rating": movie.get("vote_average"),
+                "release_date": movie.get("release_date"),
+                "overview": movie.get("overview"),
+                "runtime": movie.get("runtime"),
+                "genres": genres,
+                "cast": cast,
+                "trailer_url": trailer_url,
+                "language": str(movie.get("original_language", "")).upper()
+            }
+            
+            tmdb_cache[movie_id] = result
+            
+            final_result = result.copy()
+            final_result["score"] = movie_info.get("score")
+            final_result["similarity"] = movie_info.get("similarity")
+            
+            return final_result
+            
+        except Exception as e:
+            logger.error(f"Attempt {attempt + 1} failed fetching TMDB data for ID {movie_id} ({title}): {e}")
+            if attempt < max_retries - 1:
+                await asyncio.sleep(1 * (attempt + 1))
+            else:
+                return {
+                    "movie_id": movie_id,
+                    "title": title,
+                    "poster": None,
+                    "rating": None,
+                    "release_date": None,
+                    "overview": None,
+                    "score": movie_info.get("score"),
+                    "similarity": movie_info.get("similarity"),
+                    "runtime": None,
+                    "genres": [],
+                    "cast": [],
+                    "trailer_url": None,
+                    "language": None
+                }
 
 @app.get("/recommend/{movie_name}")
-def get_recommendations(movie_name: str):
-    recommendations = recommend(movie_name)
+async def get_recommendations(request: Request, movie_name: str):
+    if not request.app.state.db:
+        raise HTTPException(status_code=500, detail="Database connection failed")
+        
+    try:
+        similar_movies = await get_similar_movies_db(request.app.state.db, movie_name)
+    except ValueError as e:
+        logger.warning(f"Recommendation failed: {e}")
+        raise HTTPException(status_code=404, detail=str(e))
 
-    print("Recommendations:", recommendations)
-
-    movies_data = []
-
-    for movie in recommendations:
-        print("Fetching:", movie)
-
-        try:
-            data = get_movie_details(movie)
-            movies_data.append(data)
-
-        except Exception as e:
-            print("Failed on:", movie)
-            print(e)
-
-            movies_data.append({
-                "title": movie,
-                "poster": None,
-                "rating": None,
-                "release_date": None,
-                "overview": None,
-            })
+    client = request.app.state.client
+    tasks = [fetch_movie_details(client, m) for m in similar_movies]
+    movies_data = await asyncio.gather(*tasks)
 
     return {
         "movie": movie_name,
         "recommendations": movies_data
     }
+
 @app.get("/trending")
-def get_trending():
+async def get_trending(request: Request):
+    if "data" in trending_cache:
+        return trending_cache["data"]
+        
     try:
         url = "https://api.themoviedb.org/3/trending/movie/week"
-
-        response = requests.get(
-            url,
-            headers=HEADERS,
-            timeout=10,
-        )
-
+        client = request.app.state.client
+        response = await client.get(url, headers=HEADERS, timeout=10)
         response.raise_for_status()
-
         data = response.json()
 
-        movies = []
-
+        movies_data = []
         for movie in data.get("results", [])[:12]:
-            movies.append({
+            movies_data.append({
+                "movie_id": movie.get("id"),
                 "title": movie.get("title"),
-                "poster": (
-                    "https://image.tmdb.org/t/p/w500"
-                    + movie["poster_path"]
-                ) if movie.get("poster_path") else None,
+                "poster": f"https://image.tmdb.org/t/p/w500{movie['poster_path']}" if movie.get("poster_path") else None,
                 "rating": movie.get("vote_average"),
                 "release_date": movie.get("release_date"),
                 "overview": movie.get("overview"),
             })
 
-        return movies
+        trending_cache["data"] = movies_data
+        return movies_data
 
     except Exception as e:
-        print("Trending Error:", e)
+        logger.error(f"Trending Error: {e}")
         return []
+
+@app.get("/generate-pitch")
+async def generate_pitch(query: str, recommended: str):
+    cache_key = f"{query}_{recommended}"
+    if cache_key in pitch_cache:
+        logger.info(f"Pitch Cache HIT for {cache_key}")
+        return {"pitch": pitch_cache[cache_key]}
+        
+    api_key = os.getenv("GEMINI_API_KEY")
+    fallback_pitch = f"Because you enjoyed '{query}', we highly recommend '{recommended}'. It shares deep stylistic and thematic similarities that align perfectly with your taste."
+    
+    if not api_key:
+        return {"pitch": fallback_pitch}
+        
+    try:
+        logger.info(f"Generating AI pitch for {cache_key}...")
+        client = genai.Client(api_key=api_key)
+        prompt = f"Write a short, engaging, 2-sentence movie pitch explaining why a fan of '{query}' would absolutely love '{recommended}'. Be enthusiastic and focus on thematic similarities. Do not use quotes or introductory phrases, just give the pitch."
+        
+        response = client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=prompt,
+        )
+        
+        pitch_cache[cache_key] = response.text
+        return {"pitch": response.text}
+    except Exception as e:
+        logger.error(f"GenAI Error: {e}")
+        return {"pitch": fallback_pitch}

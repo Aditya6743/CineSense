@@ -38,6 +38,8 @@ export default function CustomCursor() {
       }
       
       const target = e.target as HTMLElement;
+      if (!target || typeof target.closest !== 'function') return;
+      
       // Check if it has data-magnetic or is clickable
       const isMagnetic = target.closest('[data-magnetic="true"]');
       let shouldHover = false;

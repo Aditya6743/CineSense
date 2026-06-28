@@ -58,7 +58,11 @@ export default function Preloader({ onComplete }: { onComplete: () => void }) {
 
   const handleEnter = () => {
     if (!readyToEnter) return;
-    playWhoosh();
+    try {
+      playWhoosh();
+    } catch (e) {
+      console.warn("Audio playback failed on mobile:", e);
+    }
     setReadyToEnter(false);
     setTimeout(() => {
       onComplete();

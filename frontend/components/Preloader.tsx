@@ -29,6 +29,7 @@ export default function Preloader({ onComplete }: { onComplete: () => void }) {
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
+      if (window.innerWidth < 768) return; // Disable tilt on mobile to fix jerking
       const x = (e.clientX / window.innerWidth) - 0.5;
       const y = (e.clientY / window.innerHeight) - 0.5;
       mouseX.set(x);
@@ -88,11 +89,11 @@ export default function Preloader({ onComplete }: { onComplete: () => void }) {
           transition={{ duration: 0.8, ease: [0.76, 0, 0.24, 1] }}
           className="fixed inset-0 z-[99999] flex flex-col items-center justify-center bg-[#05070A] perspective-1000 overflow-hidden"
         >
-          {/* Animated background rings */}
+          {/* Animated background rings (Hidden on mobile to prevent shimmering/lag) */}
           <motion.div 
             animate={{ rotate: 360, scale: [1, 1.05, 1] }}
             transition={{ rotate: { duration: 20, repeat: Infinity, ease: "linear" }, scale: { duration: 4, repeat: Infinity, ease: "easeInOut" } }}
-            className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-20"
+            className="hidden md:flex absolute inset-0 items-center justify-center pointer-events-none opacity-20"
           >
             <div className="w-[80vw] h-[80vw] md:w-[40vw] md:h-[40vw] rounded-full border-[1px] border-dashed border-violet-500/30" />
             <div className="absolute w-[60vw] h-[60vw] md:w-[30vw] md:h-[30vw] rounded-full border-[1px] border-blue-500/20" />

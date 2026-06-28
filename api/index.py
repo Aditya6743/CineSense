@@ -91,9 +91,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.get("/")
 @app.get("/api")
 def home():
-    return {"message": "Welcome to CineSense API 🚀", "status": "Postgres Optimized & Ready"}
+    return {"message": "Welcome to CineSense API 🚀", "status": "Postgres Optimized & Ready", "docs": "/docs"}
 
 @app.get("/search/suggestions")
 @app.get("/api/search/suggestions")

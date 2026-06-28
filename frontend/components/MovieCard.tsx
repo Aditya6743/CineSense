@@ -28,19 +28,16 @@ export default function MovieCard({
 
   return (
     <Tilt
-      tiltMaxAngleX={12}
-      tiltMaxAngleY={12}
-      glareEnable={true}
-      glareMaxOpacity={0.3}
-      glareColor="#7C5CFF"
-      glarePosition="all"
-      transitionSpeed={2000}
-      scale={1.05}
+      tiltMaxAngleX={5}
+      tiltMaxAngleY={5}
+      glareEnable={false}
+      transitionSpeed={400}
+      scale={1.02}
       className="cursor-pointer"
     >
       <motion.div
         onClick={onClick}
-        className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl transition-all duration-300 hover:border-[#4EA8FF]/50 hover:shadow-[0_0_30px_rgba(78,168,255,0.4)]"
+        className="group relative overflow-hidden rounded-3xl border border-white/10 bg-[#0a0f16] shadow-2xl transition-all duration-300 hover:border-[#4EA8FF]/50 hover:shadow-[0_0_30px_rgba(78,168,255,0.4)]"
       >
         {/* Poster */}
         <div className="relative h-[460px] overflow-hidden">

@@ -61,26 +61,25 @@ export default function Trending() {
         </div>
 
         {movies.length === 0 ? (
-          <div className="flex gap-8 overflow-x-auto pb-8 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-            {[...Array(5)].map((_, i) => (
-              <div key={i} className="min-w-[280px] md:min-w-[320px] h-[460px] shrink-0 snap-center animate-pulse rounded-3xl bg-white/5 border border-white/10 relative overflow-hidden">
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="h-[460px] animate-pulse rounded-3xl bg-white/5 border border-white/10 relative overflow-hidden">
                 <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/5 to-transparent" />
               </div>
             ))}
           </div>
         ) : (
-          <div className="flex gap-8 overflow-x-auto pb-8 pt-4 px-4 -mx-4 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
             {movies.map((movie, index) => (
               <motion.div
                 key={movie.title}
-                initial={{ opacity: 0, x: 50 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
+                initial={{ opacity: 0, y: 50 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
                 transition={{
-                  delay: index * 0.05,
+                  delay: index * 0.08,
                   duration: 0.5,
                 }}
-                className="min-w-[280px] md:min-w-[320px] shrink-0 snap-center"
               >
                 <MovieCard
                   title={movie.title}

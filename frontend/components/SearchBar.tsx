@@ -163,7 +163,7 @@ export default function SearchBar() {
                   initial={{ opacity: 0, y: 10, scale: 0.98 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 10, scale: 0.98 }}
-                  className="absolute left-0 right-0 top-full mt-4 rounded-3xl border border-white/10 bg-[#05070A]/95 backdrop-blur-2xl shadow-2xl overflow-hidden"
+                  className="absolute z-[999] left-0 right-0 top-full mt-4 rounded-3xl border border-white/10 bg-[#05070A]/95 backdrop-blur-2xl shadow-2xl overflow-hidden"
                 >
                   <ul className="max-h-64 overflow-y-auto p-2">
                     {suggestions.map((suggestion, index) => (

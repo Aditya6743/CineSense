@@ -51,10 +51,13 @@ app = FastAPI(title="CineSense API")
 async def get_db_pool():
     if not hasattr(app.state, 'db') or app.state.db is None:
         try:
+            if not DB_URL:
+                raise ValueError("DATABASE_URL environment variable is missing on Vercel!")
             logger.info("Initializing PostgreSQL pool lazily...")
             app.state.db = await asyncpg.create_pool(DB_URL, min_size=1, max_size=10, ssl="require")
         except Exception as e:
             logger.error(f"Failed to create PostgreSQL pool: {e}")
+            app.state.db_error = str(e)
             app.state.db = None
     return app.state.db
 
@@ -197,8 +200,10 @@ async def fetch_movie_details(client: httpx.AsyncClient, movie_info: dict, max_r
 @app.get("/recommend/{movie_name}")
 @app.get("/api/recommend/{movie_name}")
 async def get_recommendations(request: Request, movie_name: str):
-    if not await get_db_pool():
-        raise HTTPException(status_code=500, detail="Database connection failed")
+    db_pool = await get_db_pool()
+    if not db_pool:
+        error_msg = getattr(request.app.state, 'db_error', 'Unknown Error')
+        raise HTTPException(status_code=500, detail=f"Database connection failed: {error_msg}")
         
     try:
         similar_movies = await get_similar_movies_db(await get_db_pool(), movie_name)

@@ -55,7 +55,10 @@ export default function Preloader({ onComplete }: { onComplete: () => void }) {
           key="cinematic-preloader"
           exit={{ opacity: 0 }}
           transition={{ duration: 1, ease: "easeInOut" }}
-          className="fixed inset-0 z-[99999] flex flex-col items-center justify-center bg-[#020305] perspective-[1200px] overflow-hidden"
+          onClick={() => {
+            if (readyToEnter) handleEnter();
+          }}
+          className={`fixed inset-0 z-[99999] flex flex-col items-center justify-center bg-[#020305] perspective-[1200px] overflow-hidden ${readyToEnter ? 'cursor-pointer' : ''}`}
         >
           {/* Subtle atmospheric particles */}
           <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-10 mix-blend-overlay pointer-events-none animate-[pulse_4s_infinite]" />

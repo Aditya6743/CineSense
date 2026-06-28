@@ -9,6 +9,7 @@ import * as THREE from "three";
 
 function Particles({ count = 300, color = "#7C5CFF", speed = 1, parallax = 0.5, radius = 2.5 }: { count?: number, color?: string, speed?: number, parallax?: number, radius?: number }) {
   const ref = useRef<THREE.Points>(null);
+  const isMobile = typeof window !== 'undefined' ? window.innerWidth < 768 : false;
   
   const positions = useMemo(() => {
     const p = new Float32Array(count * 3);
@@ -30,12 +31,14 @@ function Particles({ count = 300, color = "#7C5CFF", speed = 1, parallax = 0.5, 
       ref.current.rotation.x -= delta * 0.05 * speed;
       ref.current.rotation.y -= delta * 0.07 * speed;
       
-      // Magnetic parallax effect based on cursor
-      const targetX = state.mouse.x * parallax;
-      const targetY = state.mouse.y * parallax;
-      
-      ref.current.position.x = THREE.MathUtils.lerp(ref.current.position.x, targetX, 0.05);
-      ref.current.position.y = THREE.MathUtils.lerp(ref.current.position.y, targetY, 0.05);
+      if (!isMobile) {
+        // Magnetic parallax effect based on cursor
+        const targetX = state.mouse.x * parallax;
+        const targetY = state.mouse.y * parallax;
+        
+        ref.current.position.x = THREE.MathUtils.lerp(ref.current.position.x, targetX, 0.05);
+        ref.current.position.y = THREE.MathUtils.lerp(ref.current.position.y, targetY, 0.05);
+      }
     }
   });
 
@@ -58,9 +61,10 @@ import { motion } from "framer-motion";
 
 function HolographicOrb() {
   const groupRef = useRef<THREE.Group>(null);
+  const isMobile = typeof window !== 'undefined' ? window.innerWidth < 768 : false;
 
   useFrame((state) => {
-    if (!groupRef.current) return;
+    if (!groupRef.current || isMobile) return;
     
     // Magnetic mouse tracking
     const targetX = state.mouse.x * 1.5;

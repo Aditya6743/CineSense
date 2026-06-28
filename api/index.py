@@ -86,7 +86,8 @@ async def get_suggestions(request: Request, query: str = ""):
         return []
 
     try:
-        async with await get_db_pool().acquire() as conn:
+        db_pool = await get_db_pool()
+        async with db_pool.acquire() as conn:
             records = await conn.fetch(
                 "SELECT title FROM movies WHERE title ILIKE $1 LIMIT 10",
                 f"%{query}%"

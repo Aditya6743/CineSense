@@ -42,10 +42,10 @@ export default function Hero() {
         className="absolute bottom-20 right-20 w-48 h-48 rounded-full bg-gradient-to-bl from-blue-500/20 to-fuchsia-500/20"
       />
 
-      <div className="relative mx-auto max-w-6xl text-center z-10">
+      <div className="relative w-full min-w-0 mx-auto max-w-6xl text-center z-10 px-2 sm:px-0">
         
         {/* Animated Headline */}
-        <h1 className="text-5xl sm:text-6xl font-black leading-tight md:text-8xl perspective-1000">
+        <h1 className="text-4xl sm:text-5xl font-black leading-tight md:text-8xl perspective-1000">
           {headline.map((word, index) => (
             <motion.span
               key={index}

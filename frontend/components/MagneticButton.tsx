@@ -2,22 +2,26 @@
 
 import { motion, useMotionValue, useSpring } from "framer-motion";
 import { useRef, useState, ReactNode } from "react";
+import { useUISound } from "../hooks/useUISound";
 
 interface MagneticButtonProps {
   children: ReactNode;
   className?: string;
   onClick?: () => void;
   magneticStrength?: number;
+  onMouseEnter?: () => void;
 }
 
 export default function MagneticButton({
   children,
   className = "",
   onClick,
-  magneticStrength = 0.2
+  magneticStrength = 0.2,
+  onMouseEnter
 }: MagneticButtonProps) {
   const ref = useRef<HTMLDivElement>(null);
   const [isHovered, setIsHovered] = useState(false);
+  const { playHover, playClick } = useUISound();
   
   const x = useMotionValue(0);
   const y = useMotionValue(0);
@@ -40,6 +44,17 @@ export default function MagneticButton({
     y.set((clientY - centerY) * magneticStrength);
   };
 
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+    playHover();
+    if (onMouseEnter) onMouseEnter();
+  };
+
+  const handleClick = () => {
+    playClick();
+    if (onClick) onClick();
+  };
+
   const handleMouseLeave = () => {
     setIsHovered(false);
     x.set(0);
@@ -50,9 +65,9 @@ export default function MagneticButton({
     <motion.div
       ref={ref}
       onMouseMove={handleMouseMove}
-      onMouseEnter={() => setIsHovered(true)}
+      onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      onClick={onClick}
+      onClick={handleClick}
       style={{ x: smoothX, y: smoothY }}
       className={`relative flex items-center justify-center overflow-hidden transition-colors cursor-pointer ${className}`}
       data-magnetic="true" // Integrates with our custom cursor!

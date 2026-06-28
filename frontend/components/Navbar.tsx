@@ -5,10 +5,12 @@ import { Film } from "lucide-react";
 import { FaGithub } from "react-icons/fa";
 import MagneticButton from "./MagneticButton";
 import { useState } from "react";
+import { useUISound } from "../hooks/useUISound";
 
 export default function Navbar() {
   const { scrollY } = useScroll();
   const [scrolled, setScrolled] = useState(false);
+  const { playHover, playClick } = useUISound();
 
   useMotionValueEvent(scrollY, "change", (latest) => {
     setScrolled(latest > 50);
@@ -32,7 +34,11 @@ export default function Navbar() {
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
 
         {/* Logo */}
-        <div className="flex items-center gap-3 cursor-pointer group">
+        <div 
+          className="flex items-center gap-3 cursor-pointer group"
+          onMouseEnter={playHover}
+          onClick={() => { playClick(); window.scrollTo(0, 0); }}
+        >
           <motion.div
             whileHover={{
               rotate: 180,

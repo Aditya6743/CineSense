@@ -111,9 +111,7 @@ function HolographicOrb() {
     </group>
   );
 
-  return isMobile ? (
-    <>{content}</>
-  ) : (
+  return isMobile ? null : (
     <Float floatIntensity={3} rotationIntensity={1} speed={2}>
       {content}
     </Float>

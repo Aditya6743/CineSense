@@ -5,6 +5,7 @@ import Image from "next/image";
 import { Star, Heart } from "lucide-react";
 import Tilt from "react-parallax-tilt";
 import { useWatchlist } from "../hooks/useWatchlist";
+import { useUISound } from "../hooks/useUISound";
 
 type MovieCardProps = {
   title: string;
@@ -25,6 +26,12 @@ export default function MovieCard({
 }: MovieCardProps) {
   const { isInWatchlist, toggleWatchlist } = useWatchlist();
   const saved = isInWatchlist(title);
+  const { playHover, playClick } = useUISound();
+
+  const handleCardClick = () => {
+    playClick();
+    if (onClick) onClick();
+  };
 
   return (
     <Tilt
@@ -34,9 +41,10 @@ export default function MovieCard({
       transitionSpeed={400}
       scale={1.02}
       className="cursor-pointer"
+      onEnter={playHover}
     >
       <motion.div
-        onClick={onClick}
+        onClick={handleCardClick}
         className="group relative overflow-hidden rounded-3xl border border-white/10 bg-[#0a0f16] shadow-2xl transition-all duration-300 hover:border-[#4EA8FF]/50 hover:shadow-[0_0_30px_rgba(78,168,255,0.4)]"
       >
         {/* Poster */}

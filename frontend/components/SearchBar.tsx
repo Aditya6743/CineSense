@@ -109,10 +109,10 @@ export default function SearchBar() {
       } else {
         setRecommendations([]);
       }
-    } catch (error) {
-      // Intentionally not using console.error to prevent Next.js dev server from popping up a red error overlay
-      console.warn("Movie not found:", searchQuery);
-      alert(`The movie "${searchQuery}" was not found in the AI dataset! Try selecting a valid movie from the autocomplete suggestions.`);
+    } catch (error: any) {
+      console.error("Search error details:", error);
+      const errorMsg = error.response?.data?.detail || error.message || "Unknown error";
+      alert(`Error fetching recommendations for "${searchQuery}":\n\n${errorMsg}\n\n(Status: ${error.response?.status || 'Network Error'})`);
       setRecommendations([]);
     } finally {
       setLoading(false);

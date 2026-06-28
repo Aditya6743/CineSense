@@ -8,16 +8,14 @@ from sklearn.metrics.pairwise import cosine_similarity
 import warnings
 warnings.filterwarnings('ignore')
 
+import numpy as np
+
 ps = PorterStemmer()
 
-# Load datasets
-movies = pd.read_csv("data/tmdb_5000_movies.csv")
-credits = pd.read_csv("data/tmdb_5000_credits.csv")
+# Load 30k dataset
+movies = pd.read_csv("data/tmdb_30000_data.csv")
 
-# Merge datasets
-movies = movies.merge(credits, on="title")
-
-# Keep useful columns including vote_average and vote_count for sorting ties (optional, but good to have)
+# Keep useful columns including vote_average and vote_count for sorting ties
 movies = movies[['movie_id', 'title', 'overview', 'genres', 'keywords', 'cast', 'crew', 'vote_average', 'vote_count']]
 movies.dropna(inplace=True)
 
@@ -94,7 +92,7 @@ new_df['tags'] = new_df['tags'].apply(stem)
 cv = CountVectorizer(max_features=10000, stop_words='english')
 vectors = cv.fit_transform(new_df['tags']).toarray()
 
-similarity = cosine_similarity(vectors)
+similarity = cosine_similarity(vectors).astype(np.float32)
 
 # ---------- Recommendation ----------
 

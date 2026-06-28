@@ -207,7 +207,7 @@ export default function SearchBar() {
           ref={resultsRef}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="mt-24 scroll-mt-32"
+          className="mt-24 scroll-mt-32 w-full max-w-full min-w-0 overflow-hidden"
         >
           <div className="mb-14 text-center">
             <h2 className="text-3xl md:text-5xl font-black bg-gradient-to-r from-white via-blue-100 to-violet-300 bg-clip-text text-transparent">

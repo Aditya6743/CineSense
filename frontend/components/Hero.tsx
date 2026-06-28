@@ -27,7 +27,7 @@ export default function Hero() {
   const headline = "Discover Your Next Favorite Movie".split(" ");
 
   return (
-    <section ref={containerRef} className="relative overflow-hidden px-6 pt-32 pb-24 min-h-[90vh] flex flex-col justify-center">
+    <section ref={containerRef} className="relative overflow-hidden px-6 pt-32 pb-24 min-h-[90vh] flex flex-col justify-center w-full max-w-[100vw]">
 
       {/* Floating Elements */}
       <Hero3D />
@@ -45,7 +45,7 @@ export default function Hero() {
       <div className="relative mx-auto max-w-6xl text-center z-10">
         
         {/* Animated Headline */}
-        <h1 className="text-6xl font-black leading-tight md:text-8xl perspective-1000">
+        <h1 className="text-5xl sm:text-6xl font-black leading-tight md:text-8xl perspective-1000">
           {headline.map((word, index) => (
             <motion.span
               key={index}

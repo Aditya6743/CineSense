@@ -47,13 +47,17 @@ function MainContent() {
           </div>
 
           <Navbar />
-          <Hero />
-          <Trending />
-          <Timeline />
-          <Testimonials />
-          <FAQ />
-          <CTA />
-          <Footer />
+          {/* We keep Hero for the SearchBar functionality, but make it interact with the 3D later */}
+          <div className="relative z-10 pointer-events-auto">
+            <Hero />
+          </div>
+          
+          {/* 
+            MASSIVE INVISIBLE SCROLL AREA 
+            Since we deleted the traditional HTML sections, we must force the DOM to be 
+            tall enough to allow the user to scroll through the 3D universes (Sphere & Tunnel).
+          */}
+          <div className="h-[800vh] w-full pointer-events-none" />
         </>
       )}
     </main>

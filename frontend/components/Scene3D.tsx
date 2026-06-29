@@ -8,6 +8,9 @@ import { EffectComposer, Bloom, ChromaticAberration, DepthOfField, Noise } from 
 import { BlendFunction } from "postprocessing";
 import { useLenis } from "lenis/react";
 
+import PosterSphere from "./PosterSphere";
+import NeonTunnel from "./NeonTunnel";
+
 function CameraRig() {
   const { camera } = useThree();
   const lenis = useLenis();
@@ -20,8 +23,8 @@ function CameraRig() {
     
     // Cinematic camera path
     // At top (0), camera is at z=5
-    // As we scroll, we move forward through the scene
-    camera.position.z = THREE.MathUtils.lerp(5, -20, progress);
+    // Scroll deep into the PosterSphere (z=-40) and through the NeonTunnel (z=-150)
+    camera.position.z = THREE.MathUtils.lerp(5, -160, progress);
     
     // Add subtle bobbing/breathing effect
     camera.position.y = Math.sin(state.clock.elapsedTime * 0.5) * 0.2;
@@ -46,9 +49,10 @@ function CinematicDust() {
     
     const color = new THREE.Color();
     for (let i = 0; i < count; i++) {
-      positions[i * 3] = (Math.random() - 0.5) * 40; // x
-      positions[i * 3 + 1] = (Math.random() - 0.5) * 30; // y
-      positions[i * 3 + 2] = (Math.random() - 0.5) * 60 - 15; // z
+      positions[i * 3] = (Math.random() - 0.5) * 60; // x
+      positions[i * 3 + 1] = (Math.random() - 0.5) * 40; // y
+      // Spread particles all the way through the new universes (down to z=-180)
+      positions[i * 3 + 2] = (Math.random() - 0.5) * 200 - 90; // z
       
       color.setHSL(0.6 + Math.random() * 0.2, 0.8, 0.5 + Math.random() * 0.5);
       colors[i * 3] = color.r;
@@ -70,7 +74,7 @@ function CinematicDust() {
   return (
     <points ref={pointsRef} geometry={particles}>
       <pointsMaterial
-        size={0.08}
+        size={0.1}
         vertexColors
         transparent
         opacity={0.4}
@@ -89,14 +93,13 @@ export default function Scene3D() {
       <ambientLight intensity={0.5} />
       <directionalLight position={[10, 10, 5]} intensity={1} color="#ffffff" />
       
-      {/* 
-        Removed Environment and heavy MeshTransmissionMaterials 
-        to recover 60-120 FPS overhead for the upcoming InstancedMesh universes 
-      */}
-      
       {/* Elements */}
       <CameraRig />
       <CinematicDust />
+      
+      {/* Universes */}
+      <PosterSphere count={250} radius={25} />
+      <NeonTunnel count={200} length={100} radius={8} />
       
       {/* Highly Optimized Post Processing */}
       <EffectComposer multisampling={0}>

@@ -82,15 +82,25 @@ export default function NeonTunnel({ count = 60, length = 200, radius = 10, onMo
 function InteractiveTunnelPoster({ movie, position, rotation, onClick }: any) {
   const meshRef = useRef<any>(null);
   const [hovered, setHovered] = useState(false);
+  const lenis = useLenis();
 
   useFrame(() => {
     if (!meshRef.current) return;
-    // When hovered, pull the poster slightly off the tunnel wall towards the center
+    
+    // Hover logic
     const targetScale = hovered ? 1.2 : 1;
-    const targetZ = hovered ? 2 : 0; // Local translation towards center
+    const targetZ = hovered ? 3 : 0; // Local translation towards center
     
     meshRef.current.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.1);
     meshRef.current.position.z = THREE.MathUtils.lerp(meshRef.current.position.z, targetZ, 0.1);
+    
+    // Scroll tilting logic
+    if (lenis && typeof lenis.velocity === 'number') {
+      const targetTilt = THREE.MathUtils.clamp(lenis.velocity * 0.05, -Math.PI / 4, Math.PI / 4);
+      meshRef.current.rotation.x = THREE.MathUtils.lerp(meshRef.current.rotation.x, targetTilt, 0.1);
+    } else {
+      meshRef.current.rotation.x = THREE.MathUtils.lerp(meshRef.current.rotation.x, 0, 0.1);
+    }
   });
 
   const posterUrl = movie.poster || "https://via.placeholder.com/256x384/4e5cff/ffffff?text=No+Poster";
@@ -110,14 +120,13 @@ function InteractiveTunnelPoster({ movie, position, rotation, onClick }: any) {
         onPointerOut={() => {
           setHovered(false);
           document.body.style.cursor = "auto";
-          // Important: reset local position Z when unhovered
           if(meshRef.current) meshRef.current.position.z = 0;
         }}
         onClick={(e) => {
           e.stopPropagation();
           onClick();
         }}
-        scale={[4, 6]} 
+        scale={[8, 12]} 
       />
     </group>
   );

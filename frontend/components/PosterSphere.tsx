@@ -7,7 +7,7 @@ import { useLenis } from "lenis/react";
 import { Image } from "@react-three/drei";
 import axios from "axios";
 
-export default function PosterSphere({ count = 40, radius = 25, onMovieSelect }: { count?: number, radius?: number, onMovieSelect?: (movie: any) => void }) {
+export default function PosterSphere({ count = 60, radius = 25, onMovieSelect }: { count?: number, radius?: number, onMovieSelect?: (movie: any) => void }) {
   const groupRef = useRef<THREE.Group>(null);
   const lenis = useLenis();
   const [movies, setMovies] = useState<any[]>([]);

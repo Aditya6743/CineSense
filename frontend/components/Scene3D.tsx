@@ -92,65 +92,7 @@ function CinematicDust() {
   );
 }
 
-function EndUniverse() {
-  const groupRef = useRef<THREE.Group>(null);
-  useFrame((state) => {
-    if (groupRef.current) {
-      groupRef.current.position.y = Math.sin(state.clock.elapsedTime * 2) * 0.5;
-    }
-  });
 
-  return (
-    <group position={[0, 0, -310]} ref={groupRef}>
-      <Center position={[0, 2, 0]}>
-        <Text3D 
-          font="https://raw.githubusercontent.com/mrdoob/three.js/master/examples/fonts/helvetiker_bold.typeface.json"
-          size={5}
-          height={1.5}
-          curveSegments={12}
-          bevelEnabled
-          bevelThickness={0.2}
-          bevelSize={0.05}
-          bevelOffset={0}
-          bevelSegments={5}
-        >
-          CINESENSE
-          <meshPhysicalMaterial 
-            color="#00f5d4" 
-            emissive="#00f5d4" 
-            emissiveIntensity={2} 
-            metalness={0.9} 
-            roughness={0.1} 
-            clearcoat={1} 
-            clearcoatRoughness={0.1}
-          />
-        </Text3D>
-      </Center>
-      
-      <Center position={[0, -3, 0]}>
-        <Text3D 
-          font="https://raw.githubusercontent.com/mrdoob/three.js/master/examples/fonts/helvetiker_regular.typeface.json"
-          size={1.5}
-          height={0.5}
-          curveSegments={12}
-          bevelEnabled
-          bevelThickness={0.05}
-          bevelSize={0.02}
-          bevelSegments={3}
-        >
-          The Future of Cinema
-          <meshPhysicalMaterial 
-            color="#ffffff" 
-            metalness={0.8} 
-            roughness={0.2} 
-            transmission={0.5} 
-            thickness={0.5}
-          />
-        </Text3D>
-      </Center>
-    </group>
-  );
-}
 
 export default function Scene3D({ onMovieSelect }: { onMovieSelect?: (movie: any) => void }) {
   return (
@@ -164,12 +106,11 @@ export default function Scene3D({ onMovieSelect }: { onMovieSelect?: (movie: any
       <CinematicDust />
       
       {/* Universes */}
-      <PosterSphere count={150} radius={25} onMovieSelect={onMovieSelect} />
+      <PosterSphere count={60} radius={25} onMovieSelect={onMovieSelect} />
       {/* Move tunnel further back to z=-80, make it 200 long */}
       <group position={[0, 0, -30]}> 
-        <NeonTunnel count={100} length={200} radius={10} onMovieSelect={onMovieSelect} />
+        <NeonTunnel count={60} length={200} radius={10} onMovieSelect={onMovieSelect} />
       </group>
-      <EndUniverse />
       
       {/* Highly Optimized Post Processing */}
       <EffectComposer multisampling={0}>

@@ -7,7 +7,7 @@ import { useLenis } from "lenis/react";
 import { Image } from "@react-three/drei";
 import axios from "axios";
 
-export default function NeonTunnel({ count = 40, length = 200, radius = 10, onMovieSelect }: { count?: number, length?: number, radius?: number, onMovieSelect?: (movie: any) => void }) {
+export default function NeonTunnel({ count = 60, length = 200, radius = 10, onMovieSelect }: { count?: number, length?: number, radius?: number, onMovieSelect?: (movie: any) => void }) {
   const groupRef = useRef<THREE.Group>(null);
   const lenis = useLenis();
   const [movies, setMovies] = useState<any[]>([]);
@@ -117,7 +117,7 @@ function InteractiveTunnelPoster({ movie, position, rotation, onClick }: any) {
           e.stopPropagation();
           onClick();
         }}
-        scale={[2, 3]} 
+        scale={[4, 6]} 
       />
     </group>
   );

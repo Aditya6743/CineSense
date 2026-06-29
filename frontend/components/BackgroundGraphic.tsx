@@ -13,8 +13,8 @@ export default function BackgroundGraphic() {
     setIsMounted(true);
   }, []);
 
-  // Fade in after scrolling past hero section (approx 600px)
-  const masterOpacity = useTransform(scrollY, [0, 600, 1000], [0, 0, 0.4]);
+  // Fade in after scrolling past 300vh 3D section
+  const masterOpacity = useTransform(scrollY, [0, 2000, 3000], [0, 0, 0.4]);
 
   // Parallax calculations
   const xLeft = useTransform(scrollYProgress, [0, 1], ["10%", "-50%"]);

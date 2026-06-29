@@ -96,7 +96,7 @@ function InteractiveTunnelPoster({ movie, position, rotation, onClick }: any) {
     
     // Scroll tilting logic
     if (lenis && typeof lenis.velocity === 'number') {
-      const targetTilt = THREE.MathUtils.clamp(lenis.velocity * 0.05, -Math.PI / 4, Math.PI / 4);
+      const targetTilt = THREE.MathUtils.clamp(lenis.velocity * 0.15, -Math.PI / 3, Math.PI / 3);
       meshRef.current.rotation.x = THREE.MathUtils.lerp(meshRef.current.rotation.x, targetTilt, 0.1);
     } else {
       meshRef.current.rotation.x = THREE.MathUtils.lerp(meshRef.current.rotation.x, 0, 0.1);
@@ -126,7 +126,7 @@ function InteractiveTunnelPoster({ movie, position, rotation, onClick }: any) {
           e.stopPropagation();
           onClick();
         }}
-        scale={[8, 12]} 
+        scale={[12, 18]} 
       />
     </group>
   );

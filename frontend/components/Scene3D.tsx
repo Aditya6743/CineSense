@@ -108,7 +108,7 @@ export default function Scene3D({ onMovieSelect }: { onMovieSelect?: (movie: any
       <PosterSphere count={60} radius={25} onMovieSelect={onMovieSelect} />
       {/* Move tunnel further back to z=-80, make it 200 long */}
       <group position={[0, 0, -30]}> 
-        <NeonTunnel count={30} length={200} radius={20} onMovieSelect={onMovieSelect} />
+        <NeonTunnel count={30} length={200} radius={15} onMovieSelect={onMovieSelect} />
       </group>
       
       {/* Highly Optimized Post Processing */}

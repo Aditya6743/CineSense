@@ -13,6 +13,7 @@ import Footer from "../components/Footer";
 import CustomCursor from "../components/CustomCursor";
 import Preloader from "../components/Preloader";
 import CTA from "../components/CTA";
+import BackgroundGraphic from "../components/BackgroundGraphic";
 import Scene3D from "../components/Scene3D";
 import MovieModal from "../components/Moviemodal";
 import { ThemeProvider, useTheme } from "../components/ThemeProvider";
@@ -101,8 +102,9 @@ function MainContent() {
             </div>
 
             <div className="relative z-10 flex flex-col gap-12">
-            <Trending />
-            <Timeline />
+              <BackgroundGraphic />
+              <Trending />
+              <Timeline />
             <Testimonials />
             <FAQ />
             <CTA />

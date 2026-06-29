@@ -102,7 +102,8 @@ function PremiumParticleText({ text, size, yOffset, zOffset, count = 2000 }: { t
   useEffect(() => {
     const loader = new FontLoader();
     loader.load('https://raw.githubusercontent.com/mrdoob/three.js/master/examples/fonts/helvetiker_bold.typeface.json', (font) => {
-      const geo = new TextGeometry(text, { font, size, height: 0.5, curveSegments: 2 });
+      // Extremely thin text geometry so the sampled points are flat and perfectly readable
+      const geo = new TextGeometry(text, { font, size, height: 0.01, curveSegments: 3 });
       geo.center();
       
       const tempMesh = new THREE.Mesh(geo);
@@ -118,10 +119,10 @@ function PremiumParticleText({ text, size, yOffset, zOffset, count = 2000 }: { t
         targets[i*3+1] = tempPosition.y;
         targets[i*3+2] = tempPosition.z;
         
-        // Start randomly in a wide area in front of the text
-        starts[i*3] = tempPosition.x + (Math.random() - 0.5) * 100;
-        starts[i*3+1] = tempPosition.y + (Math.random() - 0.5) * 100;
-        starts[i*3+2] = tempPosition.z + (Math.random() - 0.5) * 200 + 150; 
+        // Start randomly in a massive 3D area in front of the text
+        starts[i*3] = tempPosition.x + (Math.random() - 0.5) * 300;
+        starts[i*3+1] = tempPosition.y + (Math.random() - 0.5) * 300;
+        starts[i*3+2] = tempPosition.z + (Math.random() - 0.5) * 400 + 200; // start closer to camera
       }
       
       setTargetPositions(targets);
@@ -135,27 +136,35 @@ function PremiumParticleText({ text, size, yOffset, zOffset, count = 2000 }: { t
   useFrame((state) => {
     if (!meshRef.current || !targetPositions || !startPositions) return;
     
-    // Only animate when camera is near to save performance (zOffset is negative, camera moves to negative Z)
-    if (camera.position.z > zOffset + 250) return;
+    // distance ranges from ~200 down to 0 as you scroll towards the text
+    const distance = camera.position.z - (zOffset + 30);
+    
+    // Progress is 0 when distance > 150, and 1 when distance < 0
+    let progress = 1.0 - Math.min(1, Math.max(0, distance / 150));
+    
+    // Smooth cinematic easing
+    progress = progress * progress * (3 - 2 * progress); 
 
     for (let i = 0; i < count; i++) {
-      // Lerp math for smooth cinematic assembly
-      startPositions[i*3] += (targetPositions[i*3] - startPositions[i*3]) * 0.02;
-      startPositions[i*3+1] += (targetPositions[i*3+1] - startPositions[i*3+1]) * 0.02;
-      startPositions[i*3+2] += (targetPositions[i*3+2] - startPositions[i*3+2]) * 0.02;
+      // Direct exact lerp so particles only assemble exactly when you scroll!
+      dummy.position.x = THREE.MathUtils.lerp(startPositions[i*3], targetPositions[i*3], progress);
+      dummy.position.y = THREE.MathUtils.lerp(startPositions[i*3+1], targetPositions[i*3+1], progress);
+      dummy.position.z = THREE.MathUtils.lerp(startPositions[i*3+2], targetPositions[i*3+2], progress);
       
-      dummy.position.set(startPositions[i*3], startPositions[i*3+1], startPositions[i*3+2]);
-      
-      // Rotate particles slightly for premium diamond sparkle
-      dummy.rotation.x = state.clock.elapsedTime * 0.5 + i;
-      dummy.rotation.y = state.clock.elapsedTime * 0.5 + i;
+      // Zero rotation when fully assembled to ensure pure crisp text readability
+      // When completely scattered (progress=0), give them random rotation
+      dummy.rotation.set(
+        (1 - progress) * startPositions[i*3],
+        (1 - progress) * startPositions[i*3+1],
+        0
+      );
       
       dummy.updateMatrix();
       meshRef.current.setMatrixAt(i, dummy.matrix);
     }
     meshRef.current.instanceMatrix.needsUpdate = true;
     
-    // Float the whole word slightly
+    // Float the whole word slightly for a breathing effect
     meshRef.current.position.y = yOffset + Math.sin(state.clock.elapsedTime) * 0.5;
   });
 
@@ -163,10 +172,8 @@ function PremiumParticleText({ text, size, yOffset, zOffset, count = 2000 }: { t
 
   return (
     <instancedMesh ref={meshRef} args={[undefined, undefined, count]} position={[0, yOffset, zOffset]}>
-      {/* Tiny icosahedrons look like premium diamonds/silver dust */}
-      <icosahedronGeometry args={[0.08, 0]} />
-      {/* Pure premium material, no glow */}
-      <meshPhysicalMaterial color="#ffffff" metalness={1} roughness={0.05} clearcoat={1} />
+      <icosahedronGeometry args={[0.06, 0]} />
+      <meshPhysicalMaterial color="#ffffff" metalness={1} roughness={0.1} clearcoat={1} />
     </instancedMesh>
   );
 }
@@ -174,8 +181,8 @@ function PremiumParticleText({ text, size, yOffset, zOffset, count = 2000 }: { t
 function WelcomeUniverse() {
   return (
     <group>
-      <PremiumParticleText text="WELCOME" size={5} yOffset={2} zOffset={-315} count={3500} />
-      <PremiumParticleText text="To The Future of Cinema" size={1.5} yOffset={-3} zOffset={-315} count={2000} />
+      <PremiumParticleText text="Aditya says" size={3} yOffset={3} zOffset={-315} count={4000} />
+      <PremiumParticleText text="hello to you" size={3} yOffset={-2} zOffset={-315} count={4500} />
     </group>
   );
 }

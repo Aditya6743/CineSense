@@ -29,7 +29,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={geist.className}>
-        <div className="relative w-full overflow-hidden min-h-screen">
+        <div className="relative w-full max-w-[100vw] overflow-hidden min-h-screen">
           <div className="noise-bg" />
           <AmbientCanvas />
           <SmoothScroller>

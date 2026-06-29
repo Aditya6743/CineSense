@@ -2,7 +2,6 @@
 
 import { motion } from "framer-motion";
 import SearchBar from "./SearchBar";
-import Hero3D from "./Hero3D";
 import { useEffect, useRef } from "react";
 import AnimatedCounter from "./AnimatedCounter";
 import gsap from "gsap";
@@ -30,7 +29,6 @@ export default function Hero() {
     <section ref={containerRef} className="relative overflow-hidden px-6 pt-32 pb-24 min-h-[90vh] flex flex-col justify-center w-full max-w-[100vw]">
 
       {/* Floating Elements */}
-      <Hero3D />
       <motion.div 
         animate={{ y: [0, -20, 0], rotate: [0, 5, 0] }} 
         transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}

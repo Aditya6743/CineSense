@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useMemo, useEffect, useState } from "react";
-import { useFrame } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { useLenis } from "lenis/react";
 import { Image } from "@react-three/drei";
@@ -58,14 +58,15 @@ function InteractiveTunnelPoster({ movie, position, rotation, onClick }: any) {
   const backplateRef = useRef<any>(null);
   const [hovered, setHovered] = useState(false);
   const lenis = useLenis();
+  const { camera } = useThree();
 
   useFrame((state) => {
     if (!groupRef.current || !meshRef.current || !backplateRef.current) return;
     
     // Smooth Hover scaling and popping out
     const targetScale = hovered ? 1.15 : 1;
-    const targetZ = hovered ? 8 : 0; // Pop inwards heavily towards the camera
-    const targetEmissive = hovered ? 3.0 : 0.2; // Backplate glows subtly, then ignites on hover
+    const targetZ = hovered ? 8 : 0; 
+    const targetEmissive = hovered ? 3.0 : 0.2; 
     
     groupRef.current.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.1);
     groupRef.current.position.z = THREE.MathUtils.lerp(groupRef.current.position.z, position[2] + targetZ, 0.1);
@@ -73,7 +74,7 @@ function InteractiveTunnelPoster({ movie, position, rotation, onClick }: any) {
     const currentEmissive = backplateRef.current.material.emissiveIntensity;
     backplateRef.current.material.emissiveIntensity = THREE.MathUtils.lerp(currentEmissive, targetEmissive, 0.1);
     
-    // Scroll tilting logic (tilt up/down based on scroll velocity)
+    // Scroll tilting logic
     if (lenis && typeof lenis.velocity === 'number') {
       const targetTilt = THREE.MathUtils.clamp(lenis.velocity * 0.15, -Math.PI / 4, Math.PI / 4);
       groupRef.current.rotation.x = THREE.MathUtils.lerp(groupRef.current.rotation.x, rotation[0] + targetTilt, 0.1);
@@ -81,9 +82,24 @@ function InteractiveTunnelPoster({ movie, position, rotation, onClick }: any) {
       groupRef.current.rotation.x = THREE.MathUtils.lerp(groupRef.current.rotation.x, rotation[0], 0.1);
     }
     
-    // Floating breathing effect for premium feel
+    // Floating breathing effect
     const floatOffset = Math.sin(state.clock.elapsedTime * 1.5 + position[2]) * 0.8;
     groupRef.current.position.y = position[1] + floatOffset;
+
+    // Cinematic Fade out when camera passes it
+    const distToCamera = groupRef.current.position.z - camera.position.z;
+    let fade = 1;
+    // distToCamera > 0 means poster is behind camera. distToCamera < 0 means in front.
+    if (distToCamera > -20) {
+       fade = 1 - (distToCamera + 20) / 20; 
+    }
+    fade = THREE.MathUtils.clamp(fade, 0, 1);
+    
+    backplateRef.current.material.transparent = true;
+    backplateRef.current.material.opacity = fade;
+    
+    meshRef.current.material.transparent = true;
+    meshRef.current.material.opacity = hovered ? fade : fade * 0.8;
   });
 
   const posterUrl = movie.poster || "https://via.placeholder.com/256x384/4e5cff/ffffff?text=No+Poster";
@@ -107,9 +123,9 @@ function InteractiveTunnelPoster({ movie, position, rotation, onClick }: any) {
         onClick();
       }}
     >
-      {/* Glowing Backplate / Frame */}
-      <mesh ref={backplateRef} position={[0, 0, -0.5]}>
-        <boxGeometry args={[12.5, 18.5, 0.2]} />
+      {/* Glowing Backplate / Frame (Now a thin plane, only renders front) */}
+      <mesh ref={backplateRef} position={[0, 0, -0.1]}>
+        <planeGeometry args={[12.5, 18.5]} />
         <meshPhysicalMaterial 
           color="#000000" 
           metalness={0.9}
@@ -117,6 +133,7 @@ function InteractiveTunnelPoster({ movie, position, rotation, onClick }: any) {
           emissive="#4e5cff" 
           emissiveIntensity={0.2} 
           toneMapped={false}
+          side={THREE.FrontSide}
         />
       </mesh>
       
@@ -124,8 +141,6 @@ function InteractiveTunnelPoster({ movie, position, rotation, onClick }: any) {
       <Image
         ref={meshRef}
         url={posterUrl}
-        transparent
-        opacity={1}
         scale={[12, 18]} 
       />
     </group>

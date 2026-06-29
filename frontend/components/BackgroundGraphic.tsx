@@ -36,7 +36,7 @@ export default function BackgroundGraphic() {
       >
         <span 
           className="text-[15vw] text-transparent" 
-          style={{ WebkitTextStroke: "2px rgba(16, 185, 129, 0.4)" }}
+          style={{ WebkitTextStroke: "2px rgba(16, 185, 129, 0.15)" }}
         >
           NEURAL DISCOVERY ENGINE • MACHINE LEARNING • 
         </span>
@@ -62,7 +62,7 @@ export default function BackgroundGraphic() {
       >
         <span 
           className="text-[15vw] text-transparent" 
-          style={{ WebkitTextStroke: "2px rgba(6, 182, 212, 0.4)" }}
+          style={{ WebkitTextStroke: "2px rgba(6, 182, 212, 0.15)" }}
         >
           CINESENSE • CINEMATIC INTELLIGENCE • ALGORITHM
         </span>

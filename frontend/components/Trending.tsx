@@ -36,10 +36,11 @@ export default function Trending() {
   return (
     <motion.section
       id="trending"
-      initial={{ opacity: 0, y: 80 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.8 }}
+      initial={{ opacity: 0, scale: 0.8, rotateX: 15, y: 150 }}
+      whileInView={{ opacity: 1, scale: 1, rotateX: 0, y: 0 }}
+      viewport={{ once: true, margin: "-100px" }}
+      transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+      style={{ perspective: "1000px" }}
       className="relative mx-auto w-full max-w-[1600px] px-4 md:px-8 py-24"
     >
       {/* Section Glass */}

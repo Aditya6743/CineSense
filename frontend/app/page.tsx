@@ -23,7 +23,7 @@ function MainContent() {
 
   return (
     <main 
-      className="relative min-h-screen text-white overflow-hidden selection:bg-emerald-500/30 transition-colors duration-1000"
+      className="relative min-h-screen text-white overflow-x-hidden selection:bg-emerald-500/30 transition-colors duration-1000"
       style={{
         '--accent': accentColor,
       } as React.CSSProperties}
@@ -64,7 +64,7 @@ function MainContent() {
           <div className="h-[300vh] w-full pointer-events-none" />
 
           {/* RESTORED HTML SECTIONS (Wall of love, Trending, etc.) */}
-          <div className="relative z-10 bg-[#020305]/80 backdrop-blur-md pointer-events-auto flex flex-col gap-12">
+          <div className="relative w-full z-10 bg-[#020305]/80 backdrop-blur-md pointer-events-auto flex flex-col gap-12">
             {/* 
               We add a dark glassmorphic background to the restored sections 
               so the 3D canvas doesn't visually clash with the text once you scroll down.

@@ -15,7 +15,7 @@ export default function NeonTunnel({ count = 40, length = 200, radius = 10, onMo
   useEffect(() => {
     const fetchMovies = async () => {
       try {
-        const res = await axios.get("/api/discover?year=2024"); // Timeline data
+        const res = await axios.get("/api/trending"); 
         let results = res.data;
         while (results.length > 0 && results.length < count) {
           results = [...results, ...res.data];

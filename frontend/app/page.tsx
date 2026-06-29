@@ -37,6 +37,7 @@ function MainContent() {
             <Canvas
               camera={{ position: [0, 0, 5], fov: 75 }}
               gl={{ antialias: false, alpha: false, powerPreference: "high-performance" }}
+              dpr={[1, 1.5]} // Cap resolution on high-DPI displays to maintain 120FPS
             >
               <color attach="background" args={["#020305"]} />
               <Suspense fallback={null}>

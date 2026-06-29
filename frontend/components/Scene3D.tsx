@@ -92,6 +92,61 @@ function CinematicDust() {
 }
 
 
+function WelcomeUniverse() {
+  const groupRef = useRef<THREE.Group>(null);
+  useFrame((state) => {
+    if (groupRef.current) {
+      groupRef.current.position.y = Math.sin(state.clock.elapsedTime * 2) * 0.5;
+    }
+  });
+
+  return (
+    <group position={[0, 0, -315]} ref={groupRef}>
+      <Center position={[0, 2, 0]}>
+        <Text3D 
+          font="https://raw.githubusercontent.com/mrdoob/three.js/master/examples/fonts/helvetiker_bold.typeface.json"
+          size={5}
+          height={1.5}
+          curveSegments={4} // Optimized
+          bevelEnabled
+          bevelThickness={0.2}
+          bevelSize={0.05}
+          bevelOffset={0}
+          bevelSegments={2} // Optimized
+        >
+          WELCOME
+          <meshPhysicalMaterial 
+            color="#00f5d4" 
+            emissive="#00f5d4" 
+            emissiveIntensity={2} 
+            metalness={0.9} 
+            roughness={0.1} 
+          />
+        </Text3D>
+      </Center>
+      
+      <Center position={[0, -3, 0]}>
+        <Text3D 
+          font="https://raw.githubusercontent.com/mrdoob/three.js/master/examples/fonts/helvetiker_regular.typeface.json"
+          size={1.5}
+          height={0.5}
+          curveSegments={4} // Optimized
+          bevelEnabled
+          bevelThickness={0.05}
+          bevelSize={0.02}
+          bevelSegments={2} // Optimized
+        >
+          To The Future of Cinema
+          <meshPhysicalMaterial 
+            color="#ffffff" 
+            metalness={0.8} 
+            roughness={0.2} 
+          />
+        </Text3D>
+      </Center>
+    </group>
+  );
+}
 
 export default function Scene3D({ onMovieSelect }: { onMovieSelect?: (movie: any) => void }) {
   return (
@@ -106,22 +161,20 @@ export default function Scene3D({ onMovieSelect }: { onMovieSelect?: (movie: any
       
       {/* Universes */}
       <PosterSphere count={60} radius={25} onMovieSelect={onMovieSelect} />
-      {/* Move tunnel further back to z=-80, make it 200 long */}
+      {/* Tunnel spans the entire remaining scroll distance (from -30 to -300) */}
       <group position={[0, 0, -30]}> 
-        <NeonTunnel count={30} length={200} radius={15} onMovieSelect={onMovieSelect} />
+        <NeonTunnel count={40} length={270} radius={15} onMovieSelect={onMovieSelect} />
       </group>
       
-      {/* Highly Optimized Post Processing */}
+      <WelcomeUniverse />
+      
+      {/* Highly Optimized Post Processing - Removed ChromaticAberration for 120FPS */}
       <EffectComposer multisampling={0}>
         <Bloom 
           luminanceThreshold={0.5} 
           luminanceSmoothing={0.9} 
           intensity={1.0} 
           mipmapBlur={false} // Huge performance save
-        />
-        <ChromaticAberration 
-          offset={new THREE.Vector2(0.001, 0.001)}
-          blendFunction={BlendFunction.NORMAL} 
         />
       </EffectComposer>
     </>

@@ -63,8 +63,17 @@ function InteractiveTunnelPoster({ movie, position, rotation, onClick }: any) {
   useFrame((state) => {
     if (!groupRef.current || !meshRef.current || !backplateRef.current) return;
     
+    // Global Entrance Animation (hides posters on front page)
+    // Map camera.z from -5 to -30 -> scale 0 to 1
+    let entranceScale = 1;
+    if (camera.position.z > -30) {
+      entranceScale = THREE.MathUtils.clamp((camera.position.z - -5) / (-30 - -5), 0, 1);
+      // Cinematic ease-in-out
+      entranceScale = entranceScale * entranceScale * (3 - 2 * entranceScale);
+    }
+    
     // Smooth Hover scaling and popping out
-    const targetScale = hovered ? 1.15 : 1;
+    const targetScale = (hovered ? 1.15 : 1) * entranceScale;
     const targetZ = hovered ? 8 : 0; 
     const targetEmissive = hovered ? 3.0 : 0.2; 
     

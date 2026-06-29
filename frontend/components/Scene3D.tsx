@@ -46,19 +46,18 @@ function CameraRig() {
 function CinematicDust() {
   const pointsRef = useRef<THREE.Points>(null);
   
-  // Drastically reduced count for performance (from 3000 to 500)
   const [particles] = useState(() => {
     const geometry = new THREE.BufferGeometry();
-    const count = 500;
+    const count = 1500; // Increased count for better distribution
     const positions = new Float32Array(count * 3);
     const colors = new Float32Array(count * 3);
     
     const color = new THREE.Color();
     for (let i = 0; i < count; i++) {
-      positions[i * 3] = (Math.random() - 0.5) * 60; // x
-      positions[i * 3 + 1] = (Math.random() - 0.5) * 40; // y
-      // Spread particles all the way through the new universes (down to z=-350)
-      positions[i * 3 + 2] = (Math.random() - 0.5) * 350 - 150; // z
+      // Spread evenly across a massive volume so it doesn't look clustered
+      positions[i * 3] = (Math.random() - 0.5) * 200; // x
+      positions[i * 3 + 1] = (Math.random() - 0.5) * 200; // y
+      positions[i * 3 + 2] = (Math.random() - 0.5) * 600 - 150; // z (from +150 to -450)
       
       color.setHSL(0.6 + Math.random() * 0.2, 0.8, 0.5 + Math.random() * 0.5);
       colors[i * 3] = color.r;
@@ -109,7 +108,7 @@ export default function Scene3D({ onMovieSelect }: { onMovieSelect?: (movie: any
       <PosterSphere count={60} radius={25} onMovieSelect={onMovieSelect} />
       {/* Move tunnel further back to z=-80, make it 200 long */}
       <group position={[0, 0, -30]}> 
-        <NeonTunnel count={60} length={200} radius={10} onMovieSelect={onMovieSelect} />
+        <NeonTunnel count={30} length={200} radius={10} onMovieSelect={onMovieSelect} />
       </group>
       
       {/* Highly Optimized Post Processing */}
@@ -119,11 +118,6 @@ export default function Scene3D({ onMovieSelect }: { onMovieSelect?: (movie: any
           luminanceSmoothing={0.9} 
           intensity={1.0} 
           mipmapBlur={false} // Huge performance save
-        />
-        <DepthOfField 
-          focusDistance={0.02} 
-          focalLength={0.05} 
-          bokehScale={1.5} // Lower scale = faster
         />
         <ChromaticAberration 
           offset={new THREE.Vector2(0.001, 0.001)}

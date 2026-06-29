@@ -120,7 +120,7 @@ function EndUniverse() {
   );
 }
 
-export default function Scene3D() {
+export default function Scene3D({ onMovieSelect }: { onMovieSelect?: (movie: any) => void }) {
   return (
     <>
       {/* Optimized Lighting */}
@@ -132,10 +132,10 @@ export default function Scene3D() {
       <CinematicDust />
       
       {/* Universes */}
-      <PosterSphere count={250} radius={25} />
+      <PosterSphere count={40} radius={25} onMovieSelect={onMovieSelect} />
       {/* Move tunnel further back to z=-80, make it 200 long */}
       <group position={[0, 0, -30]}> 
-        <NeonTunnel count={300} length={200} radius={10} />
+        <NeonTunnel count={40} length={200} radius={10} onMovieSelect={onMovieSelect} />
       </group>
       <EndUniverse />
       

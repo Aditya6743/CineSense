@@ -1,101 +1,127 @@
 "use client";
 
-import { useRef, useMemo, useEffect } from "react";
+import { useRef, useMemo, useEffect, useState } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { useLenis } from "lenis/react";
+import { Image } from "@react-three/drei";
+import axios from "axios";
 
-export default function PosterSphere({ count = 300, radius = 25 }) {
-  const meshRef = useRef<THREE.InstancedMesh>(null);
+export default function PosterSphere({ count = 40, radius = 25, onMovieSelect }: { count?: number, radius?: number, onMovieSelect?: (movie: any) => void }) {
+  const groupRef = useRef<THREE.Group>(null);
   const lenis = useLenis();
+  const [movies, setMovies] = useState<any[]>([]);
 
-  // Procedural dummy texture for posters to save memory instead of loading 200 images
-  const texture = useMemo(() => {
-    if (typeof document === 'undefined') return null;
-    const canvas = document.createElement("canvas");
-    canvas.width = 256;
-    canvas.height = 384;
-    const context = canvas.getContext("2d");
-    if (context) {
-      // Abstract cinematic gradient
-      const gradient = context.createLinearGradient(0, 0, 256, 384);
-      gradient.addColorStop(0, "#4e5cff");
-      gradient.addColorStop(1, "#9d4edd");
-      context.fillStyle = gradient;
-      context.fillRect(0, 0, 256, 384);
-      
-      // Fake text blocks
-      context.fillStyle = "rgba(255, 255, 255, 0.8)";
-      context.fillRect(20, 300, 150, 15);
-      context.fillStyle = "rgba(255, 255, 255, 0.4)";
-      context.fillRect(20, 325, 200, 10);
-      context.fillRect(20, 345, 180, 10);
-    }
-    const tex = new THREE.CanvasTexture(canvas);
-    tex.colorSpace = THREE.SRGBColorSpace;
-    return tex;
-  }, []);
-
-  // Calculate positions and rotations for a sphere distribution
-  const dummy = useMemo(() => new THREE.Object3D(), []);
-  
   useEffect(() => {
-    if (!meshRef.current) return;
-    
-    // Golden spiral algorithm to distribute points evenly on a sphere
+    const fetchMovies = async () => {
+      try {
+        const res = await axios.get("/api/trending");
+        // Duplicate array if we don't have enough movies to fill the sphere
+        let results = res.data;
+        while (results.length > 0 && results.length < count) {
+          results = [...results, ...res.data];
+        }
+        setMovies(results.slice(0, count));
+      } catch (err) {
+        console.error("Failed to fetch trending for Sphere", err);
+      }
+    };
+    fetchMovies();
+  }, [count]);
+
+  // Calculate positions
+  const positions = useMemo(() => {
+    const pos = [];
     const phi = Math.PI * (3 - Math.sqrt(5));
     
     for (let i = 0; i < count; i++) {
-      const y = 1 - (i / (count - 1)) * 2; // y goes from 1 to -1
-      const r = Math.sqrt(1 - y * y); // radius at y
-      
+      const y = 1 - (i / (count - 1)) * 2;
+      const r = Math.sqrt(1 - y * y);
       const theta = phi * i;
       
       const x = Math.cos(theta) * r;
       const z = Math.sin(theta) * r;
       
-      // Position on sphere
-      dummy.position.set(x * radius, y * radius, z * radius);
+      // We calculate the rotation needed to look at the center
+      const position = new THREE.Vector3(x * radius, y * radius, z * radius);
+      const dummyObj = new THREE.Object3D();
+      dummyObj.position.copy(position);
+      dummyObj.lookAt(0, 0, 0);
       
-      // Look at center (so front faces inward)
-      dummy.lookAt(0, 0, 0);
-      
-      dummy.updateMatrix();
-      meshRef.current.setMatrixAt(i, dummy.matrix);
-      
-      // Give each instance a slightly different color tint
-      const color = new THREE.Color();
-      color.setHSL(0.6 + (i / count) * 0.3, 0.8, 0.5);
-      meshRef.current.setColorAt(i, color);
+      pos.push({
+        position: [position.x, position.y, position.z] as [number, number, number],
+        rotation: [dummyObj.rotation.x, dummyObj.rotation.y, dummyObj.rotation.z] as [number, number, number]
+      });
     }
-    
-    meshRef.current.instanceMatrix.needsUpdate = true;
-    if (meshRef.current.instanceColor) {
-      meshRef.current.instanceColor.needsUpdate = true;
-    }
-  }, [count, radius, dummy]);
+    return pos;
+  }, [count, radius]);
 
   useFrame((state) => {
-    if (!meshRef.current) return;
+    if (!groupRef.current) return;
     
-    // Base continuous rotation
-    meshRef.current.rotation.y = state.clock.elapsedTime * 0.05;
+    groupRef.current.rotation.y = state.clock.elapsedTime * 0.05;
     
-    // Tie rotation to scroll (Y axis)
     if (lenis) {
-      meshRef.current.rotation.x = -lenis.progress * Math.PI;
+      groupRef.current.rotation.x = -lenis.progress * Math.PI;
     }
   });
 
   return (
-    <group position={[0, 0, -40]}> {/* Place sphere deep in Z */}
-      <instancedMesh ref={meshRef} args={[undefined, undefined, count]}>
-        <planeGeometry args={[2, 3]} />
-        <meshBasicMaterial 
-          map={texture} 
-          side={THREE.DoubleSide}
-        />
-      </instancedMesh>
+    <group position={[0, 0, -40]} ref={groupRef}>
+      {movies.map((movie, i) => {
+        const p = positions[i];
+        if (!p) return null;
+        
+        return (
+          <InteractivePoster 
+            key={`${movie.title}-${i}`}
+            movie={movie}
+            position={p.position}
+            rotation={p.rotation}
+            onClick={() => onMovieSelect?.(movie)}
+          />
+        );
+      })}
+    </group>
+  );
+}
+
+function InteractivePoster({ movie, position, rotation, onClick }: any) {
+  const meshRef = useRef<any>(null);
+  const [hovered, setHovered] = useState(false);
+
+  // Smooth hover animation
+  useFrame(() => {
+    if (!meshRef.current) return;
+    const targetScale = hovered ? 1.2 : 1;
+    meshRef.current.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.1);
+  });
+
+  // Use a fallback placeholder if poster is null
+  const posterUrl = movie.poster || "https://via.placeholder.com/256x384/4e5cff/ffffff?text=No+Poster";
+
+  return (
+    <group position={position} rotation={rotation}>
+      <Image
+        ref={meshRef}
+        url={posterUrl}
+        transparent
+        opacity={hovered ? 1 : 0.8}
+        onPointerOver={(e) => {
+          e.stopPropagation();
+          setHovered(true);
+          document.body.style.cursor = "pointer";
+        }}
+        onPointerOut={() => {
+          setHovered(false);
+          document.body.style.cursor = "auto";
+        }}
+        onClick={(e) => {
+          e.stopPropagation();
+          onClick();
+        }}
+        scale={[2, 3]} // Poster aspect ratio
+      />
     </group>
   );
 }

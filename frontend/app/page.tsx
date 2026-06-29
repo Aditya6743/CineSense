@@ -13,10 +13,12 @@ import CustomCursor from "../components/CustomCursor";
 import Preloader from "../components/Preloader";
 import CTA from "../components/CTA";
 import Scene3D from "../components/Scene3D";
+import MovieModal from "../components/Moviemodal";
 import { ThemeProvider, useTheme } from "../components/ThemeProvider";
 
 function MainContent() {
   const [isLoaded, setIsLoaded] = useState(false);
+  const [selectedMovie, setSelectedMovie] = useState<any | null>(null);
   const { accentColor } = useTheme();
 
   return (
@@ -33,7 +35,7 @@ function MainContent() {
       {isLoaded && (
         <>
           {/* Global 3D WebGL Background (Replaces 2D glows/graphics) */}
-          <div className="fixed inset-0 z-[-1] pointer-events-none">
+          <div className="fixed inset-0 z-0 pointer-events-auto">
             <Canvas
               camera={{ position: [0, 0, 5], fov: 75 }}
               gl={{ antialias: false, alpha: false, powerPreference: "high-performance" }}
@@ -41,23 +43,31 @@ function MainContent() {
             >
               <color attach="background" args={["#020305"]} />
               <Suspense fallback={null}>
-                <Scene3D />
+                <Scene3D onMovieSelect={setSelectedMovie} />
               </Suspense>
             </Canvas>
           </div>
 
-          <Navbar />
-          {/* We keep Hero for the SearchBar functionality, but make it interact with the 3D later */}
+          <div className="relative z-50 pointer-events-auto">
+            <Navbar />
+          </div>
+          {/* We keep Hero for the SearchBar functionality */}
           <div className="relative z-10 pointer-events-auto">
             <Hero />
           </div>
           
           {/* 
             MASSIVE INVISIBLE SCROLL AREA 
-            Since we deleted the traditional HTML sections, we must force the DOM to be 
-            tall enough to allow the user to scroll through the 3D universes (Sphere & Tunnel).
           */}
           <div className="h-[800vh] w-full pointer-events-none" />
+
+          {/* Render MovieModal over everything */}
+          <div className="relative z-[100] pointer-events-auto">
+            <MovieModal 
+              movie={selectedMovie}
+              onClose={() => setSelectedMovie(null)}
+            />
+          </div>
         </>
       )}
     </main>

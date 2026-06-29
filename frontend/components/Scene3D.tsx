@@ -173,7 +173,7 @@ function PremiumParticleText({ text, size, yOffset, zOffset, count = 2000 }: { t
   return (
     <instancedMesh ref={meshRef} args={[undefined, undefined, count]} position={[0, yOffset, zOffset]}>
       <icosahedronGeometry args={[0.06, 0]} />
-      <meshPhysicalMaterial color="#ffffff" metalness={0.2} roughness={0.1} emissive="#ffffff" emissiveIntensity={0.8} />
+      <meshPhysicalMaterial color="#ffffff" metalness={0.2} roughness={0.1} emissive="#ffffff" emissiveIntensity={0.4} />
     </instancedMesh>
   );
 }
@@ -183,7 +183,7 @@ function WelcomeUniverse() {
   useFrame((state) => {
     if (groupRef.current) {
       // Bob the scroll down text
-      groupRef.current.position.y = Math.sin(state.clock.elapsedTime * 3) * 0.2;
+      groupRef.current.position.y = -8 + Math.sin(state.clock.elapsedTime * 3) * 0.2;
     }
   });
 
@@ -192,16 +192,16 @@ function WelcomeUniverse() {
       <PremiumParticleText text="Aditya says" size={3} yOffset={3} zOffset={-315} count={4000} />
       <PremiumParticleText text="hello to you" size={3} yOffset={-2} zOffset={-315} count={4500} />
       
-      <group position={[0, -6, -315]} ref={groupRef}>
+      <group position={[0, -8, -315]} ref={groupRef}>
         <Center>
           <Text3D 
             font="https://raw.githubusercontent.com/mrdoob/three.js/master/examples/fonts/helvetiker_regular.typeface.json"
-            size={0.8}
-            height={0.1}
+            size={0.6}
+            height={0.05}
             curveSegments={2}
           >
-            Scroll Down ↓
-            <meshStandardMaterial color="#ffffff" emissive="#ffffff" emissiveIntensity={1} />
+            Scroll Down
+            <meshStandardMaterial color="#ffffff" emissive="#ffffff" emissiveIntensity={0.3} />
           </Text3D>
         </Center>
       </group>

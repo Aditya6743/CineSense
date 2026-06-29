@@ -12,6 +12,8 @@ import PosterSphere from "./PosterSphere";
 import NeonTunnel from "./NeonTunnel";
 
 import { Text3D, Center } from "@react-three/drei";
+import { MeshSurfaceSampler, FontLoader, TextGeometry } from "three-stdlib";
+import { useMemo } from "react";
 
 function CameraRig() {
   const { camera } = useThree();
@@ -92,58 +94,88 @@ function CinematicDust() {
 }
 
 
-function WelcomeUniverse() {
-  const groupRef = useRef<THREE.Group>(null);
+function PremiumParticleText({ text, size, yOffset, zOffset, count = 2000 }: { text: string, size: number, yOffset: number, zOffset: number, count?: number }) {
+  const meshRef = useRef<THREE.InstancedMesh>(null);
+  const [targetPositions, setTargetPositions] = useState<Float32Array | null>(null);
+  const [startPositions, setStartPositions] = useState<Float32Array | null>(null);
+
+  useEffect(() => {
+    const loader = new FontLoader();
+    loader.load('https://raw.githubusercontent.com/mrdoob/three.js/master/examples/fonts/helvetiker_bold.typeface.json', (font) => {
+      const geo = new TextGeometry(text, { font, size, height: 0.5, curveSegments: 2 });
+      geo.center();
+      
+      const tempMesh = new THREE.Mesh(geo);
+      const sampler = new MeshSurfaceSampler(tempMesh).build();
+      
+      const targets = new Float32Array(count * 3);
+      const starts = new Float32Array(count * 3);
+      const tempPosition = new THREE.Vector3();
+      
+      for(let i=0; i<count; i++) {
+        sampler.sample(tempPosition);
+        targets[i*3] = tempPosition.x;
+        targets[i*3+1] = tempPosition.y;
+        targets[i*3+2] = tempPosition.z;
+        
+        // Start randomly in a wide area in front of the text
+        starts[i*3] = tempPosition.x + (Math.random() - 0.5) * 100;
+        starts[i*3+1] = tempPosition.y + (Math.random() - 0.5) * 100;
+        starts[i*3+2] = tempPosition.z + (Math.random() - 0.5) * 200 + 150; 
+      }
+      
+      setTargetPositions(targets);
+      setStartPositions(starts);
+    });
+  }, [text, size, count]);
+
+  const { camera } = useThree();
+  const dummy = useMemo(() => new THREE.Object3D(), []);
+
   useFrame((state) => {
-    if (groupRef.current) {
-      groupRef.current.position.y = Math.sin(state.clock.elapsedTime * 2) * 0.5;
+    if (!meshRef.current || !targetPositions || !startPositions) return;
+    
+    // Only animate when camera is near to save performance (zOffset is negative, camera moves to negative Z)
+    if (camera.position.z > zOffset + 250) return;
+
+    for (let i = 0; i < count; i++) {
+      // Lerp math for smooth cinematic assembly
+      startPositions[i*3] += (targetPositions[i*3] - startPositions[i*3]) * 0.02;
+      startPositions[i*3+1] += (targetPositions[i*3+1] - startPositions[i*3+1]) * 0.02;
+      startPositions[i*3+2] += (targetPositions[i*3+2] - startPositions[i*3+2]) * 0.02;
+      
+      dummy.position.set(startPositions[i*3], startPositions[i*3+1], startPositions[i*3+2]);
+      
+      // Rotate particles slightly for premium diamond sparkle
+      dummy.rotation.x = state.clock.elapsedTime * 0.5 + i;
+      dummy.rotation.y = state.clock.elapsedTime * 0.5 + i;
+      
+      dummy.updateMatrix();
+      meshRef.current.setMatrixAt(i, dummy.matrix);
     }
+    meshRef.current.instanceMatrix.needsUpdate = true;
+    
+    // Float the whole word slightly
+    meshRef.current.position.y = yOffset + Math.sin(state.clock.elapsedTime) * 0.5;
   });
 
+  if (!targetPositions) return null;
+
   return (
-    <group position={[0, 0, -315]} ref={groupRef}>
-      <Center position={[0, 2, 0]}>
-        <Text3D 
-          font="https://raw.githubusercontent.com/mrdoob/three.js/master/examples/fonts/helvetiker_bold.typeface.json"
-          size={5}
-          height={1.5}
-          curveSegments={4} // Optimized
-          bevelEnabled
-          bevelThickness={0.2}
-          bevelSize={0.05}
-          bevelOffset={0}
-          bevelSegments={2} // Optimized
-        >
-          WELCOME
-          <meshPhysicalMaterial 
-            color="#00f5d4" 
-            emissive="#00f5d4" 
-            emissiveIntensity={2} 
-            metalness={0.9} 
-            roughness={0.1} 
-          />
-        </Text3D>
-      </Center>
-      
-      <Center position={[0, -3, 0]}>
-        <Text3D 
-          font="https://raw.githubusercontent.com/mrdoob/three.js/master/examples/fonts/helvetiker_regular.typeface.json"
-          size={1.5}
-          height={0.5}
-          curveSegments={4} // Optimized
-          bevelEnabled
-          bevelThickness={0.05}
-          bevelSize={0.02}
-          bevelSegments={2} // Optimized
-        >
-          To The Future of Cinema
-          <meshPhysicalMaterial 
-            color="#ffffff" 
-            metalness={0.8} 
-            roughness={0.2} 
-          />
-        </Text3D>
-      </Center>
+    <instancedMesh ref={meshRef} args={[undefined, undefined, count]} position={[0, yOffset, zOffset]}>
+      {/* Tiny icosahedrons look like premium diamonds/silver dust */}
+      <icosahedronGeometry args={[0.08, 0]} />
+      {/* Pure premium material, no glow */}
+      <meshPhysicalMaterial color="#ffffff" metalness={1} roughness={0.05} clearcoat={1} />
+    </instancedMesh>
+  );
+}
+
+function WelcomeUniverse() {
+  return (
+    <group>
+      <PremiumParticleText text="WELCOME" size={5} yOffset={2} zOffset={-315} count={3500} />
+      <PremiumParticleText text="To The Future of Cinema" size={1.5} yOffset={-3} zOffset={-315} count={2000} />
     </group>
   );
 }

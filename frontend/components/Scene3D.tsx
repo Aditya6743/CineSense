@@ -11,6 +11,8 @@ import { useLenis } from "lenis/react";
 import PosterSphere from "./PosterSphere";
 import NeonTunnel from "./NeonTunnel";
 
+import { Text } from "@react-three/drei";
+
 function CameraRig() {
   const { camera } = useThree();
   const lenis = useLenis();
@@ -21,10 +23,8 @@ function CameraRig() {
     // lenis.progress goes from 0 to 1
     const progress = lenis.progress;
     
-    // Cinematic camera path
-    // At top (0), camera is at z=5
-    // Scroll deep into the PosterSphere (z=-40) and through the NeonTunnel (z=-150)
-    camera.position.z = THREE.MathUtils.lerp(5, -160, progress);
+    // Camera travels completely through Sphere and Tunnel to the end logo
+    camera.position.z = THREE.MathUtils.lerp(5, -300, progress);
     
     // Add subtle bobbing/breathing effect
     camera.position.y = Math.sin(state.clock.elapsedTime * 0.5) * 0.2;
@@ -51,8 +51,8 @@ function CinematicDust() {
     for (let i = 0; i < count; i++) {
       positions[i * 3] = (Math.random() - 0.5) * 60; // x
       positions[i * 3 + 1] = (Math.random() - 0.5) * 40; // y
-      // Spread particles all the way through the new universes (down to z=-180)
-      positions[i * 3 + 2] = (Math.random() - 0.5) * 200 - 90; // z
+      // Spread particles all the way through the new universes (down to z=-350)
+      positions[i * 3 + 2] = (Math.random() - 0.5) * 350 - 150; // z
       
       color.setHSL(0.6 + Math.random() * 0.2, 0.8, 0.5 + Math.random() * 0.5);
       colors[i * 3] = color.r;
@@ -86,6 +86,40 @@ function CinematicDust() {
   );
 }
 
+function EndUniverse() {
+  const textRef = useRef<THREE.Mesh>(null);
+  useFrame((state) => {
+    if (textRef.current) {
+      textRef.current.position.y = Math.sin(state.clock.elapsedTime * 2) * 0.5;
+    }
+  });
+
+  return (
+    <group position={[0, 0, -310]}>
+      <Text 
+        ref={textRef}
+        fontSize={5}
+        color="#00f5d4"
+        anchorX="center"
+        anchorY="middle"
+        outlineWidth={0.1}
+        outlineColor="#4e5cff"
+      >
+        CINESENSE
+      </Text>
+      <Text 
+        position={[0, -4, 0]}
+        fontSize={1.5}
+        color="#ffffff"
+        anchorX="center"
+        anchorY="middle"
+      >
+        The Future of Cinema
+      </Text>
+    </group>
+  );
+}
+
 export default function Scene3D() {
   return (
     <>
@@ -99,7 +133,11 @@ export default function Scene3D() {
       
       {/* Universes */}
       <PosterSphere count={250} radius={25} />
-      <NeonTunnel count={200} length={100} radius={8} />
+      {/* Move tunnel further back to z=-80, make it 200 long */}
+      <group position={[0, 0, -30]}> 
+        <NeonTunnel count={300} length={200} radius={10} />
+      </group>
+      <EndUniverse />
       
       {/* Highly Optimized Post Processing */}
       <EffectComposer multisampling={0}>

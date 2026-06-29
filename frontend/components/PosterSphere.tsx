@@ -90,11 +90,9 @@ export default function PosterSphere({ count = 300, radius = 25 }) {
   return (
     <group position={[0, 0, -40]}> {/* Place sphere deep in Z */}
       <instancedMesh ref={meshRef} args={[undefined, undefined, count]}>
-        <planeGeometry args={[2, 3]} /> {/* Aspect ratio of a movie poster (2:3) */}
-        <meshStandardMaterial 
+        <planeGeometry args={[2, 3]} />
+        <meshBasicMaterial 
           map={texture} 
-          roughness={0.2} 
-          metalness={0.8}
           side={THREE.DoubleSide}
         />
       </instancedMesh>

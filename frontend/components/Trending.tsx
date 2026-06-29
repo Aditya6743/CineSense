@@ -40,7 +40,7 @@ export default function Trending() {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.8 }}
-      className="relative mx-auto max-w-[1400px] px-6 py-24"
+      className="relative w-full px-4 md:px-12 py-24"
     >
       {/* Section Glass */}
       <div className="rounded-[40px] border border-white/10 bg-white/5 p-10 backdrop-blur-2xl shadow-[0_0_80px_rgba(124,58,237,0.15)] overflow-hidden">

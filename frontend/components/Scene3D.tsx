@@ -11,7 +11,7 @@ import { useLenis } from "lenis/react";
 import PosterSphere from "./PosterSphere";
 import NeonTunnel from "./NeonTunnel";
 
-import { Text } from "@react-three/drei";
+import { Text3D, Center } from "@react-three/drei";
 
 function CameraRig() {
   const { camera } = useThree();
@@ -93,35 +93,61 @@ function CinematicDust() {
 }
 
 function EndUniverse() {
-  const textRef = useRef<THREE.Mesh>(null);
+  const groupRef = useRef<THREE.Group>(null);
   useFrame((state) => {
-    if (textRef.current) {
-      textRef.current.position.y = Math.sin(state.clock.elapsedTime * 2) * 0.5;
+    if (groupRef.current) {
+      groupRef.current.position.y = Math.sin(state.clock.elapsedTime * 2) * 0.5;
     }
   });
 
   return (
-    <group position={[0, 0, -310]}>
-      <Text 
-        ref={textRef}
-        fontSize={5}
-        color="#00f5d4"
-        anchorX="center"
-        anchorY="middle"
-        outlineWidth={0.1}
-        outlineColor="#4e5cff"
-      >
-        CINESENSE
-      </Text>
-      <Text 
-        position={[0, -4, 0]}
-        fontSize={1.5}
-        color="#ffffff"
-        anchorX="center"
-        anchorY="middle"
-      >
-        The Future of Cinema
-      </Text>
+    <group position={[0, 0, -310]} ref={groupRef}>
+      <Center position={[0, 2, 0]}>
+        <Text3D 
+          font="https://raw.githubusercontent.com/mrdoob/three.js/master/examples/fonts/helvetiker_bold.typeface.json"
+          size={5}
+          height={1.5}
+          curveSegments={12}
+          bevelEnabled
+          bevelThickness={0.2}
+          bevelSize={0.05}
+          bevelOffset={0}
+          bevelSegments={5}
+        >
+          CINESENSE
+          <meshPhysicalMaterial 
+            color="#00f5d4" 
+            emissive="#00f5d4" 
+            emissiveIntensity={2} 
+            metalness={0.9} 
+            roughness={0.1} 
+            clearcoat={1} 
+            clearcoatRoughness={0.1}
+          />
+        </Text3D>
+      </Center>
+      
+      <Center position={[0, -3, 0]}>
+        <Text3D 
+          font="https://raw.githubusercontent.com/mrdoob/three.js/master/examples/fonts/helvetiker_regular.typeface.json"
+          size={1.5}
+          height={0.5}
+          curveSegments={12}
+          bevelEnabled
+          bevelThickness={0.05}
+          bevelSize={0.02}
+          bevelSegments={3}
+        >
+          The Future of Cinema
+          <meshPhysicalMaterial 
+            color="#ffffff" 
+            metalness={0.8} 
+            roughness={0.2} 
+            transmission={0.5} 
+            thickness={0.5}
+          />
+        </Text3D>
+      </Center>
     </group>
   );
 }

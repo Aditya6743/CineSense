@@ -35,12 +35,12 @@ function NeonRings({ length, radius }: { length: number, radius: number }) {
     <group ref={groupRef}>
       {rings.map((ring, i) => (
         <mesh key={i} position={[0, 0, ring.z]} rotation={[0, 0, ring.rotationZ]}>
-          <torusGeometry args={[radius + 5, 0.1, 16, 100]} />
+          <torusGeometry args={[radius + 2, 0.02, 16, 100]} />
           {/* Intense emissive blue/purple to trigger Bloom */}
           <meshPhysicalMaterial 
             color="#4e5cff" 
             emissive={i % 2 === 0 ? "#4e5cff" : "#b04eff"} 
-            emissiveIntensity={2} 
+            emissiveIntensity={3} 
             toneMapped={false}
           />
         </mesh>
@@ -64,8 +64,8 @@ function InteractiveTunnelPoster({ movie, position, rotation, onClick }: any) {
     
     // Smooth Hover scaling and popping out
     const targetScale = hovered ? 1.15 : 1;
-    const targetZ = hovered ? 5 : 0; // Pop inwards towards the camera
-    const targetEmissive = hovered ? 2.5 : 0.5; // Backplate glows intensely on hover
+    const targetZ = hovered ? 8 : 0; // Pop inwards heavily towards the camera
+    const targetEmissive = hovered ? 3.0 : 0.2; // Backplate glows subtly, then ignites on hover
     
     groupRef.current.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.1);
     groupRef.current.position.z = THREE.MathUtils.lerp(groupRef.current.position.z, position[2] + targetZ, 0.1);
@@ -82,7 +82,7 @@ function InteractiveTunnelPoster({ movie, position, rotation, onClick }: any) {
     }
     
     // Floating breathing effect for premium feel
-    const floatOffset = Math.sin(state.clock.elapsedTime * 2 + position[2]) * 0.5;
+    const floatOffset = Math.sin(state.clock.elapsedTime * 1.5 + position[2]) * 0.8;
     groupRef.current.position.y = position[1] + floatOffset;
   });
 
@@ -112,10 +112,10 @@ function InteractiveTunnelPoster({ movie, position, rotation, onClick }: any) {
         <boxGeometry args={[12.5, 18.5, 0.2]} />
         <meshPhysicalMaterial 
           color="#000000" 
-          metalness={0.8}
-          roughness={0.2}
+          metalness={0.9}
+          roughness={0.1}
           emissive="#4e5cff" 
-          emissiveIntensity={0.5} 
+          emissiveIntensity={0.2} 
           toneMapped={false}
         />
       </mesh>
@@ -135,7 +135,7 @@ function InteractiveTunnelPoster({ movie, position, rotation, onClick }: any) {
 // -----------------------------------------------------
 // 3) Main Neon Tunnel
 // -----------------------------------------------------
-export default function NeonTunnel({ count = 100, length = 200, radius = 22, onMovieSelect }: { count?: number, length?: number, radius?: number, onMovieSelect?: (movie: any) => void }) {
+export default function NeonTunnel({ count = 60, length = 200, radius = 25, onMovieSelect }: { count?: number, length?: number, radius?: number, onMovieSelect?: (movie: any) => void }) {
   const groupRef = useRef<THREE.Group>(null);
   const lenis = useLenis();
   const [movies, setMovies] = useState<any[]>([]);
@@ -158,9 +158,9 @@ export default function NeonTunnel({ count = 100, length = 200, radius = 22, onM
 
   const positions = useMemo(() => {
     const pos = [];
-    // Increase density drastically. We wrap them in a spiral.
-    // 12 items per ring roughly
-    const itemsPerRing = 12;
+    // Only 6 items per ring, giving massive horizontal breathing room
+    // creating a sleek, highly curated premium gallery feel
+    const itemsPerRing = 6;
     for (let i = 0; i < count; i++) {
       const z = -(i / count) * length;
       

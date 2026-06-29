@@ -20,11 +20,17 @@ function CameraRig() {
   useFrame((state) => {
     if (!lenis) return;
     
-    // lenis.progress goes from 0 to 1
-    const progress = lenis.progress;
+    // Calculate how far we've scrolled in pixels
+    // We want the 3D journey to complete over the first 300vh of scrolling
+    const scrollY = typeof window !== 'undefined' ? window.scrollY : 0;
+    const scrollHeight300vh = typeof window !== 'undefined' ? window.innerHeight * 3 : 3000;
+    
+    // Map scroll progress (0 to 1) over just the first 300vh
+    const localProgress = Math.min(1, Math.max(0, scrollY / scrollHeight300vh));
     
     // Camera travels completely through Sphere and Tunnel to the end logo
-    camera.position.z = THREE.MathUtils.lerp(5, -300, progress);
+    // It stops at -300 when we hit the HTML sections
+    camera.position.z = THREE.MathUtils.lerp(5, -300, localProgress);
     
     // Add subtle bobbing/breathing effect
     camera.position.y = Math.sin(state.clock.elapsedTime * 0.5) * 0.2;
@@ -132,10 +138,10 @@ export default function Scene3D({ onMovieSelect }: { onMovieSelect?: (movie: any
       <CinematicDust />
       
       {/* Universes */}
-      <PosterSphere count={40} radius={25} onMovieSelect={onMovieSelect} />
+      <PosterSphere count={150} radius={25} onMovieSelect={onMovieSelect} />
       {/* Move tunnel further back to z=-80, make it 200 long */}
       <group position={[0, 0, -30]}> 
-        <NeonTunnel count={40} length={200} radius={10} onMovieSelect={onMovieSelect} />
+        <NeonTunnel count={100} length={200} radius={10} onMovieSelect={onMovieSelect} />
       </group>
       <EndUniverse />
       

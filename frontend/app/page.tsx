@@ -57,9 +57,25 @@ function MainContent() {
           </div>
           
           {/* 
-            MASSIVE INVISIBLE SCROLL AREA 
+            3D SCROLL AREA 
+            The first 300vh of scrolling flies the camera through the 3D Poster Sphere and Neon Tunnel.
+            The canvas is fixed behind this transparent spacer.
           */}
-          <div className="h-[800vh] w-full pointer-events-none" />
+          <div className="h-[300vh] w-full pointer-events-none" />
+
+          {/* RESTORED HTML SECTIONS (Wall of love, Trending, etc.) */}
+          <div className="relative z-10 bg-[#020305]/80 backdrop-blur-md pointer-events-auto flex flex-col gap-12">
+            {/* 
+              We add a dark glassmorphic background to the restored sections 
+              so the 3D canvas doesn't visually clash with the text once you scroll down.
+            */}
+            <Trending />
+            <Timeline />
+            <Testimonials />
+            <FAQ />
+            <CTA />
+            <Footer />
+          </div>
 
           {/* Render MovieModal over everything */}
           <div className="relative z-[100] pointer-events-auto">

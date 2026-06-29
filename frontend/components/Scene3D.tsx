@@ -178,33 +178,91 @@ function PremiumParticleText({ text, size, yOffset, zOffset, count = 2000 }: { t
   );
 }
 
-function WelcomeUniverse() {
-  const groupRef = useRef<THREE.Group>(null);
-  useFrame((state) => {
-    if (groupRef.current) {
-      // Bob the scroll down text
-      groupRef.current.position.y = -8 + Math.sin(state.clock.elapsedTime * 3) * 0.2;
+function PremiumParticleArrow({ yOffset, zOffset, count = 1500 }: { yOffset: number, zOffset: number, count?: number }) {
+  const meshRef = useRef<THREE.InstancedMesh>(null);
+  const [targetPositions, setTargetPositions] = useState<Float32Array | null>(null);
+  const [startPositions, setStartPositions] = useState<Float32Array | null>(null);
+
+  useEffect(() => {
+    // Custom Chevron Arrow Shape
+    const arrowShape = new THREE.Shape();
+    arrowShape.moveTo(0, -1);
+    arrowShape.lineTo(2, 1);
+    arrowShape.lineTo(1.5, 1.5);
+    arrowShape.lineTo(0, 0);
+    arrowShape.lineTo(-1.5, 1.5);
+    arrowShape.lineTo(-2, 1);
+    arrowShape.lineTo(0, -1);
+
+    const geo = new THREE.ExtrudeGeometry(arrowShape, { depth: 0.1, bevelEnabled: false });
+    geo.center();
+    
+    const tempMesh = new THREE.Mesh(geo);
+    const sampler = new MeshSurfaceSampler(tempMesh).build();
+    
+    const targets = new Float32Array(count * 3);
+    const starts = new Float32Array(count * 3);
+    const tempPosition = new THREE.Vector3();
+    
+    for(let i=0; i<count; i++) {
+      sampler.sample(tempPosition);
+      targets[i*3] = tempPosition.x;
+      targets[i*3+1] = tempPosition.y;
+      targets[i*3+2] = tempPosition.z;
+      
+      starts[i*3] = tempPosition.x + (Math.random() - 0.5) * 300;
+      starts[i*3+1] = tempPosition.y + (Math.random() - 0.5) * 300;
+      starts[i*3+2] = tempPosition.z + (Math.random() - 0.5) * 400 + 200; 
     }
+    
+    setTargetPositions(targets);
+    setStartPositions(starts);
+  }, [count]);
+
+  const { camera } = useThree();
+  const dummy = useMemo(() => new THREE.Object3D(), []);
+
+  useFrame((state) => {
+    if (!meshRef.current || !targetPositions || !startPositions) return;
+    const distance = camera.position.z - (zOffset + 30);
+    let progress = 1.0 - Math.min(1, Math.max(0, distance / 150));
+    progress = progress * progress * (3 - 2 * progress); 
+
+    for (let i = 0; i < count; i++) {
+      dummy.position.x = THREE.MathUtils.lerp(startPositions[i*3], targetPositions[i*3], progress);
+      dummy.position.y = THREE.MathUtils.lerp(startPositions[i*3+1], targetPositions[i*3+1], progress);
+      dummy.position.z = THREE.MathUtils.lerp(startPositions[i*3+2], targetPositions[i*3+2], progress);
+      
+      dummy.rotation.set(
+        (1 - progress) * startPositions[i*3],
+        (1 - progress) * startPositions[i*3+1],
+        0
+      );
+      dummy.updateMatrix();
+      meshRef.current.setMatrixAt(i, dummy.matrix);
+    }
+    meshRef.current.instanceMatrix.needsUpdate = true;
+    
+    // Bob the arrow
+    meshRef.current.position.y = yOffset + Math.sin(state.clock.elapsedTime * 3) * 0.2;
   });
 
+  if (!targetPositions) return null;
+
+  return (
+    <instancedMesh ref={meshRef} args={[undefined, undefined, count]} position={[0, yOffset, zOffset]}>
+      <icosahedronGeometry args={[0.06, 0]} />
+      <meshPhysicalMaterial color="#ffffff" metalness={0.2} roughness={0.1} emissive="#ffffff" emissiveIntensity={0.4} />
+    </instancedMesh>
+  );
+}
+
+function WelcomeUniverse() {
   return (
     <group>
       <PremiumParticleText text="Aditya says" size={3} yOffset={3} zOffset={-315} count={4000} />
       <PremiumParticleText text="hello to you" size={3} yOffset={-2} zOffset={-315} count={4500} />
-      
-      <group position={[0, -8, -315]} ref={groupRef}>
-        <Center>
-          <Text3D 
-            font="https://raw.githubusercontent.com/mrdoob/three.js/master/examples/fonts/helvetiker_regular.typeface.json"
-            size={0.6}
-            height={0.05}
-            curveSegments={2}
-          >
-            Scroll Down
-            <meshStandardMaterial color="#ffffff" emissive="#ffffff" emissiveIntensity={0.3} />
-          </Text3D>
-        </Center>
-      </group>
+      <PremiumParticleArrow yOffset={-8} zOffset={-315} count={1500} />
     </group>
   );
 }

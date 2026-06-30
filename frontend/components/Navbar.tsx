@@ -64,7 +64,11 @@ export default function Navbar() {
             <MagneticButton key={item.name} className="relative group px-4 py-2">
               <Link 
                 href={item.path}
-                className="text-sm font-medium tracking-wide text-gray-300 transition-colors group-hover:text-white"
+                className={`text-sm font-medium tracking-wide transition-colors ${
+                  item.name === "Explore" 
+                    ? "text-yellow-400 group-hover:text-yellow-300 drop-shadow-[0_0_8px_rgba(250,204,21,0.5)] font-bold" 
+                    : "text-gray-300 group-hover:text-white"
+                }`}
               >
                 {item.name}
               </Link>

@@ -1,7 +1,7 @@
 "use client";
 
 import { Canvas } from "@react-three/fiber";
-import { OrbitControls, Stars } from "@react-three/drei";
+import { Stars } from "@react-three/drei";
 import { EffectComposer, Bloom, Vignette } from "@react-three/postprocessing";
 import ConstellationGraph from "@/components/ConstellationGraph";
 import { Suspense } from "react";
@@ -31,19 +31,11 @@ export default function ExplorePage() {
             <ConstellationGraph />
           </Suspense>
 
-          <OrbitControls 
-            enablePan={false}
-            enableZoom={true}
-            maxDistance={100}
-            minDistance={2}
-            dampingFactor={0.05}
-          />
-
           <EffectComposer multisampling={0}>
             <Bloom
               luminanceThreshold={0.2}
               mipmapBlur
-              intensity={1.5}
+              intensity={0.8}
               radius={0.8}
             />
             <Vignette eskil={false} offset={0.1} darkness={1.1} />

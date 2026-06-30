@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
-import { Line, Billboard, Image as DreiImage, Html } from "@react-three/drei";
+import { Line, Billboard, Image as DreiImage, Html, OrbitControls } from "@react-three/drei";
+import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import * as THREE from "three";
 import axios from "axios";
 
@@ -59,7 +60,7 @@ function MovieNode({
         {/* Glowing Aura */}
         <mesh position={[0, 0, -0.1]}>
           <planeGeometry args={[2.5, 3.5]} />
-          <meshBasicMaterial color={hovered ? "#ffffff" : "#4e5cff"} transparent opacity={hovered ? 0.6 : 0.15} />
+          <meshBasicMaterial color={hovered ? "#ffffff" : "#4e5cff"} transparent opacity={hovered ? 0.4 : 0.05} />
         </mesh>
         
         {/* Poster */}
@@ -91,9 +92,11 @@ export default function ConstellationGraph() {
   const [activeNode, setActiveNode] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const groupRef = useRef<THREE.Group>(null);
+  const controlsRef = useRef<OrbitControlsImpl>(null);
   
   const { camera } = useThree();
   const targetCameraPos = useRef(new THREE.Vector3(0, 0, 15));
+  const targetLookAt = useRef(new THREE.Vector3(0, 0, 0));
 
   // Initialize central node by fetching trending movies
   useEffect(() => {
@@ -207,6 +210,13 @@ export default function ConstellationGraph() {
       node.position.y,
       node.position.z + 15
     );
+    
+    // Set what the camera/controls should orbit around
+    targetLookAt.current = new THREE.Vector3(
+      node.position.x,
+      node.position.y,
+      node.position.z
+    );
 
     fetchConnections(node);
   };
@@ -219,25 +229,29 @@ export default function ConstellationGraph() {
       groupRef.current.rotation.x += 0.0005;
     }
 
-    // Lerp camera to target
-    camera.position.lerp(targetCameraPos.current, 0.05);
-    
-    // Keep looking at active node if one exists
-    const active = nodes.get(activeNode);
-    if (active) {
-      // Create a temporary vector to look at, lerping towards it
-      // This prevents abrupt snapping
-      const currentLookAt = new THREE.Vector3(0,0,0);
-      camera.getWorldDirection(currentLookAt);
-      currentLookAt.add(camera.position);
-      
-      currentLookAt.lerp(active.position, 0.05);
-      camera.lookAt(currentLookAt);
+    // Lerp camera and orbit controls target only if they are far from the target
+    if (controlsRef.current) {
+      if (camera.position.distanceTo(targetCameraPos.current) > 0.1) {
+        camera.position.lerp(targetCameraPos.current, 0.03);
+      }
+      if (controlsRef.current.target.distanceTo(targetLookAt.current) > 0.1) {
+        controlsRef.current.target.lerp(targetLookAt.current, 0.03);
+      }
+      controlsRef.current.update();
     }
   });
 
   return (
-    <group ref={groupRef}>
+    <>
+      <OrbitControls 
+        ref={controlsRef}
+        enablePan={false}
+        enableZoom={true}
+        maxDistance={100}
+        minDistance={2}
+        dampingFactor={0.05}
+      />
+      <group ref={groupRef}>
       {/* Edges */}
       {edges.map((edge, i) => {
         const sourceNode = nodes.get(edge.source);
@@ -264,6 +278,7 @@ export default function ConstellationGraph() {
           onClick={handleNodeClick} 
         />
       ))}
-    </group>
+      </group>
+    </>
   );
 }

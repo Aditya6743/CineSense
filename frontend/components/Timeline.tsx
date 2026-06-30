@@ -198,7 +198,7 @@ export default function Timeline() {
   }, []);
 
   return (
-    <section id="how-it-works" className="relative w-full overflow-hidden py-40 px-6">
+    <section id="features" className="relative w-full overflow-hidden py-40 px-6">
       
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-violet-500/5 blur-[120px] rounded-full pointer-events-none" />
 

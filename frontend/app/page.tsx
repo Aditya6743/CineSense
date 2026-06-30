@@ -20,8 +20,23 @@ import { ThemeProvider, useTheme } from "../components/ThemeProvider";
 
 function MainContent() {
   const [isLoaded, setIsLoaded] = useState(false);
+  const [shouldShowPreloader, setShouldShowPreloader] = useState(true);
   const [selectedMovie, setSelectedMovie] = useState<any | null>(null);
   const { accentColor } = useTheme();
+
+  useEffect(() => {
+    // Check if we've already loaded the app in this session
+    if (sessionStorage.getItem("cinesense_loaded") === "true") {
+      setIsLoaded(true);
+      setShouldShowPreloader(false);
+    }
+  }, []);
+
+  const handlePreloaderComplete = () => {
+    setIsLoaded(true);
+    setShouldShowPreloader(false);
+    sessionStorage.setItem("cinesense_loaded", "true");
+  };
 
   return (
     <main 
@@ -30,7 +45,7 @@ function MainContent() {
         '--accent': accentColor,
       } as React.CSSProperties}
     >
-      <Preloader onComplete={() => setIsLoaded(true)} />
+      {shouldShowPreloader && <Preloader onComplete={handlePreloaderComplete} />}
       
       <CustomCursor />
       

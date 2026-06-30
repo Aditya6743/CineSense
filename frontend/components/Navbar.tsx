@@ -61,10 +61,10 @@ export default function Navbar() {
             { name: "Trending", path: "/#trending" },
             { name: "Features", path: "/#features" }
           ].map((item) => (
-            <MagneticButton key={item.name} className="relative group px-4 py-2">
+            <MagneticButton key={item.name} className="relative group">
               <Link 
                 href={item.path}
-                className={`text-sm font-medium tracking-wide transition-colors ${
+                className={`block w-full h-full px-4 py-2 text-sm font-medium tracking-wide transition-colors ${
                   item.name === "Explore" 
                     ? "text-yellow-400 group-hover:text-yellow-300 drop-shadow-[0_0_8px_rgba(250,204,21,0.5)] font-bold" 
                     : "text-gray-300 group-hover:text-white"
@@ -72,28 +72,30 @@ export default function Navbar() {
               >
                 {item.name}
               </Link>
-              <span className="absolute bottom-1 left-6 right-6 h-[2px] rounded-full bg-gradient-to-r from-violet-500 to-blue-500 origin-left scale-x-0 transition-transform duration-300 ease-out group-hover:scale-x-100 drop-shadow-[0_0_8px_rgba(124,92,255,0.8)]" />
+              <span className="absolute bottom-1 left-6 right-6 h-[2px] rounded-full bg-gradient-to-r from-violet-500 to-blue-500 origin-left scale-x-0 transition-transform duration-300 ease-out group-hover:scale-x-100 drop-shadow-[0_0_8px_rgba(124,92,255,0.8)] pointer-events-none" />
             </MagneticButton>
           ))}
         </div>
 
         {/* Social Links */}
         <div className="flex items-center gap-4">
-          <MagneticButton className="rounded-xl border border-white/10 bg-white/5 p-2.5 backdrop-blur-xl hover:bg-white/10 transition-colors shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
+          <MagneticButton className="rounded-xl border border-white/10 bg-white/5 backdrop-blur-xl hover:bg-white/10 transition-colors shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
             <a
               href="https://github.com/Aditya6743"
               target="_blank"
               rel="noreferrer"
+              className="flex items-center justify-center p-2.5 w-full h-full"
             >
               <FaGithub className="text-xl text-white" />
             </a>
           </MagneticButton>
           
-          <MagneticButton className="rounded-xl border border-white/10 bg-white/5 p-2.5 backdrop-blur-xl hover:bg-[#0A66C2]/20 hover:border-[#0A66C2]/50 transition-colors shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
+          <MagneticButton className="rounded-xl border border-white/10 bg-white/5 backdrop-blur-xl hover:bg-[#0A66C2]/20 hover:border-[#0A66C2]/50 transition-colors shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
             <a
               href="https://www.linkedin.com/in/aditya-tripathi-922a2429a/"
               target="_blank"
               rel="noreferrer"
+              className="flex items-center justify-center p-2.5 w-full h-full"
             >
               <FaLinkedin className="text-xl text-[#0A66C2]" />
             </a>

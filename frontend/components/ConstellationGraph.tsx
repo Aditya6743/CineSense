@@ -98,6 +98,8 @@ export default function ConstellationGraph() {
   const targetCameraPos = useRef(new THREE.Vector3(0, 0, 15));
   const targetLookAt = useRef(new THREE.Vector3(0, 0, 0));
 
+  const isNavigating = useRef(false);
+
   // Initialize central node by fetching trending movies
   useEffect(() => {
     const initializeGraph = async () => {
@@ -116,11 +118,14 @@ export default function ConstellationGraph() {
           
           const map = new Map();
           map.set(firstMovie.title, initNode);
-          setNodes(map);
-          setActiveNode(firstMovie.title);
           
-          // Now fetch its connections
-          fetchConnections(initNode, map);
+          // Set initial target for camera
+          targetCameraPos.current = new THREE.Vector3(0, 0, 15);
+          targetLookAt.current = new THREE.Vector3(0, 0, 0);
+          isNavigating.current = true;
+          
+          // Wait for connections before setting nodes to show them all together
+          await fetchConnections(initNode, map, true);
         }
       } catch (err) {
         console.error("Failed to initialize constellation graph:", err);
@@ -131,7 +136,7 @@ export default function ConstellationGraph() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const fetchConnections = async (sourceNode: Node, currentNodesMap: Map<string, Node> = nodes) => {
+  const fetchConnections = async (sourceNode: Node, currentNodesMap: Map<string, Node> = nodes, isInitial = false) => {
     if (loading) return;
     setLoading(true);
     try {
@@ -184,7 +189,7 @@ export default function ConstellationGraph() {
 
       setNodes(prev => {
         // Use the passed map if this is the initial fetch, otherwise use prev
-        const baseMap = currentNodesMap.size > prev.size ? currentNodesMap : prev;
+        const baseMap = isInitial ? currentNodesMap : prev;
         const next = new Map(baseMap);
         newNodesList.forEach(n => next.set(n.id, n));
         return next;
@@ -192,8 +197,17 @@ export default function ConstellationGraph() {
       
       setEdges(prev => [...prev, ...newEdges]);
       
+      if (isInitial) {
+        setActiveNode(sourceNode.id);
+      }
+      
     } catch (err) {
       console.error("Failed to fetch constellation connections", err);
+      // Fallback: If recommendation fails on initial load, at least show the first movie
+      if (isInitial) {
+        setNodes(currentNodesMap);
+        setActiveNode(sourceNode.id);
+      }
     } finally {
       setLoading(false);
     }
@@ -217,6 +231,8 @@ export default function ConstellationGraph() {
       node.position.y,
       node.position.z
     );
+    
+    isNavigating.current = true;
 
     fetchConnections(node);
   };
@@ -229,20 +245,30 @@ export default function ConstellationGraph() {
       groupRef.current.rotation.x += 0.0005;
     }
 
-    // Lerp camera and orbit controls target only if they are far from the target
-    if (controlsRef.current) {
-      if (camera.position.distanceTo(targetCameraPos.current) > 0.1) {
-        camera.position.lerp(targetCameraPos.current, 0.03);
-      }
-      if (controlsRef.current.target.distanceTo(targetLookAt.current) > 0.1) {
-        controlsRef.current.target.lerp(targetLookAt.current, 0.03);
-      }
+    // Lerp camera and orbit controls target only when navigating
+    if (controlsRef.current && isNavigating.current) {
+      camera.position.lerp(targetCameraPos.current, 0.03);
+      controlsRef.current.target.lerp(targetLookAt.current, 0.03);
       controlsRef.current.update();
+      
+      // Stop navigating once we are close enough to the target
+      if (camera.position.distanceTo(targetCameraPos.current) < 0.2) {
+        isNavigating.current = false;
+      }
     }
   });
 
   return (
     <>
+      {nodes.size === 0 && (
+        <Html center>
+          <div className="flex flex-col items-center justify-center gap-4">
+            <div className="w-12 h-12 border-4 border-[#4e5cff] border-t-transparent rounded-full animate-spin drop-shadow-[0_0_15px_rgba(78,92,255,0.8)]"></div>
+            <p className="text-white font-medium tracking-widest uppercase text-xs drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]">Discovering Constellations...</p>
+          </div>
+        </Html>
+      )}
+      
       <OrbitControls 
         ref={controlsRef}
         enablePan={false}

@@ -11,7 +11,7 @@ import { useLenis } from "lenis/react";
 import PosterSphere from "./PosterSphere";
 import NeonTunnel from "./NeonTunnel";
 
-import { Text3D, Center } from "@react-three/drei";
+import { Text3D, Center, Image } from "@react-three/drei";
 import { MeshSurfaceSampler, FontLoader, TextGeometry } from "three-stdlib";
 import { useMemo } from "react";
 
@@ -257,12 +257,38 @@ function PremiumParticleArrow({ yOffset, zOffset, count = 1500 }: { yOffset: num
   );
 }
 
+function FloatingLogo() {
+  const groupRef = useRef<THREE.Group>(null);
+  
+  useFrame((state) => {
+    if (groupRef.current) {
+      groupRef.current.position.y = Math.sin(state.clock.elapsedTime * 1.5) * 1.5 + 4;
+    }
+  });
+
+  return (
+    <group ref={groupRef} position={[0, 4, -315]}>
+      {/* Intense Backlight Aura */}
+      <mesh position={[0, 0, -1]}>
+        <circleGeometry args={[12, 32]} />
+        <meshPhysicalMaterial color="#4e5cff" transparent opacity={0.3} emissive="#4e5cff" emissiveIntensity={2} />
+      </mesh>
+      
+      <Image 
+        url="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Clapper%20Board.png" 
+        scale={[18, 18]} 
+        transparent 
+      />
+    </group>
+  );
+}
+
 function WelcomeUniverse() {
   return (
     <group>
-      <PremiumParticleText text="CineSense" size={4.5} yOffset={2} zOffset={-315} count={8000} />
-      <PremiumParticleText text="Discover Your Next Favorite Movie" size={1.2} yOffset={-4} zOffset={-315} count={3000} />
-      <PremiumParticleArrow yOffset={-9} zOffset={-315} count={1500} />
+      <FloatingLogo />
+      <PremiumParticleText text="Discover Your Next Favorite Movie" size={1.2} yOffset={-6} zOffset={-315} count={3000} />
+      <PremiumParticleArrow yOffset={-12} zOffset={-315} count={1500} />
     </group>
   );
 }

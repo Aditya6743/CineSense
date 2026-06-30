@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
-import { Line, Text, Billboard, Image as DreiImage } from "@react-three/drei";
+import { Line, Billboard, Image as DreiImage, Html } from "@react-three/drei";
 import * as THREE from "three";
 import axios from "axios";
 
@@ -39,11 +39,11 @@ function MovieNode({
 
   useFrame((state) => {
     if (!meshRef.current) return;
-    const targetScale = hovered ? 1.2 : 1.0;
-    meshRef.current.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.1);
+    const targetScale = hovered ? 1.25 : 1.0;
+    meshRef.current.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.15);
     
     // Gentle floating
-    meshRef.current.position.y = node.position.y + Math.sin(state.clock.elapsedTime * 2 + node.position.x) * 0.2;
+    meshRef.current.position.y = node.position.y + Math.sin(state.clock.elapsedTime * 2 + node.position.x) * 0.15;
   });
 
   const hasPoster = !!node.data.poster;
@@ -56,28 +56,29 @@ function MovieNode({
         onPointerOut={(e) => { e.stopPropagation(); setHovered(false); document.body.style.cursor = "auto"; }}
         onClick={(e) => { e.stopPropagation(); onClick(node); }}
       >
-        {/* Glowing Backplate */}
+        {/* Glowing Aura */}
         <mesh position={[0, 0, -0.1]}>
-          <planeGeometry args={[2.2, 3.2]} />
-          <meshBasicMaterial color={hovered ? "#b04eff" : "#4e5cff"} transparent opacity={hovered ? 0.8 : 0.2} />
+          <planeGeometry args={[2.5, 3.5]} />
+          <meshBasicMaterial color={hovered ? "#ffffff" : "#4e5cff"} transparent opacity={hovered ? 0.6 : 0.15} />
         </mesh>
         
         {/* Poster */}
-        {hasPoster && <DreiImage url={node.data.poster!} scale={[2, 3]} transparent />}
+        {hasPoster ? (
+          <DreiImage url={node.data.poster!} scale={[2, 3]} transparent />
+        ) : (
+          <mesh>
+            <planeGeometry args={[2, 3]} />
+            <meshBasicMaterial color="#1a1a2e" />
+          </mesh>
+        )}
         
-        {/* Title Tag */}
+        {/* Sleek HTML Tooltip */}
         {hovered && (
-          <Text 
-            position={[0, -1.8, 0.1]} 
-            fontSize={0.3} 
-            color="white"
-            anchorX="center"
-            anchorY="top"
-            maxWidth={3}
-            textAlign="center"
-          >
-            {node.data.title}
-          </Text>
+          <Html position={[0, -1.8, 0]} center zIndexRange={[100, 0]}>
+            <div className="bg-black/80 backdrop-blur-md text-white px-4 py-2 rounded-full border border-white/20 whitespace-nowrap text-sm font-semibold tracking-wide shadow-[0_0_20px_rgba(78,92,255,0.5)]">
+              {node.data.title}
+            </div>
+          </Html>
         )}
       </group>
     </Billboard>
@@ -247,10 +248,10 @@ export default function ConstellationGraph() {
           <Line
             key={`edge-${i}`}
             points={[sourceNode.position, targetNode.position]}
-            color="#4e5cff"
-            opacity={0.3}
+            color="#6b7cff"
+            opacity={0.6}
             transparent
-            lineWidth={1.5}
+            lineWidth={2.5}
           />
         );
       })}

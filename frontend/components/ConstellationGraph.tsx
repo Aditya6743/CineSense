@@ -89,7 +89,7 @@ function MovieNode({
 export default function ConstellationGraph() {
   const [nodes, setNodes] = useState<Map<string, Node>>(new Map());
   const [edges, setEdges] = useState<Edge[]>([]);
-  const [activeNode, setActiveNode] = useState<string>("");
+
   const [loading, setLoading] = useState(false);
   const groupRef = useRef<THREE.Group>(null);
   const controlsRef = useRef<OrbitControlsImpl>(null);
@@ -162,7 +162,7 @@ export default function ConstellationGraph() {
       setEdges(prev => [...prev, ...newEdges]);
       
       if (isInitial) {
-        setActiveNode(sourceNode.id);
+        // Active node logic can be added here in the future if needed
       }
       
     } catch (err) {
@@ -170,7 +170,6 @@ export default function ConstellationGraph() {
       // Fallback: If recommendation fails on initial load, at least show the first movie
       if (isInitial) {
         setNodes(currentNodesMap);
-        setActiveNode(sourceNode.id);
       }
     } finally {
       setLoading(false);
@@ -216,7 +215,6 @@ export default function ConstellationGraph() {
   // Removed the duplicate useEffect that relied on initialMovie
 
   const handleNodeClick = (node: Node) => {
-    setActiveNode(node.id);
     
     // Set target camera position (look at node, back up slightly on Z)
     targetCameraPos.current = new THREE.Vector3(

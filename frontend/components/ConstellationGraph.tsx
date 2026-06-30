@@ -106,6 +106,7 @@ export default function ConstellationGraph({ initialMovie }: { initialMovie: str
     newNodes.set(initialMovie, initNode);
     setNodes(newNodes);
     fetchConnections(initNode);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialMovie]);
 
   const fetchConnections = async (sourceNode: Node) => {

@@ -100,42 +100,6 @@ export default function ConstellationGraph() {
 
   const isNavigating = useRef(false);
 
-  // Initialize central node by fetching trending movies
-  useEffect(() => {
-    const initializeGraph = async () => {
-      try {
-        const trendingRes = await axios.get("/api/trending");
-        const trendingMovies: MovieData[] = trendingRes.data;
-        
-        if (trendingMovies && trendingMovies.length > 0) {
-          const firstMovie = trendingMovies[0]; // Start with the top trending movie
-          const initNode: Node = {
-            id: firstMovie.title,
-            data: firstMovie, // Contains the actual poster!
-            position: new THREE.Vector3(0, 0, 0),
-            level: 0
-          };
-          
-          const map = new Map();
-          map.set(firstMovie.title, initNode);
-          
-          // Set initial target for camera
-          targetCameraPos.current = new THREE.Vector3(0, 0, 15);
-          targetLookAt.current = new THREE.Vector3(0, 0, 0);
-          isNavigating.current = true;
-          
-          // Wait for connections before setting nodes to show them all together
-          await fetchConnections(initNode, map, true);
-        }
-      } catch (err) {
-        console.error("Failed to initialize constellation graph:", err);
-      }
-    };
-    
-    initializeGraph();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const fetchConnections = async (sourceNode: Node, currentNodesMap: Map<string, Node> = nodes, isInitial = false) => {
     if (loading) return;
     setLoading(true);
@@ -212,6 +176,42 @@ export default function ConstellationGraph() {
       setLoading(false);
     }
   };
+
+  // Initialize central node by fetching trending movies
+  useEffect(() => {
+    const initializeGraph = async () => {
+      try {
+        const trendingRes = await axios.get("/api/trending");
+        const trendingMovies: MovieData[] = trendingRes.data;
+        
+        if (trendingMovies && trendingMovies.length > 0) {
+          const firstMovie = trendingMovies[0]; // Start with the top trending movie
+          const initNode: Node = {
+            id: firstMovie.title,
+            data: firstMovie, // Contains the actual poster!
+            position: new THREE.Vector3(0, 0, 0),
+            level: 0
+          };
+          
+          const map = new Map();
+          map.set(firstMovie.title, initNode);
+          
+          // Set initial target for camera
+          targetCameraPos.current = new THREE.Vector3(0, 0, 15);
+          targetLookAt.current = new THREE.Vector3(0, 0, 0);
+          isNavigating.current = true;
+          
+          // Wait for connections before setting nodes to show them all together
+          await fetchConnections(initNode, map, true);
+        }
+      } catch (err) {
+        console.error("Failed to initialize constellation graph:", err);
+      }
+    };
+    
+    initializeGraph();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Removed the duplicate useEffect that relied on initialMovie
 

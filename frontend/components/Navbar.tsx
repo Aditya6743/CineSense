@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useScroll, useMotionValueEvent } from "framer-motion";
-import { Film } from "lucide-react";
+import { Search, Bell, User, Menu, X } from "lucide-react";
 import { FaGithub } from "react-icons/fa";
 import MagneticButton from "./MagneticButton";
 import { useState } from "react";
@@ -39,16 +39,13 @@ export default function Navbar() {
           onMouseEnter={playHover}
           onClick={() => { playClick(); window.scrollTo(0, 0); }}
         >
-          <motion.div
-            whileHover={{
-              rotate: 180,
-              scale: 1.1,
-            }}
-            transition={{ type: "spring", stiffness: 200, damping: 10 }}
-            className="rounded-2xl bg-gradient-to-r from-violet-600 to-blue-600 p-2.5 shadow-[0_0_20px_rgba(124,92,255,0.4)] group-hover:shadow-[0_0_30px_rgba(124,92,255,0.6)]"
-          >
-            <Film className="h-5 w-5 text-white" />
-          </motion.div>
+          <motion.img
+            src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Clapper%20Board.png"
+            alt="Clapper Board Logo"
+            className="w-10 h-10 drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]"
+            whileHover={{ scale: 1.15, rotate: 5 }}
+            transition={{ type: "spring", stiffness: 300 }}
+          />
 
           <h1 className="bg-gradient-to-r from-white to-gray-400 bg-clip-text text-2xl font-extrabold text-transparent tracking-tight">
             CineSense

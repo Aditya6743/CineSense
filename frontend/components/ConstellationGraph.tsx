@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useMemo } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import { Line, Text, Billboard, Image as DreiImage } from "@react-three/drei";
 import * as THREE from "three";
@@ -174,6 +174,7 @@ export default function ConstellationGraph({ initialMovie }: { initialMovie: str
   useEffect(() => {
     const initNode = nodes.get(initialMovie);
     if (initNode) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       fetchConnections(initNode);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -193,7 +194,7 @@ export default function ConstellationGraph({ initialMovie }: { initialMovie: str
   };
 
   // Smooth camera and subtle rotation
-  useFrame((state) => {
+  useFrame(() => {
     if (groupRef.current) {
       // Very slow global rotation to make it feel alive
       groupRef.current.rotation.y += 0.001;

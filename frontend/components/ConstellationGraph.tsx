@@ -46,7 +46,7 @@ function MovieNode({
     meshRef.current.position.y = node.position.y + Math.sin(state.clock.elapsedTime * 2 + node.position.x) * 0.2;
   });
 
-  const posterUrl = node.data.poster || "https://via.placeholder.com/256x384/4e5cff/ffffff?text=No+Poster";
+  const hasPoster = !!node.data.poster;
 
   return (
     <Billboard position={node.position}>
@@ -63,7 +63,7 @@ function MovieNode({
         </mesh>
         
         {/* Poster */}
-        <DreiImage url={posterUrl} scale={[2, 3]} transparent />
+        {hasPoster && <DreiImage url={node.data.poster!} scale={[2, 3]} transparent />}
         
         {/* Title Tag */}
         {hovered && (

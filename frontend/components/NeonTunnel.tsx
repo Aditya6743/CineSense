@@ -159,7 +159,7 @@ function InteractiveTunnelPoster({ movie, position, rotation, onClick }: any) {
 // -----------------------------------------------------
 // 3) Main Neon Tunnel
 // -----------------------------------------------------
-export default function NeonTunnel({ count = 60, length = 200, radius = 25, onMovieSelect }: { count?: number, length?: number, radius?: number, onMovieSelect?: (movie: any) => void }) {
+export default function NeonTunnel({ count = 60, length = 300, radius = 30, onMovieSelect }: { count?: number, length?: number, radius?: number, onMovieSelect?: (movie: any) => void }) {
   const groupRef = useRef<THREE.Group>(null);
   const lenis = useLenis();
   const [movies, setMovies] = useState<any[]>([]);
@@ -185,11 +185,18 @@ export default function NeonTunnel({ count = 60, length = 200, radius = 25, onMo
     // Only 6 items per ring, giving massive horizontal breathing room
     // creating a sleek, highly curated premium gallery feel
     const itemsPerRing = 6;
+    const numRings = Math.ceil(count / itemsPerRing);
+    
     for (let i = 0; i < count; i++) {
-      const z = -(i / count) * length;
+      const ringIndex = Math.floor(i / itemsPerRing);
+      const itemIndex = i % itemsPerRing;
       
-      // Calculate angle in the spiral
-      const theta = (i % itemsPerRing) * ((Math.PI * 2) / itemsPerRing) + (i * 0.15); 
+      // All items in the same ring share the exact same Z coordinate
+      // This prevents the "some at top, some at bottom missing" spiral effect
+      const z = -(ringIndex / numRings) * length;
+      
+      // Calculate angle in the ring, offset each ring slightly for a twist effect
+      const theta = (itemIndex * ((Math.PI * 2) / itemsPerRing)) + (ringIndex * 0.3); 
       
       const x = Math.cos(theta) * radius;
       const y = Math.sin(theta) * radius;

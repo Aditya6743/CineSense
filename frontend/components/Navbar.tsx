@@ -54,10 +54,18 @@ export default function Navbar() {
 
         {/* Links */}
         <div className="hidden items-center gap-2 md:flex">
-          {["Home", "Trending", "Features"].map((item) => (
-            <MagneticButton key={item} className="group relative px-6 py-2 rounded-full text-sm font-medium text-gray-400 hover:text-white transition-colors">
-              <a href={`#${item.toLowerCase()}`}>
-                {item}
+          {[
+            { name: "Home", path: "/" },
+            { name: "Explore", path: "/explore" },
+            { name: "Trending", path: "/#trending" },
+            { name: "Features", path: "/#features" }
+          ].map((item) => (
+            <MagneticButton key={item.name} className="relative group px-4 py-2">
+              <a 
+                href={item.path}
+                className="text-sm font-medium tracking-wide text-gray-300 transition-colors group-hover:text-white"
+              >
+                {item.name}
               </a>
               <span className="absolute bottom-1 left-6 right-6 h-[2px] rounded-full bg-gradient-to-r from-violet-500 to-blue-500 origin-left scale-x-0 transition-transform duration-300 ease-out group-hover:scale-x-100 drop-shadow-[0_0_8px_rgba(124,92,255,0.8)]" />
             </MagneticButton>

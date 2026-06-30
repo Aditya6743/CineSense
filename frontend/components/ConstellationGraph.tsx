@@ -252,7 +252,7 @@ export default function ConstellationGraph() {
       controlsRef.current.update();
       
       // Stop navigating once we are close enough to the target
-      if (camera.position.distanceTo(targetCameraPos.current) < 0.2) {
+      if (camera.position.distanceTo(targetCameraPos.current) < 0.5) {
         isNavigating.current = false;
       }
     }
@@ -276,6 +276,7 @@ export default function ConstellationGraph() {
         maxDistance={100}
         minDistance={2}
         dampingFactor={0.05}
+        onStart={() => { isNavigating.current = false; }}
       />
       <group ref={groupRef}>
       {/* Edges */}

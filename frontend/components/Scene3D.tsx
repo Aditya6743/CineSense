@@ -257,38 +257,98 @@ function PremiumParticleArrow({ yOffset, zOffset, count = 1500 }: { yOffset: num
   );
 }
 
-function FloatingLogo() {
-  const groupRef = useRef<THREE.Group>(null);
-  
-  useFrame((state) => {
-    if (groupRef.current) {
-      groupRef.current.position.y = Math.sin(state.clock.elapsedTime * 1.5) * 1.5 + 4;
+function PremiumParticleLogo({ yOffset = 0, zOffset = -300, count = 10000 }) {
+  const meshRef = useRef<THREE.InstancedMesh>(null);
+  const [targetPositions, setTargetPositions] = useState<Float32Array | null>(null);
+  const [startPositions, setStartPositions] = useState<Float32Array | null>(null);
+
+  useEffect(() => {
+    // 1. Board Geometry
+    const boardGeo = new THREE.BoxGeometry(16, 10, 1);
+    const boardMesh = new THREE.Mesh(boardGeo);
+    const boardSampler = new MeshSurfaceSampler(boardMesh).build();
+
+    // 2. Arm Geometry (Clapper top)
+    const armGeo = new THREE.BoxGeometry(16, 2, 1);
+    armGeo.translate(8, 1, 0); 
+    armGeo.rotateZ(Math.PI / 8); // 22.5 deg tilt
+    armGeo.translate(-8, 5.5, 0);
+    const armMesh = new THREE.Mesh(armGeo);
+    const armSampler = new MeshSurfaceSampler(armMesh).build();
+
+    const targets = new Float32Array(count * 3);
+    const starts = new Float32Array(count * 3);
+    const tempPosition = new THREE.Vector3();
+    
+    for(let i=0; i<count; i++) {
+      if (Math.random() > 0.25) {
+        boardSampler.sample(tempPosition);
+      } else {
+        armSampler.sample(tempPosition);
+      }
+      
+      targets[i*3] = tempPosition.x;
+      targets[i*3+1] = tempPosition.y;
+      targets[i*3+2] = tempPosition.z;
+      
+      starts[i*3] = tempPosition.x + (Math.random() - 0.5) * 400;
+      starts[i*3+1] = tempPosition.y + (Math.random() - 0.5) * 400;
+      starts[i*3+2] = tempPosition.z + (Math.random() - 0.5) * 500 + 200; 
     }
+    
+    setTargetPositions(targets);
+    setStartPositions(starts);
+  }, [count]);
+
+  const { camera } = useThree();
+  const dummy = useMemo(() => new THREE.Object3D(), []);
+
+  useFrame((state) => {
+    if (!meshRef.current || !targetPositions || !startPositions) return;
+    const distance = camera.position.z - (zOffset + 30);
+    let progress = 1.0 - Math.min(1, Math.max(0, distance / 150));
+    progress = progress * progress * (3 - 2 * progress); 
+
+    for (let i = 0; i < count; i++) {
+      dummy.position.x = THREE.MathUtils.lerp(startPositions[i*3], targetPositions[i*3], progress);
+      dummy.position.y = THREE.MathUtils.lerp(startPositions[i*3+1], targetPositions[i*3+1], progress);
+      dummy.position.z = THREE.MathUtils.lerp(startPositions[i*3+2], targetPositions[i*3+2], progress);
+      
+      dummy.rotation.set(
+        (1 - progress) * startPositions[i*3],
+        (1 - progress) * startPositions[i*3+1],
+        0
+      );
+      
+      dummy.updateMatrix();
+      meshRef.current.setMatrixAt(i, dummy.matrix);
+    }
+    meshRef.current.instanceMatrix.needsUpdate = true;
+    
+    // Float the whole logo slightly
+    meshRef.current.position.y = yOffset + Math.sin(state.clock.elapsedTime) * 0.5;
+    
+    // Add cinematic rotation to the logo
+    meshRef.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.3) * 0.15;
+    meshRef.current.rotation.z = Math.sin(state.clock.elapsedTime * 0.4) * 0.05;
   });
 
+  if (!targetPositions) return null;
+
   return (
-    <group ref={groupRef} position={[0, 4, -315]}>
-      {/* Intense Backlight Aura */}
-      <mesh position={[0, 0, -1]}>
-        <circleGeometry args={[12, 32]} />
-        <meshPhysicalMaterial color="#4e5cff" transparent opacity={0.3} emissive="#4e5cff" emissiveIntensity={2} />
-      </mesh>
-      
-      <Image 
-        url="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Clapper%20Board.png" 
-        scale={[18, 18]} 
-        transparent 
-      />
-    </group>
+    <instancedMesh ref={meshRef} args={[undefined, undefined, count]} position={[0, yOffset, zOffset]}>
+      <sphereGeometry args={[0.08, 8, 8]} />
+      <meshPhysicalMaterial color="#ffffff" metalness={0.2} roughness={0.1} emissive="#4e5cff" emissiveIntensity={1.5} />
+    </instancedMesh>
   );
 }
 
 function WelcomeUniverse() {
   return (
     <group>
-      <FloatingLogo />
-      <PremiumParticleText text="Discover Your Next Favorite Movie" size={1.2} yOffset={-6} zOffset={-315} count={3000} />
-      <PremiumParticleArrow yOffset={-12} zOffset={-315} count={1500} />
+      <PremiumParticleLogo yOffset={4} zOffset={-315} count={12000} />
+      <PremiumParticleText text="Discover Your Next Favorite Movie" size={1.2} yOffset={-8} zOffset={-315} count={3000} />
+      <PremiumParticleArrow yOffset={-14} zOffset={-315} count={1500} />
     </group>
   );
 }

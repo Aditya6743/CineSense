@@ -287,8 +287,8 @@ function PremiumParticleLogo({ yOffset = 0, zOffset = -300, count = 10000 }) {
           const idx = (y * size + x) * 4;
           const a = imgData[idx+3];
           if (a > 50) {
-            // Perfectly center the coordinates around origin
-            validPoints.push(new THREE.Vector3((x - size/2) * 0.2, -(y - size/2) * 0.2, 0));
+            // Perfectly center the coordinates around origin, scaled down for better visibility
+            validPoints.push(new THREE.Vector3((x - size/2) * 0.14, -(y - size/2) * 0.14, 0));
             // Read color
             validColors.push(new THREE.Color(imgData[idx]/255, imgData[idx+1]/255, imgData[idx+2]/255));
           }
@@ -391,7 +391,7 @@ function PremiumParticleLogo({ yOffset = 0, zOffset = -300, count = 10000 }) {
 function WelcomeUniverse() {
   return (
     <group>
-      <PremiumParticleLogo yOffset={4} zOffset={-315} count={12000} />
+      <PremiumParticleLogo yOffset={2} zOffset={-315} count={12000} />
       <PremiumParticleText text="Discover Your Next Favorite Movie" size={1.2} yOffset={-8} zOffset={-315} count={3000} />
       <PremiumParticleArrow yOffset={-14} zOffset={-315} count={1500} />
     </group>

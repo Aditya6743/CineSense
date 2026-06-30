@@ -10,12 +10,12 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 export default function ExplorePage() {
   return (
     <main className="w-full h-screen bg-black overflow-hidden relative">
-      <div className="absolute top-0 left-0 w-full z-10 p-8 pointer-events-none">
-        <h1 className="text-4xl font-black tracking-tighter bg-gradient-to-r from-white to-gray-500 bg-clip-text text-transparent">
-          CineSense Constellations
+      <div className="absolute top-0 left-0 w-full z-10 p-8 pointer-events-none flex flex-col items-center text-center mt-12">
+        <h1 className="text-4xl md:text-6xl font-black tracking-tighter bg-gradient-to-r from-white via-blue-200 to-gray-500 bg-clip-text text-transparent drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]">
+          Constellations
         </h1>
-        <p className="text-gray-400 mt-2 max-w-md">
-          Explore the endless universe of cinema. Click on any movie to fly towards it and uncover its connections.
+        <p className="text-gray-300 mt-4 max-w-lg text-sm md:text-base bg-black/20 backdrop-blur-sm p-4 rounded-2xl border border-white/5">
+          Explore the endless universe of cinema. Click on any movie to fly towards it and uncover its hidden connections.
         </p>
       </div>
 
@@ -28,8 +28,7 @@ export default function ExplorePage() {
           <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
           
           <Suspense fallback={null}>
-            {/* Start with a wildly popular movie to guarantee connections */}
-            <ConstellationGraph initialMovie="Inception" />
+            <ConstellationGraph />
           </Suspense>
 
           <OrbitControls 

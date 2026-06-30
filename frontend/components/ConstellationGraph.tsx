@@ -84,27 +84,50 @@ function MovieNode({
   );
 }
 
-export default function ConstellationGraph({ initialMovie }: { initialMovie: string }) {
-  const [nodes, setNodes] = useState<Map<string, Node>>(() => {
-    const initNode: Node = {
-      id: initialMovie,
-      data: { movie_id: 0, title: initialMovie, poster: null },
-      position: new THREE.Vector3(0, 0, 0),
-      level: 0
-    };
-    const map = new Map();
-    map.set(initialMovie, initNode);
-    return map;
-  });
+export default function ConstellationGraph() {
+  const [nodes, setNodes] = useState<Map<string, Node>>(new Map());
   const [edges, setEdges] = useState<Edge[]>([]);
-  const [activeNode, setActiveNode] = useState<string>(initialMovie);
+  const [activeNode, setActiveNode] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const groupRef = useRef<THREE.Group>(null);
   
   const { camera } = useThree();
   const targetCameraPos = useRef(new THREE.Vector3(0, 0, 15));
 
-  const fetchConnections = async (sourceNode: Node) => {
+  // Initialize central node by fetching trending movies
+  useEffect(() => {
+    const initializeGraph = async () => {
+      try {
+        const trendingRes = await axios.get("/api/trending");
+        const trendingMovies: MovieData[] = trendingRes.data;
+        
+        if (trendingMovies && trendingMovies.length > 0) {
+          const firstMovie = trendingMovies[0]; // Start with the top trending movie
+          const initNode: Node = {
+            id: firstMovie.title,
+            data: firstMovie, // Contains the actual poster!
+            position: new THREE.Vector3(0, 0, 0),
+            level: 0
+          };
+          
+          const map = new Map();
+          map.set(firstMovie.title, initNode);
+          setNodes(map);
+          setActiveNode(firstMovie.title);
+          
+          // Now fetch its connections
+          fetchConnections(initNode, map);
+        }
+      } catch (err) {
+        console.error("Failed to initialize constellation graph:", err);
+      }
+    };
+    
+    initializeGraph();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const fetchConnections = async (sourceNode: Node, currentNodesMap: Map<string, Node> = nodes) => {
     if (loading) return;
     setLoading(true);
     try {
@@ -156,7 +179,9 @@ export default function ConstellationGraph({ initialMovie }: { initialMovie: str
       });
 
       setNodes(prev => {
-        const next = new Map(prev);
+        // Use the passed map if this is the initial fetch, otherwise use prev
+        const baseMap = currentNodesMap.size > prev.size ? currentNodesMap : prev;
+        const next = new Map(baseMap);
         newNodesList.forEach(n => next.set(n.id, n));
         return next;
       });
@@ -170,15 +195,7 @@ export default function ConstellationGraph({ initialMovie }: { initialMovie: str
     }
   };
 
-  // Fetch initial node connections on mount
-  useEffect(() => {
-    const initNode = nodes.get(initialMovie);
-    if (initNode) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      fetchConnections(initNode);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialMovie]);
+  // Removed the duplicate useEffect that relied on initialMovie
 
   const handleNodeClick = (node: Node) => {
     setActiveNode(node.id);

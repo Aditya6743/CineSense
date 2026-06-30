@@ -260,9 +260,9 @@ function PremiumParticleArrow({ yOffset, zOffset, count = 1500 }: { yOffset: num
 function WelcomeUniverse() {
   return (
     <group>
-      <PremiumParticleText text="Aditya says" size={3} yOffset={3} zOffset={-315} count={4000} />
-      <PremiumParticleText text="hello to you" size={3} yOffset={-2} zOffset={-315} count={4500} />
-      <PremiumParticleArrow yOffset={-8} zOffset={-315} count={1500} />
+      <PremiumParticleText text="CineSense" size={4.5} yOffset={2} zOffset={-315} count={8000} />
+      <PremiumParticleText text="Discover Your Next Favorite Movie" size={1.2} yOffset={-4} zOffset={-315} count={3000} />
+      <PremiumParticleArrow yOffset={-9} zOffset={-315} count={1500} />
     </group>
   );
 }

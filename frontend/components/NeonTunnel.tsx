@@ -111,7 +111,10 @@ function InteractiveTunnelPoster({ movie, position, rotation, onClick }: any) {
     meshRef.current.material.opacity = hovered ? fade : fade * 0.8;
   });
 
-  const posterUrl = movie.poster || "https://via.placeholder.com/256x384/4e5cff/ffffff?text=No+Poster";
+  let posterUrl = movie.poster || "https://via.placeholder.com/256x384/4e5cff/ffffff?text=No+Poster";
+  if (posterUrl.includes("/w500/")) {
+    posterUrl = posterUrl.replace("/w500/", "/w200/");
+  }
 
   return (
     <group 

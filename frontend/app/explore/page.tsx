@@ -46,7 +46,7 @@ export default function ExplorePage() {
             <Bloom
               luminanceThreshold={0.2}
               mipmapBlur
-              intensity={0.8}
+              intensity={0.55}
               radius={0.8}
             />
             <Vignette eskil={false} offset={0.1} darkness={1.1} />

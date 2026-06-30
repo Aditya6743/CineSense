@@ -131,7 +131,7 @@ export default function ConstellationGraph() {
     if (loading) return;
     setLoading(true);
     try {
-      const res = await axios.get(`/api/recommendations?movie_name=${encodeURIComponent(sourceNode.id)}`);
+      const res = await axios.get(`/api/recommend/${encodeURIComponent(sourceNode.id)}`);
       // Update source node data if it was mocked
       setNodes(prev => {
         const next = new Map(prev);

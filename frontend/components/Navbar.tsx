@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useScroll, useMotionValueEvent } from "framer-motion";
+import { motion, useScroll, useMotionValueEvent, AnimatePresence } from "framer-motion";
 import { Search, Bell, User, Menu, X } from "lucide-react";
 import { FaGithub, FaLinkedin } from "react-icons/fa";
 import Link from "next/link";
@@ -11,6 +11,7 @@ import { useUISound } from "../hooks/useUISound";
 export default function Navbar() {
   const { scrollY } = useScroll();
   const [scrolled, setScrolled] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { playHover, playClick } = useUISound();
 
   useMotionValueEvent(scrollY, "change", (latest) => {
@@ -77,8 +78,8 @@ export default function Navbar() {
           ))}
         </div>
 
-        {/* Social Links */}
-        <div className="flex items-center gap-4">
+        {/* Social Links & Mobile Toggle */}
+        <div className="flex items-center gap-2 md:gap-4">
           <MagneticButton className="rounded-xl border border-white/10 bg-white/5 backdrop-blur-xl hover:bg-white/10 transition-colors shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
             <a
               href="https://github.com/Aditya6743"
@@ -90,7 +91,7 @@ export default function Navbar() {
             </a>
           </MagneticButton>
           
-          <MagneticButton className="rounded-xl border border-white/10 bg-white/5 backdrop-blur-xl hover:bg-[#0A66C2]/20 hover:border-[#0A66C2]/50 transition-colors shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
+          <MagneticButton className="hidden md:flex rounded-xl border border-white/10 bg-white/5 backdrop-blur-xl hover:bg-[#0A66C2]/20 hover:border-[#0A66C2]/50 transition-colors shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
             <a
               href="https://www.linkedin.com/in/aditya-tripathi-922a2429a/"
               target="_blank"
@@ -100,8 +101,59 @@ export default function Navbar() {
               <FaLinkedin className="text-xl text-[#0A66C2]" />
             </a>
           </MagneticButton>
+
+          {/* Mobile Menu Toggle */}
+          <button 
+            className="md:hidden p-2 text-white/80 hover:text-white transition-colors"
+            onClick={() => {
+              playClick();
+              setMobileMenuOpen(!mobileMenuOpen);
+            }}
+          >
+            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
         </div>
       </div>
+
+      {/* Mobile Menu Dropdown */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="md:hidden bg-[#070b1a]/95 backdrop-blur-xl border-b border-white/10 overflow-hidden"
+          >
+            <div className="flex flex-col px-6 py-4 gap-4">
+              {[
+                { name: "Home", path: "/#home" },
+                { name: "Explore", path: "/explore" },
+                { name: "Trending", path: "/#trending" },
+                { name: "Features", path: "/#features" }
+              ].map((item) => (
+                <Link
+                  key={item.name}
+                  href={item.path}
+                  onClick={() => { playClick(); setMobileMenuOpen(false); }}
+                  className={`text-lg font-medium transition-colors border-b border-white/5 pb-2 ${
+                    item.name === "Explore" ? "text-yellow-400 font-bold drop-shadow-[0_0_8px_rgba(250,204,21,0.5)]" : "text-gray-300 hover:text-white"
+                  }`}
+                >
+                  {item.name}
+                </Link>
+              ))}
+              <div className="flex items-center gap-4 pt-2">
+                <a href="https://github.com/Aditya6743" target="_blank" rel="noreferrer" className="p-2 bg-white/5 rounded-lg border border-white/10">
+                  <FaGithub className="text-xl text-white" />
+                </a>
+                <a href="https://www.linkedin.com/in/aditya-tripathi-922a2429a/" target="_blank" rel="noreferrer" className="p-2 bg-white/5 rounded-lg border border-white/10">
+                  <FaLinkedin className="text-xl text-[#0A66C2]" />
+                </a>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.nav>
   );
 }

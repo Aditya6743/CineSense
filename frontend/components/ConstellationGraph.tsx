@@ -196,7 +196,8 @@ export default function ConstellationGraph() {
           map.set(firstMovie.title, initNode);
           
           // Set initial target for camera
-          targetCameraPos.current = new THREE.Vector3(0, 0, 15);
+          const zDistance = window.innerWidth < 768 ? 25 : 15;
+          targetCameraPos.current = new THREE.Vector3(0, 0, zDistance);
           targetLookAt.current = new THREE.Vector3(0, 0, 0);
           isNavigating.current = true;
           
@@ -217,10 +218,11 @@ export default function ConstellationGraph() {
   const handleNodeClick = (node: Node) => {
     
     // Set target camera position (look at node, back up slightly on Z)
+    const zDistance = window.innerWidth < 768 ? 25 : 15;
     targetCameraPos.current = new THREE.Vector3(
       node.position.x,
       node.position.y,
-      node.position.z + 15
+      node.position.z + zDistance
     );
     
     // Set what the camera/controls should orbit around

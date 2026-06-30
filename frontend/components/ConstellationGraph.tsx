@@ -60,7 +60,7 @@ function MovieNode({
         {/* Glowing Aura */}
         <mesh position={[0, 0, -0.1]}>
           <planeGeometry args={[2.5, 3.5]} />
-          <meshBasicMaterial color={hovered ? "#ffffff" : "#4e5cff"} transparent opacity={hovered ? 0.28 : 0.03} />
+          <meshBasicMaterial color={hovered ? "#ffffff" : "#4e5cff"} transparent opacity={hovered ? 0.15 : 0} />
         </mesh>
         
         {/* Poster */}

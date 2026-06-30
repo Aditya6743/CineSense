@@ -44,9 +44,9 @@ export default function ExplorePage() {
 
           <EffectComposer multisampling={0}>
             <Bloom
-              luminanceThreshold={0.2}
+              luminanceThreshold={0.9}
               mipmapBlur
-              intensity={0.55}
+              intensity={0.8}
               radius={0.8}
             />
             <Vignette eskil={false} offset={0.1} darkness={1.1} />

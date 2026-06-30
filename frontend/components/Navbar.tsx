@@ -67,7 +67,7 @@ export default function Navbar() {
         {/* Github */}
         <MagneticButton className="rounded-xl border border-white/10 bg-white/5 p-2.5 backdrop-blur-xl hover:bg-white/10 transition-colors shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
           <a
-            href="https://github.com/Aditya6743/CineSense"
+            href="https://github.com/Aditya6743"
             target="_blank"
             rel="noreferrer"
           >

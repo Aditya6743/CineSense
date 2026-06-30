@@ -43,8 +43,8 @@ function MovieNode({
     const targetScale = hovered ? 1.25 : 1.0;
     meshRef.current.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.15);
     
-    // Gentle floating
-    meshRef.current.position.y = node.position.y + Math.sin(state.clock.elapsedTime * 2 + node.position.x) * 0.15;
+    // Gentle floating around local origin
+    meshRef.current.position.y = Math.sin(state.clock.elapsedTime * 2 + node.position.x) * 0.15;
   });
 
   const hasPoster = !!node.data.poster;

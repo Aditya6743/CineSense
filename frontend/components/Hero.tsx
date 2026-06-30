@@ -26,7 +26,7 @@ export default function Hero() {
   const headline = "Discover Your Next Favorite Movie".split(" ");
 
   return (
-    <section ref={containerRef} className="relative overflow-hidden px-6 pt-32 pb-24 min-h-[90vh] flex flex-col justify-center w-full max-w-[100vw]">
+    <section id="home" ref={containerRef} className="relative overflow-hidden px-6 pt-32 pb-24 min-h-[90vh] flex flex-col justify-center w-full max-w-[100vw]">
 
       {/* Floating Elements */}
       <motion.div 

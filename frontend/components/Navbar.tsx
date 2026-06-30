@@ -56,7 +56,7 @@ export default function Navbar() {
         {/* Links */}
         <div className="hidden items-center gap-2 md:flex">
           {[
-            { name: "Home", path: "/" },
+            { name: "Home", path: "/#home" },
             { name: "Explore", path: "/explore" },
             { name: "Trending", path: "/#trending" },
             { name: "Features", path: "/#features" }

@@ -259,64 +259,108 @@ function PremiumParticleArrow({ yOffset, zOffset, count = 1500 }: { yOffset: num
 
 function PremiumParticleLogo({ yOffset = 0, zOffset = -300, count = 10000 }) {
   const meshRef = useRef<THREE.InstancedMesh>(null);
-  const [targetPositions, setTargetPositions] = useState<Float32Array | null>(null);
-  const [startPositions, setStartPositions] = useState<Float32Array | null>(null);
+  const [particleData, setParticleData] = useState<{targets: Float32Array, starts: Float32Array, colors: Float32Array} | null>(null);
 
   useEffect(() => {
-    // 1. Board Geometry
-    const boardGeo = new THREE.BoxGeometry(16, 10, 1);
-    const boardMesh = new THREE.Mesh(boardGeo);
-    const boardSampler = new MeshSurfaceSampler(boardMesh).build();
-
-    // 2. Arm Geometry (Clapper top)
-    const armGeo = new THREE.BoxGeometry(16, 2, 1);
-    armGeo.translate(8, 1, 0); 
-    armGeo.rotateZ(Math.PI / 8); // 22.5 deg tilt
-    armGeo.translate(-8, 5.5, 0);
-    const armMesh = new THREE.Mesh(armGeo);
-    const armSampler = new MeshSurfaceSampler(armMesh).build();
-
-    const targets = new Float32Array(count * 3);
-    const starts = new Float32Array(count * 3);
-    const tempPosition = new THREE.Vector3();
+    // Load the exact navbar logo image
+    const img = new globalThis.Image();
+    img.crossOrigin = "Anonymous";
+    img.src = "https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Clapper%20Board.png";
     
-    for(let i=0; i<count; i++) {
-      if (Math.random() > 0.25) {
-        boardSampler.sample(tempPosition);
-      } else {
-        armSampler.sample(tempPosition);
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      
+      const size = 128;
+      canvas.width = size;
+      canvas.height = size;
+      ctx.drawImage(img, 0, 0, size, size);
+      const imgData = ctx.getImageData(0, 0, size, size).data;
+      
+      const validPoints = [];
+      const validColors = [];
+      
+      // Extract pixels that have high opacity
+      for(let y = 0; y < size; y++) {
+        for(let x = 0; x < size; x++) {
+          const idx = (y * size + x) * 4;
+          const a = imgData[idx+3];
+          if (a > 50) {
+            // Perfectly center the coordinates around origin
+            validPoints.push(new THREE.Vector3((x - size/2) * 0.2, -(y - size/2) * 0.2, 0));
+            // Read color
+            validColors.push(new THREE.Color(imgData[idx]/255, imgData[idx+1]/255, imgData[idx+2]/255));
+          }
+        }
+      }
+
+      const targets = new Float32Array(count * 3);
+      const starts = new Float32Array(count * 3);
+      const colors = new Float32Array(count * 3);
+      
+      for(let i=0; i<count; i++) {
+        // Randomly pick a valid colored pixel from the logo
+        const randIdx = Math.floor(Math.random() * validPoints.length);
+        const pt = validPoints[randIdx];
+        const col = validColors[randIdx];
+        
+        // Add tiny noise to give a thick 3D particle feel
+        targets[i*3] = pt.x + (Math.random() - 0.5) * 0.15;
+        targets[i*3+1] = pt.y + (Math.random() - 0.5) * 0.15;
+        targets[i*3+2] = (Math.random() - 0.5) * 0.5; // slight depth
+        
+        starts[i*3] = targets[i*3] + (Math.random() - 0.5) * 400;
+        starts[i*3+1] = targets[i*3+1] + (Math.random() - 0.5) * 400;
+        starts[i*3+2] = targets[i*3+2] + (Math.random() - 0.5) * 500 + 200; 
+        
+        // Boost color intensity for neon glow effect
+        colors[i*3] = col.r * 1.5;
+        colors[i*3+1] = col.g * 1.5;
+        colors[i*3+2] = col.b * 1.5;
       }
       
-      targets[i*3] = tempPosition.x;
-      targets[i*3+1] = tempPosition.y;
-      targets[i*3+2] = tempPosition.z;
-      
-      starts[i*3] = tempPosition.x + (Math.random() - 0.5) * 400;
-      starts[i*3+1] = tempPosition.y + (Math.random() - 0.5) * 400;
-      starts[i*3+2] = tempPosition.z + (Math.random() - 0.5) * 500 + 200; 
-    }
-    
-    setTargetPositions(targets);
-    setStartPositions(starts);
+      setParticleData({ targets, starts, colors });
+    };
   }, [count]);
+
+  // Apply colors when data is ready
+  useEffect(() => {
+    if (particleData && meshRef.current) {
+      const colorObj = new THREE.Color();
+      for (let i = 0; i < count; i++) {
+        colorObj.setRGB(
+          particleData.colors[i*3], 
+          particleData.colors[i*3+1], 
+          particleData.colors[i*3+2]
+        );
+        meshRef.current.setColorAt(i, colorObj);
+      }
+      if (meshRef.current.instanceColor) {
+        meshRef.current.instanceColor.needsUpdate = true;
+      }
+    }
+  }, [particleData, count]);
 
   const { camera } = useThree();
   const dummy = useMemo(() => new THREE.Object3D(), []);
 
   useFrame((state) => {
-    if (!meshRef.current || !targetPositions || !startPositions) return;
+    if (!meshRef.current || !particleData) return;
+    const { targets, starts } = particleData;
+    
     const distance = camera.position.z - (zOffset + 30);
     let progress = 1.0 - Math.min(1, Math.max(0, distance / 150));
     progress = progress * progress * (3 - 2 * progress); 
 
     for (let i = 0; i < count; i++) {
-      dummy.position.x = THREE.MathUtils.lerp(startPositions[i*3], targetPositions[i*3], progress);
-      dummy.position.y = THREE.MathUtils.lerp(startPositions[i*3+1], targetPositions[i*3+1], progress);
-      dummy.position.z = THREE.MathUtils.lerp(startPositions[i*3+2], targetPositions[i*3+2], progress);
+      dummy.position.x = THREE.MathUtils.lerp(starts[i*3], targets[i*3], progress);
+      dummy.position.y = THREE.MathUtils.lerp(starts[i*3+1], targets[i*3+1], progress);
+      dummy.position.z = THREE.MathUtils.lerp(starts[i*3+2], targets[i*3+2], progress);
       
       dummy.rotation.set(
-        (1 - progress) * startPositions[i*3],
-        (1 - progress) * startPositions[i*3+1],
+        (1 - progress) * starts[i*3],
+        (1 - progress) * starts[i*3+1],
         0
       );
       
@@ -333,12 +377,13 @@ function PremiumParticleLogo({ yOffset = 0, zOffset = -300, count = 10000 }) {
     meshRef.current.rotation.z = Math.sin(state.clock.elapsedTime * 0.4) * 0.05;
   });
 
-  if (!targetPositions) return null;
+  if (!particleData) return null;
 
   return (
     <instancedMesh ref={meshRef} args={[undefined, undefined, count]} position={[0, yOffset, zOffset]}>
       <sphereGeometry args={[0.08, 8, 8]} />
-      <meshPhysicalMaterial color="#ffffff" metalness={0.2} roughness={0.1} emissive="#4e5cff" emissiveIntensity={1.5} />
+      {/* Basic material ensures colors are pure and bright, unaffected by shadow */}
+      <meshBasicMaterial toneMapped={false} />
     </instancedMesh>
   );
 }

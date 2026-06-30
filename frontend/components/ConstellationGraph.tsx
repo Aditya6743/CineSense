@@ -85,7 +85,17 @@ function MovieNode({
 }
 
 export default function ConstellationGraph({ initialMovie }: { initialMovie: string }) {
-  const [nodes, setNodes] = useState<Map<string, Node>>(new Map());
+  const [nodes, setNodes] = useState<Map<string, Node>>(() => {
+    const initNode: Node = {
+      id: initialMovie,
+      data: { movie_id: 0, title: initialMovie, poster: null },
+      position: new THREE.Vector3(0, 0, 0),
+      level: 0
+    };
+    const map = new Map();
+    map.set(initialMovie, initNode);
+    return map;
+  });
   const [edges, setEdges] = useState<Edge[]>([]);
   const [activeNode, setActiveNode] = useState<string>(initialMovie);
   const [loading, setLoading] = useState(false);
@@ -93,21 +103,6 @@ export default function ConstellationGraph({ initialMovie }: { initialMovie: str
   
   const { camera } = useThree();
   const targetCameraPos = useRef(new THREE.Vector3(0, 0, 15));
-
-  // Initialize central node
-  useEffect(() => {
-    const initNode: Node = {
-      id: initialMovie,
-      data: { movie_id: 0, title: initialMovie, poster: null }, // Mock initial data until fetched
-      position: new THREE.Vector3(0, 0, 0),
-      level: 0
-    };
-    const newNodes = new Map();
-    newNodes.set(initialMovie, initNode);
-    setNodes(newNodes);
-    fetchConnections(initNode);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialMovie]);
 
   const fetchConnections = async (sourceNode: Node) => {
     if (loading) return;
@@ -174,6 +169,15 @@ export default function ConstellationGraph({ initialMovie }: { initialMovie: str
       setLoading(false);
     }
   };
+
+  // Fetch initial node connections on mount
+  useEffect(() => {
+    const initNode = nodes.get(initialMovie);
+    if (initNode) {
+      fetchConnections(initNode);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialMovie]);
 
   const handleNodeClick = (node: Node) => {
     setActiveNode(node.id);

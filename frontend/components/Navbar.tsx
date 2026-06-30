@@ -2,7 +2,7 @@
 
 import { motion, useScroll, useMotionValueEvent } from "framer-motion";
 import { Search, Bell, User, Menu, X } from "lucide-react";
-import { FaGithub } from "react-icons/fa";
+import { FaGithub, FaLinkedin } from "react-icons/fa";
 import MagneticButton from "./MagneticButton";
 import { useState } from "react";
 import { useUISound } from "../hooks/useUISound";
@@ -64,16 +64,28 @@ export default function Navbar() {
           ))}
         </div>
 
-        {/* Github */}
-        <MagneticButton className="rounded-xl border border-white/10 bg-white/5 p-2.5 backdrop-blur-xl hover:bg-white/10 transition-colors shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
-          <a
-            href="https://github.com/Aditya6743"
-            target="_blank"
-            rel="noreferrer"
-          >
-            <FaGithub className="text-xl text-white" />
-          </a>
-        </MagneticButton>
+        {/* Social Links */}
+        <div className="flex items-center gap-4">
+          <MagneticButton className="rounded-xl border border-white/10 bg-white/5 p-2.5 backdrop-blur-xl hover:bg-white/10 transition-colors shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
+            <a
+              href="https://github.com/Aditya6743"
+              target="_blank"
+              rel="noreferrer"
+            >
+              <FaGithub className="text-xl text-white" />
+            </a>
+          </MagneticButton>
+          
+          <MagneticButton className="rounded-xl border border-white/10 bg-white/5 p-2.5 backdrop-blur-xl hover:bg-[#0A66C2]/20 hover:border-[#0A66C2]/50 transition-colors shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
+            <a
+              href="https://www.linkedin.com/in/aditya-tripathi-922a2429a/"
+              target="_blank"
+              rel="noreferrer"
+            >
+              <FaLinkedin className="text-xl text-[#0A66C2]" />
+            </a>
+          </MagneticButton>
+        </div>
       </div>
     </motion.nav>
   );

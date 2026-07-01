@@ -21,7 +21,16 @@ export default function PosterSphere({ count = 60, radius = 25, onMovieSelect }:
         while (results.length > 0 && results.length < count) {
           results = [...results, ...res.data];
         }
-        setMovies(results.slice(0, count));
+        const finalMovies = results.slice(0, count);
+        setMovies(finalMovies);
+        
+        // Eagerly preload posters into browser cache to prevent 3D popping/late loading
+        finalMovies.forEach((m: any) => {
+          if (m.poster) {
+            const img = new globalThis.Image();
+            img.src = m.poster;
+          }
+        });
       } catch (err) {
         console.error("Failed to fetch trending for Sphere", err);
       }

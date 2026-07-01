@@ -134,7 +134,7 @@ function PremiumParticleText({ text, size, yOffset, zOffset, count = 2000 }: { t
   }, [text, size, count]);
 
   const { camera } = useThree();
-  const dummy = useMemo(() => new THREE.Object3D(), []);
+  const dummy = useRef(new THREE.Object3D()).current;
 
   useFrame((state) => {
     if (!meshRef.current || !targetPositions || !startPositions) return;
@@ -223,7 +223,7 @@ function PremiumParticleArrow({ yOffset, zOffset, count = 1500 }: { yOffset: num
   }, [count]);
 
   const { camera } = useThree();
-  const dummy = useMemo(() => new THREE.Object3D(), []);
+  const dummy = useRef(new THREE.Object3D()).current;
 
   useFrame((state) => {
     if (!meshRef.current || !targetPositions || !startPositions) return;
@@ -346,7 +346,7 @@ function PremiumParticleLogo({ yOffset = 0, zOffset = -300, count = 10000 }) {
   }, [particleData, count]);
 
   const { camera } = useThree();
-  const dummy = useMemo(() => new THREE.Object3D(), []);
+  const dummy = useRef(new THREE.Object3D()).current;
 
   useFrame((state) => {
     if (!meshRef.current || !particleData) return;
@@ -401,7 +401,7 @@ function WelcomeUniverse() {
   );
 }
 
-export default function Scene3D({ onMovieSelect }: { onMovieSelect?: (movie: any) => void }) {
+export default function Scene3D({ onMovieSelect }: { onMovieSelect?: (movie: unknown) => void }) {
   return (
     <>
       {/* Optimized Lighting */}

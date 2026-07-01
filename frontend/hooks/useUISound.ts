@@ -9,7 +9,7 @@ export function useUISound() {
     if (typeof window === "undefined") return null;
     if (window.innerWidth < 768) return null; // No sounds on mobile
     if (!audioCtxRef.current) {
-      // @ts-ignore
+      // @ts-expect-error
       const AudioContext = window.AudioContext || window.webkitAudioContext;
       if (AudioContext) {
         audioCtxRef.current = new AudioContext();
@@ -58,7 +58,7 @@ export function useUISound() {
       
       osc.start();
       osc.stop(ctx.currentTime + 0.015);
-    } catch (e) {
+    } catch (_) {
       // Ignore audio context errors
     }
   }, []);
@@ -85,7 +85,7 @@ export function useUISound() {
       
       osc.start();
       osc.stop(ctx.currentTime + 0.03);
-    } catch (e) {
+    } catch (_) {
       // Ignore audio context errors
     }
   }, []);

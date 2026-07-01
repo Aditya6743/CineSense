@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import Navbar from "../components/Navbar";
 import Hero from "../components/Hero";
 import Trending from "../components/Trending";
+import Features from "../components/Features";
 import Timeline from "../components/Timeline";
 import Testimonials from "../components/Testimonials";
 import FAQ from "../components/FAQ";
@@ -69,7 +70,7 @@ function MainContent() {
             <Navbar />
           </div>
           {/* We keep Hero for the SearchBar functionality */}
-          <div className="relative z-10 pointer-events-auto">
+          <div id="home" className="relative z-10 pointer-events-auto">
             <Hero />
           </div>
           
@@ -118,7 +119,12 @@ function MainContent() {
 
             <div className="relative z-10 flex flex-col gap-12">
               <BackgroundGraphic />
-              <Trending />
+              <div id="trending">
+                <Trending />
+              </div>
+              <div id="features">
+                <Features />
+              </div>
               <Timeline />
             <Testimonials />
             <FAQ />

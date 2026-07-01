@@ -258,6 +258,19 @@ export default function ConstellationGraph() {
     }
   });
 
+  const edgesGeometry = useMemo(() => {
+    if (edges.length === 0 || nodes.size === 0) return null;
+    const points = [];
+    for (const edge of edges) {
+      const source = nodes.get(edge.source);
+      const target = nodes.get(edge.target);
+      if (source && target) {
+        points.push(source.position, target.position);
+      }
+    }
+    return new THREE.BufferGeometry().setFromPoints(points);
+  }, [edges, nodes]);
+
   return (
     <>
       {nodes.size === 0 && (
@@ -279,23 +292,12 @@ export default function ConstellationGraph() {
         onStart={() => { isNavigating.current = false; }}
       />
       <group ref={groupRef}>
-      {/* Edges */}
-      {edges.map((edge, i) => {
-        const sourceNode = nodes.get(edge.source);
-        const targetNode = nodes.get(edge.target);
-        if (!sourceNode || !targetNode) return null;
-
-        return (
-          <Line
-            key={`edge-${i}`}
-            points={[sourceNode.position, targetNode.position]}
-            color="#6b7cff"
-            opacity={0.6}
-            transparent
-            lineWidth={2.5}
-          />
-        );
-      })}
+      {/* Edges - Single performant LineSegments draw call */}
+      {edgesGeometry && (
+        <lineSegments geometry={edgesGeometry}>
+          <lineBasicMaterial color="#6b7cff" opacity={0.6} transparent />
+        </lineSegments>
+      )}
 
       {/* Nodes */}
       {Array.from(nodes.values()).map(node => (

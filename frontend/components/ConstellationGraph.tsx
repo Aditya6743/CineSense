@@ -29,6 +29,7 @@ const verifyImage = (url: string | null): Promise<boolean> => {
   if (!url) return Promise.resolve(false);
   return new Promise((resolve) => {
     const img = new window.Image();
+    img.crossOrigin = "anonymous";
     img.onload = () => resolve(true);
     img.onerror = () => resolve(false);
     img.src = url;
@@ -149,16 +150,17 @@ export default function ConstellationGraph() {
       const radius = 10 + sourceNode.level * 2; // Expand radius for deeper levels
       const phi = (1 + Math.sqrt(5)) / 2; // Golden ratio for spherical distribution
 
-      // Check all recommendation posters in parallel
-      const recCheckPromises = recommendations.map(async (rec) => {
-        if (!rec.poster) return { rec, valid: false };
+      // Sequentially check recommendation posters until we find 5 working ones
+      // This prevents hitting the browser's parallel connection limit (usually 6) which causes mass failures
+      const validRecs: MovieData[] = [];
+      for (const rec of recommendations) {
+        if (validRecs.length >= 5) break;
+        if (!rec.poster) continue;
         const valid = await verifyImage(rec.poster);
-        return { rec, valid };
-      });
-      const recResults = await Promise.all(recCheckPromises);
-      
-      // Filter to only movies with valid posters and exactly 5 recommendations
-      const validRecs = recResults.filter(r => r.valid).map(r => r.rec).slice(0, 5);
+        if (valid) {
+          validRecs.push(rec);
+        }
+      }
 
       validRecs.forEach((rec, i) => {
         if (nodes.has(rec.title)) {
@@ -223,14 +225,16 @@ export default function ConstellationGraph() {
         const trendingMovies: MovieData[] = trendingRes.data;
         
         if (trendingMovies && trendingMovies.length > 0) {
-          // Pre-verify trending movies
-          const trendCheckPromises = trendingMovies.map(async (m) => {
-            if (!m.poster) return { m, valid: false };
-            const valid = await verifyImage(m.poster);
-            return { m, valid };
-          });
-          const trendResults = await Promise.all(trendCheckPromises);
-          const validTrending = trendResults.filter(r => r.valid).map(r => r.m);
+          // Sequentially check trending movies to avoid connection spam
+          const validTrending: MovieData[] = [];
+          for (const m of trendingMovies) {
+             if (validTrending.length >= 5) break;
+             if (!m.poster) continue;
+             const valid = await verifyImage(m.poster);
+             if (valid) {
+               validTrending.push(m);
+             }
+          }
           
           let success = false;
           let attempts = 0;

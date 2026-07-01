@@ -110,8 +110,8 @@ export default function ConstellationGraph() {
 
   const isNavigating = useRef(false);
 
-  const fetchConnections = async (sourceNode: Node, currentNodesMap: Map<string, Node> = nodes, isInitial = false) => {
-    if (loading) return;
+  const fetchConnections = async (sourceNode: Node, currentNodesMap: Map<string, Node> = nodes, isInitial = false): Promise<boolean> => {
+    if (loading) return false;
     setLoading(true);
     try {
       const res = await axios.get(`/api/recommend/${encodeURIComponent(sourceNode.id)}`);
@@ -174,13 +174,16 @@ export default function ConstellationGraph() {
       if (isInitial) {
         // Active node logic can be added here in the future if needed
       }
+      return true;
       
     } catch (err) {
       console.error("Failed to fetch constellation connections", err);
-      // Fallback: If recommendation fails on initial load, at least show the first movie
-      if (isInitial) {
+      // If not initial, keep the current nodes (don't break the graph)
+      // If initial, we return false so the caller can try another movie
+      if (!isInitial) {
         setNodes(currentNodesMap);
       }
+      return false;
     } finally {
       setLoading(false);
     }
@@ -194,25 +197,49 @@ export default function ConstellationGraph() {
         const trendingMovies: MovieData[] = trendingRes.data;
         
         if (trendingMovies && trendingMovies.length > 0) {
-          const firstMovie = trendingMovies[0]; // Start with the top trending movie
-          const initNode: Node = {
-            id: firstMovie.title,
-            data: firstMovie, // Contains the actual poster!
-            position: new THREE.Vector3(0, 0, 0),
-            level: 0
-          };
+          let success = false;
+          let attempts = 0;
+          const maxAttempts = Math.min(trendingMovies.length, 5);
+
+          while (!success && attempts < maxAttempts) {
+            const movie = trendingMovies[attempts];
+            const initNode: Node = {
+              id: movie.title,
+              data: movie,
+              position: new THREE.Vector3(0, 0, 0),
+              level: 0
+            };
+            
+            const map = new Map();
+            map.set(movie.title, initNode);
+            
+            // Wait for connections before setting nodes to show them all together
+            success = await fetchConnections(initNode, map, true);
+            
+            if (success) {
+              // Set initial target for camera
+              const zDistance = window.innerWidth < 768 ? 25 : 15;
+              targetCameraPos.current = new THREE.Vector3(0, 0, zDistance);
+              targetLookAt.current = new THREE.Vector3(0, 0, 0);
+              isNavigating.current = true;
+              break;
+            }
+            attempts++;
+          }
           
-          const map = new Map();
-          map.set(firstMovie.title, initNode);
-          
-          // Set initial target for camera
-          const zDistance = window.innerWidth < 768 ? 25 : 15;
-          targetCameraPos.current = new THREE.Vector3(0, 0, zDistance);
-          targetLookAt.current = new THREE.Vector3(0, 0, 0);
-          isNavigating.current = true;
-          
-          // Wait for connections before setting nodes to show them all together
-          await fetchConnections(initNode, map, true);
+          if (!success) {
+             // If all attempts failed, just show the first one as fallback
+             const firstMovie = trendingMovies[0];
+             const initNode: Node = {
+               id: firstMovie.title,
+               data: firstMovie,
+               position: new THREE.Vector3(0, 0, 0),
+               level: 0
+             };
+             const map = new Map();
+             map.set(firstMovie.title, initNode);
+             setNodes(map);
+          }
         }
       } catch (err) {
         console.error("Failed to initialize constellation graph:", err);

@@ -32,9 +32,8 @@ trending_cache = TTLCache(maxsize=1, ttl=3600)
 # Load environment variables
 load_dotenv()
 
-# Use Vercel env vars if present, otherwise fallback to the known working strings
-# This bypasses the issue where Vercel Dashboard env vars are missing in Preview
-DB_URL = os.getenv("DATABASE_URL", "postgresql://postgres.sirfutmxumyjioghwlwq:cinesense6777@aws-1-ap-northeast-2.pooler.supabase.com:6543/postgres")
+# Use Vercel env vars
+DB_URL = os.getenv("DATABASE_URL")
 TMDB_API_TOKEN = os.getenv("TMDB_API_TOKEN", "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIwZDVkOTdhODY5YzQ5OTI1N2JmZTIwOTg0OGRiNGUzNyIsIm5iZiI6MTc4MjU3MDcxNi4zNjMwMDAyLCJzdWIiOiI2YTNmZGVkYzZhYmRhMDQxZjQ2NGRiYTciLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.KGeju7hvQ3kXaghvBzx4u8XMcOuFla8Y8V8l3O1NawA")
 
 if DB_URL and DB_URL.count("@") > 1 and "%40" not in DB_URL:
@@ -70,7 +69,8 @@ async def get_db_pool():
                 max_size=10, 
                 ssl="require",
                 server_settings={'statement_timeout': '10000'},
-                statement_cache_size=0 # REQUIRED FOR SUPABASE PGBOUNCER TRANSACTION POOLING (PORT 6543)
+                statement_cache_size=0, # REQUIRED FOR SUPABASE PGBOUNCER TRANSACTION POOLING (PORT 6543)
+                timeout=3.0 # Fail fast if DB is paused so we can fallback to TMDB instantly
             )
         except Exception as e:
             logger.error(f"Failed to create PostgreSQL pool: {e}")

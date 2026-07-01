@@ -3,6 +3,7 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useColor } from "color-thief-react";
 import { useTheme } from "./ThemeProvider";
@@ -66,10 +67,13 @@ export default function MovieModal({ movie, searchedMovieTitle, onClose }: Props
     };
   }, [extractedColor, setAccentColor]);
 
-  if (!movie) return null;
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  if (!movie || !mounted) return null;
   const saved = isInWatchlist(movie.title);
 
-  return (
+  return createPortal(
     <AnimatePresence>
       <motion.div
         initial={{ opacity: 0 }}
@@ -229,6 +233,7 @@ export default function MovieModal({ movie, searchedMovieTitle, onClose }: Props
           </div>
         </motion.div>
       </motion.div>
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }

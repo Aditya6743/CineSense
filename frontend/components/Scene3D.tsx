@@ -31,8 +31,11 @@ function CameraRig() {
     const localProgress = Math.min(1, Math.max(0, scrollY / scrollHeight300vh));
     
     // Camera travels completely through Sphere and Tunnel to the end logo
-    // It stops at -300 when we hit the HTML sections
-    camera.position.z = THREE.MathUtils.lerp(5, -300, localProgress);
+    // It stops at -285 to keep a perfect distance from the logo at -315
+    const targetZ = THREE.MathUtils.lerp(5, -285, localProgress);
+    
+    // Add extra smoothness to the camera movement (dampening)
+    camera.position.z = THREE.MathUtils.lerp(camera.position.z, targetZ, 0.08);
     
     // Add subtle bobbing/breathing effect
     camera.position.y = Math.sin(state.clock.elapsedTime * 0.5) * 0.2;

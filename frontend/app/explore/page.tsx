@@ -58,8 +58,8 @@ export default function ExplorePage() {
             <Bloom
               luminanceThreshold={0.9}
               mipmapBlur
-              intensity={0.8}
-              radius={0.8}
+              intensity={0.25}
+              radius={0.4}
             />
             <Vignette eskil={false} offset={0.1} darkness={1.1} />
           </EffectComposer>

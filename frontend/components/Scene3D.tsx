@@ -441,9 +441,9 @@ export default function Scene3D({ onMovieSelect }: { onMovieSelect?: (movie: unk
       {/* Highly Optimized Post Processing - Removed ChromaticAberration for 120FPS */}
       <EffectComposer multisampling={0}>
         <Bloom 
-          luminanceThreshold={0.5} 
+          luminanceThreshold={0.8} 
           luminanceSmoothing={0.9} 
-          intensity={1.0} 
+          intensity={0.3} 
           mipmapBlur={false} // Huge performance save
         />
       </EffectComposer>

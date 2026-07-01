@@ -223,8 +223,7 @@ export default function MovieModal({ movie, searchedMovieTitle, onClose }: Props
                 <button
                   onClick={onClose}
                   data-magnetic="true"
-                  className="flex-1 min-w-[200px] rounded-full px-8 py-4 font-black tracking-widest uppercase text-black transition hover:scale-105 shadow-xl"
-                  style={{ backgroundColor: extractedColor || '#10b981' }}
+                  className="flex-1 min-w-[200px] rounded-full px-8 py-4 font-black tracking-widest uppercase text-black bg-white transition hover:scale-105 shadow-xl hover:bg-gray-200"
                 >
                   Close
                 </button>

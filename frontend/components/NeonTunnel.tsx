@@ -16,7 +16,7 @@ function NeonRings({ length, radius }: { length: number, radius: number }) {
     const arr = [];
     for (let i = 0; i < ringCount; i++) {
       arr.push({
-        z: -(i / ringCount) * length - 10,
+        z: -(i / ringCount) * length,
         rotationZ: Math.random() * Math.PI, // Random initial rotation
       });
     }
@@ -27,8 +27,8 @@ function NeonRings({ length, radius }: { length: number, radius: number }) {
   
   useFrame((state) => {
     if (!groupRef.current) return;
-    // Slowly rotate the entire ring system
-    groupRef.current.rotation.z += 0.0005;
+    // Slowly rotate the entire ring system smoothly
+    groupRef.current.rotation.z -= 0.0003;
   });
 
   return (
@@ -77,18 +77,18 @@ function InteractiveTunnelPoster({ movie, position, rotation, onClick }: any) {
     const targetZ = hovered ? 8 : 0; 
     const targetEmissive = hovered ? 3.0 : 0.2; 
     
-    groupRef.current.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.1);
-    groupRef.current.position.z = THREE.MathUtils.lerp(groupRef.current.position.z, position[2] + targetZ, 0.1);
+    groupRef.current.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.05);
+    groupRef.current.position.z = THREE.MathUtils.lerp(groupRef.current.position.z, position[2] + targetZ, 0.05);
     
     const currentEmissive = backplateRef.current.material.emissiveIntensity;
-    backplateRef.current.material.emissiveIntensity = THREE.MathUtils.lerp(currentEmissive, targetEmissive, 0.1);
+    backplateRef.current.material.emissiveIntensity = THREE.MathUtils.lerp(currentEmissive, targetEmissive, 0.05);
     
-    // Scroll tilting logic
+    // Scroll tilting logic (smoother)
     if (lenis && typeof lenis.velocity === 'number') {
-      const targetTilt = THREE.MathUtils.clamp(lenis.velocity * 0.15, -Math.PI / 4, Math.PI / 4);
-      groupRef.current.rotation.x = THREE.MathUtils.lerp(groupRef.current.rotation.x, rotation[0] + targetTilt, 0.1);
+      const targetTilt = THREE.MathUtils.clamp(lenis.velocity * 0.1, -Math.PI / 4, Math.PI / 4);
+      groupRef.current.rotation.x = THREE.MathUtils.lerp(groupRef.current.rotation.x, rotation[0] + targetTilt, 0.05);
     } else {
-      groupRef.current.rotation.x = THREE.MathUtils.lerp(groupRef.current.rotation.x, rotation[0], 0.1);
+      groupRef.current.rotation.x = THREE.MathUtils.lerp(groupRef.current.rotation.x, rotation[0], 0.05);
     }
     
     // Floating breathing effect
@@ -220,12 +220,12 @@ export default function NeonTunnel({ count = 60, length = 300, radius = 30, onMo
   useFrame(() => {
     if (!groupRef.current) return;
     
-    // Constant cinematic slow rotation
-    groupRef.current.rotation.z -= 0.001;
+    // Constant cinematic slow rotation (match rings for synced smooth feel)
+    groupRef.current.rotation.z -= 0.0003;
     
     // Accelerate rotation when scrolling really fast for warp-speed feeling
     if (lenis && lenis.velocity) {
-      groupRef.current.rotation.z -= lenis.velocity * 0.00005;
+      groupRef.current.rotation.z -= lenis.velocity * 0.00002;
     }
   });
 

@@ -87,15 +87,13 @@ function MovieNode({
 }
 
 function EdgeLine({ source, target }: { source: THREE.Vector3, target: THREE.Vector3 }) {
-  const geometry = useMemo(() => {
-    return new THREE.BufferGeometry().setFromPoints([source, target]);
+  const lineObj = useMemo(() => {
+    const geometry = new THREE.BufferGeometry().setFromPoints([source, target]);
+    const material = new THREE.LineBasicMaterial({ color: 0x6b7cff, opacity: 0.4, transparent: true });
+    return new THREE.Line(geometry, material);
   }, [source, target]);
   
-  return (
-    <line geometry={geometry}>
-      <lineBasicMaterial color="#6b7cff" opacity={0.4} transparent />
-    </line>
-  );
+  return <primitive object={lineObj} />;
 }
 
 export default function ConstellationGraph() {

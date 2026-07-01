@@ -260,7 +260,7 @@ function PremiumParticleArrow({ yOffset, zOffset, count = 1500 }: { yOffset: num
   );
 }
 
-function PremiumParticleLogo({ yOffset = 0, zOffset = -300, count = 10000 }) {
+function PremiumParticleLogo({ yOffset = 0, zOffset = -300, count = 10000, scale = 1 }: { yOffset?: number, zOffset?: number, count?: number, scale?: number }) {
   const meshRef = useRef<THREE.InstancedMesh>(null);
   const [particleData, setParticleData] = useState<{targets: Float32Array, starts: Float32Array, colors: Float32Array} | null>(null);
 
@@ -383,7 +383,7 @@ function PremiumParticleLogo({ yOffset = 0, zOffset = -300, count = 10000 }) {
   if (!particleData) return null;
 
   return (
-    <instancedMesh ref={meshRef} args={[undefined, undefined, count]} position={[0, yOffset, zOffset]}>
+    <instancedMesh ref={meshRef} args={[undefined, undefined, count]} position={[0, yOffset, zOffset]} scale={[scale, scale, scale]}>
       <sphereGeometry args={[0.08, 8, 8]} />
       {/* Basic material ensures colors are pure and bright, unaffected by shadow */}
       <meshBasicMaterial toneMapped={false} />
@@ -405,7 +405,7 @@ function WelcomeUniverse() {
 
   return (
     <group>
-      <PremiumParticleLogo yOffset={isMobile ? 4 : 2} zOffset={-315} count={isMobile ? 5000 : 12000} />
+      <PremiumParticleLogo yOffset={isMobile ? 0 : 2} zOffset={-315} count={isMobile ? 5000 : 12000} scale={isMobile ? 0.6 : 1} />
       <PremiumParticleText 
         text="Discover Your Next Favorite Movie" 
         size={isMobile ? 0.6 : 1.2} 

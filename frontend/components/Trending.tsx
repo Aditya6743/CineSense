@@ -59,6 +59,19 @@ export default function Trending() {
           <p className="mt-4 text-lg text-gray-400">
             The hottest movies everyone is watching this week.
           </p>
+
+          <motion.div 
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            className="md:hidden mt-6 flex items-center justify-center gap-2 text-sm text-gray-500 font-medium uppercase tracking-widest"
+          >
+            <span>Swipe to explore</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="opacity-70">
+              <path d="M5 12h14"/>
+              <path d="m12 5 7 7-7 7"/>
+            </svg>
+          </motion.div>
         </div>
 
         {movies.length === 0 ? (

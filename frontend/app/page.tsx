@@ -6,7 +6,6 @@ import { motion } from "framer-motion";
 import Navbar from "../components/Navbar";
 import Hero from "../components/Hero";
 import Trending from "../components/Trending";
-import Features from "../components/Features";
 import Timeline from "../components/Timeline";
 import Testimonials from "../components/Testimonials";
 import FAQ from "../components/FAQ";
@@ -87,9 +86,6 @@ function MainContent() {
               <BackgroundGraphic />
               <div id="trending">
                 <Trending />
-              </div>
-              <div id="features">
-                <Features />
               </div>
               <Timeline />
             <Testimonials />

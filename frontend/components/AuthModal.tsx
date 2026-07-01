@@ -33,8 +33,8 @@ export default function AuthModal({ isOpen, onClose }: { isOpen: boolean; onClos
         if (error) throw error;
         setError("Check your email for the confirmation link!");
       }
-    } catch (err: any) {
-      setError(err.message || "An error occurred");
+    } catch (err) {
+      setError((err as Error).message || "An error occurred");
     } finally {
       setLoading(false);
     }

@@ -91,7 +91,7 @@ export default function MovieModal({ movie, searchedMovieTitle, onClose }: Props
           className="w-full max-w-5xl overflow-hidden rounded-[2rem] bg-gray-900/90 shadow-2xl border flex flex-col max-h-[90vh]"
           style={{ borderColor: `${extractedColor || '#10b981'}40` }}
         >
-          <div className="grid md:grid-cols-5 h-full overflow-y-auto md:overflow-hidden">
+          <div className="grid md:grid-cols-5 h-full overflow-y-auto md:overflow-hidden" data-lenis-prevent="true">
             
             <div className="relative h-[400px] md:h-[700px] md:col-span-2 shrink-0">
               {movie.poster ? (
@@ -112,7 +112,7 @@ export default function MovieModal({ movie, searchedMovieTitle, onClose }: Props
               <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-transparent via-gray-900/20 to-gray-900/100" />
             </div>
 
-            <div className="flex flex-col p-8 md:p-10 md:col-span-3 relative md:overflow-y-auto custom-scrollbar">
+            <div className="flex flex-col p-8 md:p-10 md:col-span-3 relative md:overflow-y-auto custom-scrollbar" data-lenis-prevent="true">
               
               {/* Background glow using extracted color */}
               <div 

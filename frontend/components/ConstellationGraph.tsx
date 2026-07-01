@@ -114,7 +114,8 @@ export default function ConstellationGraph() {
     if (loading) return false;
     setLoading(true);
     try {
-      const res = await axios.get(`/api/recommend/${encodeURIComponent(sourceNode.id)}?movie_id=${sourceNode.data.movie_id}`);
+      const movieIdQuery = sourceNode.data.movie_id ? `?movie_id=${sourceNode.data.movie_id}` : '';
+      const res = await axios.get(`/api/recommend/${encodeURIComponent(sourceNode.id)}${movieIdQuery}`);
       // Update source node data if it was mocked
       setNodes(prev => {
         const next = new Map(prev);

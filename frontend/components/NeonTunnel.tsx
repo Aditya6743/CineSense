@@ -185,9 +185,9 @@ export default function NeonTunnel({ count = 60, length = 300, radius = 30, onMo
 
   const positions = useMemo(() => {
     const pos = [];
-    // Only 6 items per ring, giving massive horizontal breathing room
+    // Only 4 items per ring, giving massive horizontal breathing room
     // creating a sleek, highly curated premium gallery feel
-    const itemsPerRing = 6;
+    const itemsPerRing = 4;
     const numRings = Math.ceil(count / itemsPerRing);
     
     for (let i = 0; i < count; i++) {

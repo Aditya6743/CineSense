@@ -62,18 +62,19 @@ export default function Trending() {
         </div>
 
         {movies.length === 0 ? (
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+          <div className="flex overflow-x-auto snap-x snap-mandatory pb-8 pt-4 gap-6 scrollbar-hide md:grid md:overflow-visible md:snap-none md:grid-cols-2 lg:grid-cols-4">
             {[...Array(4)].map((_, i) => (
-              <div key={i} className="h-[460px] animate-pulse rounded-3xl bg-white/5 border border-white/10 relative overflow-hidden">
+              <div key={i} className="min-w-[280px] snap-center shrink-0 md:min-w-0 md:shrink h-[460px] animate-pulse rounded-3xl bg-white/5 border border-white/10 relative overflow-hidden">
                 <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/5 to-transparent" />
               </div>
             ))}
           </div>
         ) : (
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+          <div className="flex overflow-x-auto snap-x snap-mandatory pb-8 pt-4 gap-6 scrollbar-hide md:grid md:overflow-visible md:snap-none md:grid-cols-2 lg:grid-cols-4 -mx-4 px-4 md:mx-0 md:px-0">
             {movies.map((movie, index) => (
               <motion.div
                 key={movie.title}
+                className="min-w-[280px] snap-center shrink-0 md:min-w-0 md:shrink"
                 initial={{ opacity: 0, y: 50 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-50px" }}

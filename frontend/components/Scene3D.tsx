@@ -392,11 +392,28 @@ function PremiumParticleLogo({ yOffset = 0, zOffset = -300, count = 10000 }) {
 }
 
 function WelcomeUniverse() {
+  const [isMobile, setIsMobile] = useState(false);
+  
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setIsMobile(window.innerWidth < 768);
+      const handleResize = () => setIsMobile(window.innerWidth < 768);
+      window.addEventListener("resize", handleResize);
+      return () => window.removeEventListener("resize", handleResize);
+    }
+  }, []);
+
   return (
     <group>
-      <PremiumParticleLogo yOffset={2} zOffset={-315} count={12000} />
-      <PremiumParticleText text="Discover Your Next Favorite Movie" size={1.2} yOffset={-8} zOffset={-315} count={3000} />
-      <PremiumParticleArrow yOffset={-14} zOffset={-315} count={1500} />
+      <PremiumParticleLogo yOffset={isMobile ? 4 : 2} zOffset={-315} count={isMobile ? 5000 : 12000} />
+      <PremiumParticleText 
+        text="Discover Your Next Favorite Movie" 
+        size={isMobile ? 0.6 : 1.2} 
+        yOffset={isMobile ? -6 : -8} 
+        zOffset={-315} 
+        count={isMobile ? 1500 : 3000} 
+      />
+      <PremiumParticleArrow yOffset={isMobile ? -14 : -14} zOffset={-315} count={isMobile ? 800 : 1500} />
     </group>
   );
 }

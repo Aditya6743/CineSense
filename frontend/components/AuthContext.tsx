@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { supabase } from "../utils/supabase";
 import { User } from "@supabase/supabase-js";
+import AuthModal from "./AuthModal";
 
 type AuthContextType = {
   user: User | null;
@@ -68,6 +69,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   return (
     <AuthContext.Provider value={{ user, loading, isAuthModalOpen, setAuthModalOpen, signInWithGoogle, signOut }}>
       {children}
+      <AuthModal isOpen={isAuthModalOpen} onClose={() => setAuthModalOpen(false)} />
     </AuthContext.Provider>
   );
 }

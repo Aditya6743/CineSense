@@ -8,8 +8,6 @@ import MagneticButton from "./MagneticButton";
 import { useState } from "react";
 import { useUISound } from "../hooks/useUISound";
 import { useAuth } from "./AuthContext";
-import AuthModal from "./AuthModal";
-
 export default function Navbar() {
   const { scrollY } = useScroll();
   const [scrolled, setScrolled] = useState(false);
@@ -197,8 +195,6 @@ export default function Navbar() {
           </motion.div>
         )}
       </AnimatePresence>
-      
-      <AuthModal isOpen={isAuthModalOpen} onClose={() => setAuthModalOpen(false)} />
     </motion.nav>
   );
 }

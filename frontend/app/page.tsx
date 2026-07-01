@@ -79,45 +79,11 @@ function MainContent() {
             The first 300vh of scrolling flies the camera through the 3D Poster Sphere and Neon Tunnel.
             The canvas is fixed behind this transparent spacer.
           */}
-          <div className="h-[450vh] w-full pointer-events-none" />
+          <div className="h-[380vh] w-full pointer-events-none" />
 
           {/* RESTORED HTML SECTIONS (Wall of love, Trending, etc.) */}
-          <div className="relative w-full z-10 bg-[#020305]/80 backdrop-blur-3xl pointer-events-auto flex flex-col gap-12 overflow-hidden">
-            {/* Animated Sticky Background for HTML Sections */}
-            <div className="absolute inset-0 z-0 pointer-events-none opacity-40">
-              <div className="sticky top-0 w-full h-screen overflow-hidden">
-                <motion.div 
-                  animate={{ 
-                    scale: [1, 1.2, 1],
-                    rotate: [0, 90, 0],
-                    x: [0, 100, 0],
-                    y: [0, -50, 0]
-                  }}
-                  transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                  className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-violet-600/30 rounded-full blur-[120px] mix-blend-screen"
-                />
-                <motion.div 
-                  animate={{ 
-                    scale: [1, 1.5, 1],
-                    rotate: [0, -90, 0],
-                    x: [0, -100, 0],
-                    y: [0, 100, 0]
-                  }}
-                  transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-                  className="absolute top-1/2 right-1/4 w-[800px] h-[800px] bg-blue-600/30 rounded-full blur-[150px] mix-blend-screen"
-                />
-                <motion.div 
-                  animate={{ 
-                    scale: [1, 1.3, 1],
-                    rotate: [0, 45, 0],
-                  }}
-                  transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-                  className="absolute bottom-1/4 left-1/3 w-[500px] h-[500px] bg-fuchsia-600/30 rounded-full blur-[100px] mix-blend-screen"
-                />
-              </div>
-            </div>
-
-            <div className="relative z-10 flex flex-col gap-12">
+          <div className="relative w-full z-10 bg-[#020305]/90 backdrop-blur-md pointer-events-auto flex flex-col gap-12 overflow-hidden border-t border-white/5">
+            <div className="relative z-10 flex flex-col gap-12 pt-12">
               <BackgroundGraphic />
               <div id="trending">
                 <Trending />

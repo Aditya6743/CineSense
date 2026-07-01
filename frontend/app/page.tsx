@@ -79,7 +79,7 @@ function MainContent() {
             The first 300vh of scrolling flies the camera through the 3D Poster Sphere and Neon Tunnel.
             The canvas is fixed behind this transparent spacer.
           */}
-          <div className="h-[550vh] w-full pointer-events-none" />
+          <div className="h-[450vh] w-full pointer-events-none" />
 
           {/* RESTORED HTML SECTIONS (Wall of love, Trending, etc.) */}
           <div className="relative w-full z-10 bg-[#020305]/90 backdrop-blur-md pointer-events-auto flex flex-col gap-12 overflow-hidden border-t border-white/5">

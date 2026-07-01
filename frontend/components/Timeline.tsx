@@ -138,7 +138,7 @@ export default function Timeline() {
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: trackRef.current,
-          start: "top 60%", 
+          start: "top 75%", 
           toggleActions: "play none none reverse", 
         }
       });
@@ -149,14 +149,14 @@ export default function Timeline() {
       // Animate the line growing from top to bottom
       tl.to(lineRef.current, {
         height: "100%",
-        duration: 3, 
+        duration: 1.5, 
         ease: "power2.inOut", 
       }, 0);
 
       // Animate the laser head traveling from top to bottom
       tl.to(laserRef.current, {
         top: "100%",
-        duration: 3, 
+        duration: 1.5, 
         ease: "power2.inOut", 
       }, 0);
 
@@ -167,7 +167,7 @@ export default function Timeline() {
         
         // Use a slight ease adjustment for the timing calculation since power2.inOut isn't strictly linear, 
         // but linear mapping is extremely close and looks flawless.
-        const hitTime = triggerPoint * 3;
+        const hitTime = triggerPoint * 1.5;
         
         const icon = item.querySelector('.timeline-icon');
         const card = item.querySelector('.timeline-card-wrapper');
@@ -188,10 +188,10 @@ export default function Timeline() {
       });
 
       // Minimize the line at the end (tail catches up to head, shrinking into a point)
-      tl.to(lineRef.current, { top: "100%", height: "0%", duration: 0.8, ease: "power3.inOut" }, 3);
+      tl.to(lineRef.current, { top: "100%", height: "0%", duration: 0.6, ease: "power3.inOut" }, 1.5);
       
       // Shrink the laser head out of existence at the very end
-      tl.to(laserRef.current, { scale: 0, opacity: 0, duration: 0.4, ease: "back.in(2)" }, 3.4);
+      tl.to(laserRef.current, { scale: 0, opacity: 0, duration: 0.3, ease: "back.in(2)" }, 1.8);
     });
     
     return () => ctx.revert();

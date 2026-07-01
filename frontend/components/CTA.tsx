@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Link from "next/link";
 import MagneticButton from "./MagneticButton";
 import { Sparkles } from "lucide-react";
 
@@ -55,11 +56,15 @@ export default function CTA() {
             transition={{ delay: 0.2 }}
             className="flex flex-col sm:flex-row items-center justify-center gap-6"
           >
-            <MagneticButton className="px-10 py-5 rounded-full bg-emerald-500 text-black font-bold text-lg hover:bg-emerald-400 shadow-[0_0_40px_rgba(16,185,129,0.4)]">
-              Start Searching Now
+            <MagneticButton className="rounded-full bg-emerald-500 text-black font-bold text-lg hover:bg-emerald-400 shadow-[0_0_40px_rgba(16,185,129,0.4)] transition-colors">
+              <Link href="/explore" className="block w-full h-full px-10 py-5">
+                Start Searching Now
+              </Link>
             </MagneticButton>
-            <MagneticButton className="px-10 py-5 rounded-full bg-white/10 text-white font-bold text-lg hover:bg-white/20 border border-white/10">
-              View Documentation
+            <MagneticButton className="rounded-full bg-white/10 text-white font-bold text-lg hover:bg-white/20 border border-white/10 transition-colors">
+              <a href="https://github.com/Aditya6743/CineSense" target="_blank" rel="noreferrer" className="block w-full h-full px-10 py-5">
+                View Documentation
+              </a>
             </MagneticButton>
           </motion.div>
         </div>

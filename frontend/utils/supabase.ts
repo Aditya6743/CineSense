@@ -12,8 +12,15 @@ try {
   supabase = createClient(finalUrl, supabaseAnonKey);
 } catch (e) {
   console.error("Failed to initialize Supabase client:", e);
-  // Provide a dummy proxy so the app doesn't crash on load
-  supabase = new Proxy({}, { get: () => () => ({ data: null, error: e }) });
+  // Provide a robust dummy proxy so the app doesn't crash on load
+  supabase = {
+    auth: {
+      getSession: async () => ({ data: { session: null }, error: e }),
+      onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }),
+      signInWithOAuth: async () => ({ data: null, error: e }),
+      signOut: async () => ({ error: null })
+    }
+  };
 }
 
 export { supabase };

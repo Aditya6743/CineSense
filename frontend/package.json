@@ -13,6 +13,7 @@
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.6.1",
     "@react-three/postprocessing": "^3.0.4",
+    "@supabase/supabase-js": "^2.109.0",
     "@tabler/icons-react": "^3.44.0",
     "@types/three": "^0.185.0",
     "axios": "^1.18.1",

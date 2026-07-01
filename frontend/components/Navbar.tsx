@@ -7,12 +7,15 @@ import Link from "next/link";
 import MagneticButton from "./MagneticButton";
 import { useState } from "react";
 import { useUISound } from "../hooks/useUISound";
+import { useAuth } from "./AuthContext";
+import AuthModal from "./AuthModal";
 
 export default function Navbar() {
   const { scrollY } = useScroll();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { playHover, playClick } = useUISound();
+  const { user, signOut, isAuthModalOpen, setAuthModalOpen } = useAuth();
 
   useMotionValueEvent(scrollY, "change", (latest) => {
     setScrolled(latest > 50);
@@ -102,6 +105,46 @@ export default function Navbar() {
             </a>
           </MagneticButton>
 
+          {/* Auth Button */}
+          {user ? (
+            <div className="relative group">
+              <MagneticButton className="rounded-xl border border-white/10 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 transition-colors shadow-[0_0_15px_rgba(124,58,237,0.3)]">
+                <Link
+                  href="/watchlist"
+                  onClick={playClick}
+                  className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-bold text-white w-full h-full"
+                >
+                  <User className="w-4 h-4" />
+                  <span className="hidden md:inline">Watchlist</span>
+                </Link>
+              </MagneticButton>
+              {/* Dropdown menu */}
+              <div className="absolute right-0 mt-2 w-48 rounded-xl border border-white/10 bg-[#0a0f16] shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                <div className="p-2">
+                  <p className="px-3 py-2 text-xs text-gray-400 truncate border-b border-white/10 mb-1">
+                    {user.email}
+                  </p>
+                  <Link href="/watchlist" className="block px-3 py-2 text-sm text-gray-200 hover:bg-white/10 rounded-lg transition-colors">
+                    My Watchlist
+                  </Link>
+                  <button onClick={() => { playClick(); signOut(); }} className="w-full text-left px-3 py-2 text-sm text-red-400 hover:bg-white/10 rounded-lg transition-colors">
+                    Sign Out
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <MagneticButton className="rounded-xl border border-white/10 bg-white/5 backdrop-blur-xl hover:bg-white/10 transition-colors shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
+              <button
+                onClick={() => { playClick(); setAuthModalOpen(true); }}
+                className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-bold text-white w-full h-full"
+              >
+                <User className="w-4 h-4" />
+                <span className="hidden md:inline">Sign In</span>
+              </button>
+            </MagneticButton>
+          )}
+
           {/* Mobile Menu Toggle */}
           <button 
             className="md:hidden p-2 text-white/80 hover:text-white transition-colors"
@@ -154,6 +197,8 @@ export default function Navbar() {
           </motion.div>
         )}
       </AnimatePresence>
+      
+      <AuthModal isOpen={isAuthModalOpen} onClose={() => setAuthModalOpen(false)} />
     </motion.nav>
   );
 }

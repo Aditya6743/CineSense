@@ -16,7 +16,7 @@ import CTA from "../components/CTA";
 import BackgroundGraphic from "../components/BackgroundGraphic";
 import Scene3D from "../components/Scene3D";
 import MovieModal from "../components/Moviemodal";
-import { ThemeProvider, useTheme } from "../components/ThemeProvider";
+import { useTheme } from "../components/ThemeProvider";
 
 function MainContent() {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -110,8 +110,6 @@ function MainContent() {
 
 export default function Home() {
   return (
-    <ThemeProvider>
-      <MainContent />
-    </ThemeProvider>
+    <MainContent />
   );
 }

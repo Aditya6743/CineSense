@@ -20,6 +20,8 @@ export const metadata: Metadata = {
 
 import SmoothScroller from "@/components/SmoothScroller";
 import AmbientCanvas from "@/components/AmbientCanvas";
+import { AuthProvider } from "@/components/AuthContext";
+import { ThemeProvider } from "@/components/ThemeProvider";
 
 export default function RootLayout({
   children,
@@ -28,14 +30,18 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={geist.className}>
-        <div className="relative w-full max-w-[100vw] overflow-hidden min-h-screen">
-          <div className="noise-bg" />
-          <AmbientCanvas />
-          <SmoothScroller>
-            {children}
-          </SmoothScroller>
-        </div>
+      <body className={`${geist.className} bg-[#020305] text-white antialiased selection:bg-violet-500/30 selection:text-violet-200 overflow-x-hidden min-h-screen`}>
+        <ThemeProvider>
+          <AuthProvider>
+            <div className="relative w-full max-w-[100vw] overflow-hidden min-h-screen">
+              <div className="noise-bg" />
+              <AmbientCanvas />
+              <SmoothScroller>
+                {children}
+              </SmoothScroller>
+            </div>
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

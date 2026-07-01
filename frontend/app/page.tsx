@@ -17,6 +17,7 @@ import BackgroundGraphic from "../components/BackgroundGraphic";
 import Scene3D from "../components/Scene3D";
 import MovieModal from "../components/Moviemodal";
 import { useTheme } from "../components/ThemeProvider";
+import { ErrorBoundary } from "../components/ErrorBoundary";
 
 function MainContent() {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -53,16 +54,18 @@ function MainContent() {
         <>
           {/* Global 3D WebGL Background (Replaces 2D glows/graphics) */}
           <div className="fixed inset-0 z-0 pointer-events-auto">
-            <Canvas
-              camera={{ position: [0, 0, 5], fov: 75 }}
-              gl={{ antialias: false, alpha: false, powerPreference: "high-performance" }}
-              dpr={[1, 1.5]} // Cap resolution on high-DPI displays to maintain 120FPS
-            >
-              <color attach="background" args={["#020305"]} />
-              <Suspense fallback={null}>
-                <Scene3D onMovieSelect={setSelectedMovie} />
-              </Suspense>
-            </Canvas>
+            <ErrorBoundary>
+              <Canvas
+                camera={{ position: [0, 0, 5], fov: 75 }}
+                gl={{ antialias: false, alpha: false, powerPreference: "high-performance" }}
+                dpr={[1, 1.5]} // Cap resolution on high-DPI displays to maintain 120FPS
+              >
+                <color attach="background" args={["#020305"]} />
+                <Suspense fallback={null}>
+                  <Scene3D onMovieSelect={setSelectedMovie} />
+                </Suspense>
+              </Canvas>
+            </ErrorBoundary>
           </div>
 
           <div className="relative z-50 pointer-events-auto">

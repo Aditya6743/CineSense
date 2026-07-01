@@ -229,23 +229,38 @@ async def get_recommendations(request: Request, movie_name: str, movie_id: int =
             logger.warning(f"DB Recommendation failed for {movie_name}: {e}")
             
     # Fallback to TMDB if DB failed or movie not in DB
-    if not similar_movies and movie_id:
-        logger.info(f"Falling back to TMDB recommendations for ID {movie_id}")
+    if not similar_movies:
         client = await get_http_client()
-        tmdb_url = f"https://api.themoviedb.org/3/movie/{movie_id}/recommendations"
-        try:
-            response = await client.get(tmdb_url, headers=HEADERS, timeout=10)
-            response.raise_for_status()
-            tmdb_data = response.json()
-            for rec in tmdb_data.get("results", [])[:5]:
-                similar_movies.append({
-                    "movie_id": rec["id"],
-                    "title": rec["title"],
-                    "score": rec.get("vote_average", 0),
-                    "similarity": 0.95
-                })
-        except Exception as e:
-            logger.error(f"TMDB fallback failed: {e}")
+        
+        # If movie_id is not provided, we must search TMDB for the movie_name first
+        if not movie_id:
+            logger.info(f"Searching TMDB for ID of '{movie_name}'")
+            try:
+                search_url = "https://api.themoviedb.org/3/search/movie"
+                search_res = await client.get(search_url, headers=HEADERS, params={"query": movie_name}, timeout=10)
+                search_res.raise_for_status()
+                search_data = search_res.json()
+                if search_data.get("results") and len(search_data["results"]) > 0:
+                    movie_id = search_data["results"][0]["id"]
+            except Exception as e:
+                logger.error(f"TMDB search fallback failed for {movie_name}: {e}")
+
+        if movie_id:
+            logger.info(f"Falling back to TMDB recommendations for ID {movie_id}")
+            tmdb_url = f"https://api.themoviedb.org/3/movie/{movie_id}/recommendations"
+            try:
+                response = await client.get(tmdb_url, headers=HEADERS, timeout=10)
+                response.raise_for_status()
+                tmdb_data = response.json()
+                for rec in tmdb_data.get("results", [])[:5]:
+                    similar_movies.append({
+                        "movie_id": rec["id"],
+                        "title": rec["title"],
+                        "score": rec.get("vote_average", 0),
+                        "similarity": 0.95
+                    })
+            except Exception as e:
+                logger.error(f"TMDB fallback failed: {e}")
             
     if not similar_movies:
         raise HTTPException(status_code=404, detail="Movie not found and TMDB fallback failed")

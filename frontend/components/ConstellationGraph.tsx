@@ -24,6 +24,17 @@ interface Node {
   level: number;
 }
 
+// Helper to pre-verify if an image actually loads (to catch 404s from TMDB)
+const verifyImage = (url: string | null): Promise<boolean> => {
+  if (!url) return Promise.resolve(false);
+  return new Promise((resolve) => {
+    const img = new window.Image();
+    img.onload = () => resolve(true);
+    img.onerror = () => resolve(false);
+    img.src = url;
+  });
+};
+
 interface Edge {
   source: string;
   target: string;
@@ -138,8 +149,16 @@ export default function ConstellationGraph() {
       const radius = 10 + sourceNode.level * 2; // Expand radius for deeper levels
       const phi = (1 + Math.sqrt(5)) / 2; // Golden ratio for spherical distribution
 
-      // Filter to only movies with posters and exactly 5 recommendations
-      const validRecs = recommendations.filter(rec => rec.poster).slice(0, 5);
+      // Check all recommendation posters in parallel
+      const recCheckPromises = recommendations.map(async (rec) => {
+        if (!rec.poster) return { rec, valid: false };
+        const valid = await verifyImage(rec.poster);
+        return { rec, valid };
+      });
+      const recResults = await Promise.all(recCheckPromises);
+      
+      // Filter to only movies with valid posters and exactly 5 recommendations
+      const validRecs = recResults.filter(r => r.valid).map(r => r.rec).slice(0, 5);
 
       validRecs.forEach((rec, i) => {
         if (nodes.has(rec.title)) {
@@ -204,7 +223,15 @@ export default function ConstellationGraph() {
         const trendingMovies: MovieData[] = trendingRes.data;
         
         if (trendingMovies && trendingMovies.length > 0) {
-          const validTrending = trendingMovies.filter(m => m.poster);
+          // Pre-verify trending movies
+          const trendCheckPromises = trendingMovies.map(async (m) => {
+            if (!m.poster) return { m, valid: false };
+            const valid = await verifyImage(m.poster);
+            return { m, valid };
+          });
+          const trendResults = await Promise.all(trendCheckPromises);
+          const validTrending = trendResults.filter(r => r.valid).map(r => r.m);
+          
           let success = false;
           let attempts = 0;
           const maxAttempts = Math.min(validTrending.length, 5);

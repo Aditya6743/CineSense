@@ -66,7 +66,9 @@ function MovieNode({
         
         {/* Poster */}
         {hasPoster ? (
-          <DreiImage url={node.data.poster!} scale={[2, 3]} transparent />
+          <WebGLErrorBoundary fallback={<mesh><planeGeometry args={[2, 3]} /><meshBasicMaterial color="#1a1a2e" /></mesh>}>
+            <DreiImage url={node.data.poster!} scale={[2, 3]} transparent />
+          </WebGLErrorBoundary>
         ) : (
           <mesh>
             <planeGeometry args={[2, 3]} />
@@ -328,12 +330,11 @@ export default function ConstellationGraph() {
 
       {/* Nodes */}
       {Array.from(nodes.values()).map(node => (
-        <WebGLErrorBoundary key={node.id}>
-          <MovieNode 
-            node={node} 
-            onClick={handleNodeClick} 
-          />
-        </WebGLErrorBoundary>
+        <MovieNode 
+          key={node.id} 
+          node={node} 
+          onClick={handleNodeClick} 
+        />
       ))}
       </group>
     </>

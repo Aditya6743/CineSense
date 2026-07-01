@@ -430,7 +430,7 @@ export default function Scene3D({ onMovieSelect }: { onMovieSelect?: (movie: unk
       <CinematicDust />
       
       {/* Universes */}
-      <PosterSphere count={60} radius={25} onMovieSelect={onMovieSelect} />
+      <PosterSphere radius={25} onMovieSelect={onMovieSelect} />
       {/* Tunnel spans the entire remaining scroll distance (from -30 to -300) */}
       <group position={[0, 0, -30]}> 
         <NeonTunnel count={60} length={270} radius={25} onMovieSelect={onMovieSelect} />

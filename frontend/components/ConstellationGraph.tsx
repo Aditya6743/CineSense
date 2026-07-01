@@ -86,6 +86,18 @@ function MovieNode({
   );
 }
 
+function EdgeLine({ source, target }: { source: THREE.Vector3, target: THREE.Vector3 }) {
+  const geometry = useMemo(() => {
+    return new THREE.BufferGeometry().setFromPoints([source, target]);
+  }, [source, target]);
+  
+  return (
+    <line geometry={geometry}>
+      <lineBasicMaterial color="#6b7cff" opacity={0.4} transparent />
+    </line>
+  );
+}
+
 export default function ConstellationGraph() {
   const [nodes, setNodes] = useState<Map<string, Node>>(new Map());
   const [edges, setEdges] = useState<Edge[]>([]);
@@ -258,19 +270,6 @@ export default function ConstellationGraph() {
     }
   });
 
-  const edgesGeometry = useMemo(() => {
-    if (edges.length === 0 || nodes.size === 0) return null;
-    const points = [];
-    for (const edge of edges) {
-      const source = nodes.get(edge.source);
-      const target = nodes.get(edge.target);
-      if (source && target) {
-        points.push(source.position, target.position);
-      }
-    }
-    return new THREE.BufferGeometry().setFromPoints(points);
-  }, [edges, nodes]);
-
   return (
     <>
       {nodes.size === 0 && (
@@ -292,12 +291,13 @@ export default function ConstellationGraph() {
         onStart={() => { isNavigating.current = false; }}
       />
       <group ref={groupRef}>
-      {/* Edges - Single performant LineSegments draw call */}
-      {edgesGeometry && (
-        <lineSegments geometry={edgesGeometry}>
-          <lineBasicMaterial color="#6b7cff" opacity={0.6} transparent />
-        </lineSegments>
-      )}
+      {/* Edges */}
+      {edges.map((edge, i) => {
+        const sourceNode = nodes.get(edge.source);
+        const targetNode = nodes.get(edge.target);
+        if (!sourceNode || !targetNode) return null;
+        return <EdgeLine key={`edge-${i}`} source={sourceNode.position} target={targetNode.position} />;
+      })}
 
       {/* Nodes */}
       {Array.from(nodes.values()).map(node => (

@@ -6,6 +6,7 @@ import * as THREE from "three";
 import { useLenis } from "lenis/react";
 import { Image } from "@react-three/drei";
 import axios from "axios";
+import { WebGLErrorBoundary } from "./WebGLErrorBoundary";
 
 // -----------------------------------------------------
 // 1) Glowing Accelerator Rings
@@ -162,10 +163,13 @@ function InteractiveTunnelPoster({ movie, position, rotation, onClick }: any) {
 // -----------------------------------------------------
 // 3) Main Neon Tunnel
 // -----------------------------------------------------
-export default function NeonTunnel({ count = 60, length = 300, radius = 30, onMovieSelect }: { count?: number, length?: number, radius?: number, onMovieSelect?: (movie: any) => void }) {
+export default function NeonTunnel({ count: propCount = 60, length = 300, radius = 30, onMovieSelect }: { count?: number, length?: number, radius?: number, onMovieSelect?: (movie: any) => void }) {
   const groupRef = useRef<THREE.Group>(null);
   const lenis = useLenis();
   const [movies, setMovies] = useState<any[]>([]);
+  const isMobile = typeof window !== 'undefined' ? window.innerWidth < 768 : false;
+  // Override the prop count on mobile to avoid GPU crashes
+  const count = isMobile ? 16 : propCount;
 
   useEffect(() => {
     const fetchMovies = async () => {
@@ -241,13 +245,14 @@ export default function NeonTunnel({ count = 60, length = 300, radius = 30, onMo
           if (!p) return null;
           
           return (
-            <InteractiveTunnelPoster 
-              key={`${movie.title}-tunnel-${i}`}
-              movie={movie}
-              position={p.position}
-              rotation={p.rotation}
-              onClick={() => onMovieSelect?.(movie)}
-            />
+            <WebGLErrorBoundary key={`${movie.title}-tunnel-${i}`}>
+              <InteractiveTunnelPoster 
+                movie={movie}
+                position={p.position}
+                rotation={p.rotation}
+                onClick={() => onMovieSelect?.(movie)}
+              />
+            </WebGLErrorBoundary>
           );
         })}
       </group>

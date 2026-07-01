@@ -6,6 +6,7 @@ import * as THREE from "three";
 import { useLenis } from "lenis/react";
 import { Image } from "@react-three/drei";
 import axios from "axios";
+import { WebGLErrorBoundary } from "./WebGLErrorBoundary";
 
 export default function PosterSphere({ radius = 25, onMovieSelect }: { radius?: number, onMovieSelect?: (movie: any) => void }) {
   const groupRef = useRef<THREE.Group>(null);
@@ -85,13 +86,14 @@ export default function PosterSphere({ radius = 25, onMovieSelect }: { radius?: 
         if (!p) return null;
         
         return (
-          <InteractivePoster 
-            key={`${movie.title}-${i}`}
-            movie={movie}
-            position={p.position}
-            rotation={p.rotation}
-            onClick={() => onMovieSelect?.(movie)}
-          />
+          <WebGLErrorBoundary key={`${movie.title}-${i}`}>
+            <InteractivePoster 
+              movie={movie}
+              position={p.position}
+              rotation={p.rotation}
+              onClick={() => onMovieSelect?.(movie)}
+            />
+          </WebGLErrorBoundary>
         );
       })}
     </group>

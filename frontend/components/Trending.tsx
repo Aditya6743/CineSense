@@ -36,15 +36,15 @@ export default function Trending() {
   return (
     <motion.section
       id="trending"
-      initial={{ opacity: 0, y: 50 }}
-      whileInView={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0, scale: 0.8, rotateX: 15, y: 100 }}
+      whileInView={{ opacity: 1, scale: 1, rotateX: 0, y: 0 }}
       viewport={{ once: true, margin: "-100px" }}
-      transition={{ duration: 0.8, ease: "easeOut" }}
-      style={{ willChange: "transform, opacity" }}
-      className="relative mx-auto w-full max-w-[1600px] px-4 md:px-8 py-24"
+      transition={{ duration: 1.0, ease: [0.16, 1, 0.3, 1] }}
+      style={{ perspective: "1500px", willChange: "transform, opacity" }}
+      className="relative mx-auto w-full max-w-[1600px] px-4 md:px-8 py-24 transform-gpu"
     >
       {/* Section Glass */}
-      <div className="rounded-[40px] border border-white/10 bg-white/5 p-10 backdrop-blur-lg shadow-[0_0_80px_rgba(124,58,237,0.15)] overflow-hidden">
+      <div className="rounded-[40px] border border-white/10 bg-white/5 p-10 backdrop-blur-md shadow-[0_0_80px_rgba(124,58,237,0.15)] overflow-hidden">
 
         <div className="mb-12 text-center">
           <motion.h2

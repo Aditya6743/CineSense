@@ -6,6 +6,7 @@ import { Billboard, Image as DreiImage, Html, OrbitControls } from "@react-three
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import * as THREE from "three";
 import axios from "axios";
+import { WebGLErrorBoundary } from "./WebGLErrorBoundary";
 
 interface MovieData {
   movie_id: number;
@@ -327,11 +328,12 @@ export default function ConstellationGraph() {
 
       {/* Nodes */}
       {Array.from(nodes.values()).map(node => (
-        <MovieNode 
-          key={node.id} 
-          node={node} 
-          onClick={handleNodeClick} 
-        />
+        <WebGLErrorBoundary key={node.id}>
+          <MovieNode 
+            node={node} 
+            onClick={handleNodeClick} 
+          />
+        </WebGLErrorBoundary>
       ))}
       </group>
     </>

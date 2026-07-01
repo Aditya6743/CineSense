@@ -33,7 +33,7 @@ export function useWatchlist() {
         if (error) throw error;
         
         if (data) {
-          setWatchlist(data.map(row => row.movie_data as WatchlistMovie));
+          setWatchlist(data.map((row: any) => row.movie_data as WatchlistMovie));
         }
       } catch (e) {
         console.error("Failed to fetch watchlist from Supabase:", e);

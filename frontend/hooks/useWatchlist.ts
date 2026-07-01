@@ -33,6 +33,7 @@ export function useWatchlist() {
         if (error) throw error;
         
         if (data) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           setWatchlist(data.map((row: any) => row.movie_data as WatchlistMovie));
         }
       } catch (e) {

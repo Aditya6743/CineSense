@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { supabase } from "../utils/supabase";
 import { User } from "@supabase/supabase-js";
+import { useRouter } from "next/navigation";
 import AuthModal from "./AuthModal";
 
 type AuthContextType = {
@@ -27,8 +28,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAuthModalOpen, setAuthModalOpen] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
+    // Fallback manual check for password recovery hash (in case event is missed)
+    if (typeof window !== 'undefined' && window.location.hash.includes('type=recovery')) {
+      router.push('/update-password' + window.location.hash);
+    }
+
     // Check active sessions and sets the user
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     supabase.auth.getSession().then((res: any) => {
@@ -41,7 +48,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const {
       data: { subscription },
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } = supabase.auth.onAuthStateChange((_event: any, session: any) => {
+    } = supabase.auth.onAuthStateChange((event: any, session: any) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        router.push('/update-password' + window.location.hash);
+      }
       setUser(session?.user ?? null);
       setLoading(false);
     });

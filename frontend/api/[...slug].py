@@ -217,17 +217,38 @@ async def fetch_movie_details(client: httpx.AsyncClient, movie_info: dict, max_r
 
 @app.get("/recommend/{movie_name}")
 @app.get("/api/recommend/{movie_name}")
-async def get_recommendations(request: Request, movie_name: str):
+async def get_recommendations(request: Request, movie_name: str, movie_id: int = None):
+    similar_movies = []
+    
+    # Try Database first
     db_pool = await get_db_pool()
-    if not db_pool:
-        error_msg = getattr(request.app.state, 'db_error', 'Unknown Error')
-        raise HTTPException(status_code=500, detail=f"Database connection failed: {error_msg}")
-        
-    try:
-        similar_movies = await get_similar_movies_db(await get_db_pool(), movie_name)
-    except ValueError as e:
-        logger.warning(f"Recommendation failed: {e}")
-        raise HTTPException(status_code=404, detail=str(e))
+    if db_pool:
+        try:
+            similar_movies = await get_similar_movies_db(db_pool, movie_name)
+        except Exception as e:
+            logger.warning(f"DB Recommendation failed for {movie_name}: {e}")
+            
+    # Fallback to TMDB if DB failed or movie not in DB
+    if not similar_movies and movie_id:
+        logger.info(f"Falling back to TMDB recommendations for ID {movie_id}")
+        client = await get_http_client()
+        tmdb_url = f"https://api.themoviedb.org/3/movie/{movie_id}/recommendations"
+        try:
+            response = await client.get(tmdb_url, headers=HEADERS, timeout=10)
+            response.raise_for_status()
+            tmdb_data = response.json()
+            for rec in tmdb_data.get("results", [])[:5]:
+                similar_movies.append({
+                    "movie_id": rec["id"],
+                    "title": rec["title"],
+                    "score": rec.get("vote_average", 0),
+                    "similarity": 0.95
+                })
+        except Exception as e:
+            logger.error(f"TMDB fallback failed: {e}")
+            
+    if not similar_movies:
+        raise HTTPException(status_code=404, detail="Movie not found and TMDB fallback failed")
 
     client = await get_http_client()
     tasks = [fetch_movie_details(client, m) for m in similar_movies]

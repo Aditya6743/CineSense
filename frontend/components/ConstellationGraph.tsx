@@ -138,7 +138,10 @@ export default function ConstellationGraph() {
       const radius = 10 + sourceNode.level * 2; // Expand radius for deeper levels
       const phi = (1 + Math.sqrt(5)) / 2; // Golden ratio for spherical distribution
 
-      recommendations.forEach((rec, i) => {
+      // Filter to only movies with posters and exactly 5 recommendations
+      const validRecs = recommendations.filter(rec => rec.poster).slice(0, 5);
+
+      validRecs.forEach((rec, i) => {
         if (nodes.has(rec.title)) {
           // If node already exists, just link it
           newEdges.push({ source: sourceNode.id, target: rec.title });
@@ -147,7 +150,7 @@ export default function ConstellationGraph() {
 
         // Spherical distribution formula
         const theta = 2 * Math.PI * i / phi;
-        const phiAngle = Math.acos(1 - 2 * (i + 0.5) / recommendations.length);
+        const phiAngle = Math.acos(1 - 2 * (i + 0.5) / validRecs.length);
         
         const x = sourceNode.position.x + radius * Math.sin(phiAngle) * Math.cos(theta);
         const y = sourceNode.position.y + radius * Math.sin(phiAngle) * Math.sin(theta);
@@ -201,12 +204,13 @@ export default function ConstellationGraph() {
         const trendingMovies: MovieData[] = trendingRes.data;
         
         if (trendingMovies && trendingMovies.length > 0) {
+          const validTrending = trendingMovies.filter(m => m.poster);
           let success = false;
           let attempts = 0;
-          const maxAttempts = Math.min(trendingMovies.length, 5);
+          const maxAttempts = Math.min(validTrending.length, 5);
 
           while (!success && attempts < maxAttempts) {
-            const movie = trendingMovies[attempts];
+            const movie = validTrending[attempts];
             const initNode: Node = {
               id: movie.title,
               data: movie,
@@ -231,9 +235,9 @@ export default function ConstellationGraph() {
             attempts++;
           }
           
-          if (!success) {
+          if (!success && validTrending.length > 0) {
              // If all attempts failed, just show the first one as fallback
-             const firstMovie = trendingMovies[0];
+             const firstMovie = validTrending[0];
              const initNode: Node = {
                id: firstMovie.title,
                data: firstMovie,

@@ -129,7 +129,7 @@ export default function Navbar() {
                   className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-bold text-white w-full h-full"
                 >
                   <User className="w-4 h-4" />
-                  <span className="hidden md:inline">Watchlist</span>
+                  <span className="hidden md:inline">My Library</span>
                 </Link>
               </MagneticButton>
               {/* Dropdown menu */}

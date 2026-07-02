@@ -84,11 +84,13 @@ export default function MovieCard({
               toggleWatchlist({ title, poster, rating, release_date });
             }}
             className="absolute right-4 top-4 rounded-full bg-black/60 p-2.5 backdrop-blur-xl border border-white/10 hover:border-pink-500/50 hover:bg-pink-500/20 transition-all z-20 group/heart"
-            title={saved ? "Remove from Watchlist" : "Add to Watchlist"}
           >
             <Heart 
               className={`h-5 w-5 transition-all ${saved ? "fill-pink-500 text-pink-500" : "text-white group-hover/heart:text-pink-400"}`} 
             />
+            <span className="absolute -bottom-8 right-0 whitespace-nowrap rounded-md bg-black/80 px-2 py-1 text-xs text-white opacity-0 transition-opacity group-hover/heart:opacity-100 pointer-events-none border border-white/10">
+              {saved ? "Remove Watchlist" : "Add to Watchlist"}
+            </span>
           </button>
 
           {/* Watched Button */}
@@ -98,11 +100,13 @@ export default function MovieCard({
               toggleWatched({ title, poster, rating, release_date });
             }}
             className="absolute right-16 top-4 rounded-full bg-black/60 p-2.5 backdrop-blur-xl border border-white/10 hover:border-emerald-500/50 hover:bg-emerald-500/20 transition-all z-20 group/eye"
-            title={watched ? "Mark as Unwatched" : "Mark as Watched"}
           >
             <Eye 
               className={`h-5 w-5 transition-all ${watched ? "text-emerald-500" : "text-white group-hover/eye:text-emerald-400"}`} 
             />
+            <span className="absolute -bottom-8 right-0 whitespace-nowrap rounded-md bg-black/80 px-2 py-1 text-xs text-white opacity-0 transition-opacity group-hover/eye:opacity-100 pointer-events-none border border-white/10">
+              {watched ? "Remove Watched" : "Mark as Watched"}
+            </span>
           </button>
 
           {/* Bottom */}

@@ -158,10 +158,12 @@ export default function MovieModal({ movie, searchedMovieTitle, onClose }: Props
                         rating: movie.rating, 
                         release_date: movie.release_date 
                       })}
-                      title={saved ? "Remove from Watchlist" : "Add to Watchlist"}
-                      className="p-3 rounded-full bg-white/5 border border-white/10 hover:bg-pink-500/20 hover:border-pink-500/50 transition-all shrink-0 group/heart"
+                      className="relative p-3 rounded-full bg-white/5 border border-white/10 hover:bg-pink-500/20 hover:border-pink-500/50 transition-all shrink-0 group/heart"
                     >
                       <Heart className={`w-6 h-6 transition-all ${saved ? "fill-pink-500 text-pink-500 scale-110" : "text-white group-hover/heart:text-pink-400"}`} />
+                      <span className="absolute -bottom-10 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md bg-black/80 px-2 py-1 text-xs text-white opacity-0 transition-opacity group-hover/heart:opacity-100 pointer-events-none border border-white/10">
+                        {saved ? "Remove Watchlist" : "Add to Watchlist"}
+                      </span>
                     </button>
 
                     <button
@@ -171,10 +173,12 @@ export default function MovieModal({ movie, searchedMovieTitle, onClose }: Props
                         rating: movie.rating, 
                         release_date: movie.release_date 
                       })}
-                      title={watched ? "Mark as Unwatched" : "Mark as Watched"}
-                      className="p-3 rounded-full bg-white/5 border border-white/10 hover:bg-emerald-500/20 hover:border-emerald-500/50 transition-all shrink-0 group/eye"
+                      className="relative p-3 rounded-full bg-white/5 border border-white/10 hover:bg-emerald-500/20 hover:border-emerald-500/50 transition-all shrink-0 group/eye"
                     >
                       <Eye className={`w-6 h-6 transition-all ${watched ? "text-emerald-500 scale-110" : "text-white group-hover/eye:text-emerald-400"}`} />
+                      <span className="absolute -bottom-10 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md bg-black/80 px-2 py-1 text-xs text-white opacity-0 transition-opacity group-hover/eye:opacity-100 pointer-events-none border border-white/10">
+                        {watched ? "Remove Watched" : "Mark as Watched"}
+                      </span>
                     </button>
                   </div>
                 </div>

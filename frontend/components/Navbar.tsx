@@ -141,6 +141,9 @@ export default function Navbar() {
                   <Link href="/watchlist" className="block px-3 py-2 text-sm text-gray-200 hover:bg-white/10 rounded-lg transition-colors">
                     My Watchlist
                   </Link>
+                  <Link href="/watched" className="block px-3 py-2 text-sm text-gray-200 hover:bg-white/10 rounded-lg transition-colors">
+                    Watched History
+                  </Link>
                   <button onClick={() => { playClick(); signOut(); }} className="w-full text-left px-3 py-2 text-sm text-red-400 hover:bg-white/10 rounded-lg transition-colors">
                     Sign Out
                   </button>

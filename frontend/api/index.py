@@ -381,6 +381,7 @@ class MoodRequest(BaseModel):
     vibe: str
     gimmick: str
     custom: str = ""
+    watched_titles: list[str] = []
 
 @app.post("/recommend-mood")
 @app.post("/api/recommend-mood")
@@ -417,6 +418,9 @@ async def recommend_mood(request: Request, req: MoodRequest):
             genai_client = genai.Client(api_key=api_key)
             
             custom_instruction = f"- User's specific details: {req.custom}\n" if req.custom.strip() else ""
+            watched_instruction = ""
+            if req.watched_titles:
+                watched_instruction = f"- Movies the user has ALREADY SEEN (DO NOT recommend these under any circumstances): {', '.join(req.watched_titles)}\n"
             
             prompt = f"""
 You are an expert movie recommender with an encyclopedic knowledge of cinema, covering the vast global collection of movies from all eras, genres, and languages.
@@ -424,7 +428,7 @@ The user says:
 - Feeling: {req.feeling}
 - Vibe: {req.vibe}
 - Ideal movie companion: {req.gimmick}
-{custom_instruction}
+{custom_instruction}{watched_instruction}
 
 Search your vast internal database and be EXTREMELY PRECISE. Choose EXACTLY ONE perfect movie that perfectly matches ALL the provided constraints and inputs above. Do not default to popular movies if a lesser-known movie fits the constraints better.
 

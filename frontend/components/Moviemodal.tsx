@@ -8,8 +8,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useColor } from "color-thief-react";
 import { useTheme } from "./ThemeProvider";
 import axios from "axios";
-import { Heart, Play, Clock, Globe, Loader2 } from "lucide-react";
+import { Heart, Play, Clock, Globe, Loader2, Eye } from "lucide-react";
 import { useWatchlist } from "../hooks/useWatchlist";
+import { useWatched } from "../hooks/useWatched";
 
 type Movie = {
   title: string;
@@ -38,6 +39,7 @@ export default function MovieModal({ movie, searchedMovieTitle, onClose }: Props
   const [providers, setProviders] = useState<{name: string, logo: string | null}[]>([]);
   const [providersLoading, setProvidersLoading] = useState(false);
   const { isInWatchlist, toggleWatchlist } = useWatchlist();
+  const { isWatched, toggleWatched } = useWatched();
 
   // Extract color from poster
   const { data: extractedColor } = useColor(movie?.poster || "", "hex", { crossOrigin: "anonymous" });
@@ -94,6 +96,7 @@ export default function MovieModal({ movie, searchedMovieTitle, onClose }: Props
 
   if (!movie || !mounted) return null;
   const saved = isInWatchlist(movie.title);
+  const watched = isWatched(movie.title);
 
   return createPortal(
     <AnimatePresence>
@@ -147,17 +150,33 @@ export default function MovieModal({ movie, searchedMovieTitle, onClose }: Props
                   <h2 className="text-4xl md:text-5xl font-black text-white tracking-tight leading-tight">
                     {movie.title}
                   </h2>
-                  <button
-                    onClick={() => toggleWatchlist({ 
-                      title: movie.title, 
-                      poster: movie.poster, 
-                      rating: movie.rating, 
-                      release_date: movie.release_date 
-                    })}
-                    className="p-3 rounded-full bg-white/5 border border-white/10 hover:bg-pink-500/20 hover:border-pink-500/50 transition-all shrink-0 group/heart"
-                  >
-                    <Heart className={`w-6 h-6 transition-all ${saved ? "fill-pink-500 text-pink-500 scale-110" : "text-white group-hover/heart:text-pink-400"}`} />
-                  </button>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => toggleWatchlist({ 
+                        title: movie.title, 
+                        poster: movie.poster, 
+                        rating: movie.rating, 
+                        release_date: movie.release_date 
+                      })}
+                      title={saved ? "Remove from Watchlist" : "Add to Watchlist"}
+                      className="p-3 rounded-full bg-white/5 border border-white/10 hover:bg-pink-500/20 hover:border-pink-500/50 transition-all shrink-0 group/heart"
+                    >
+                      <Heart className={`w-6 h-6 transition-all ${saved ? "fill-pink-500 text-pink-500 scale-110" : "text-white group-hover/heart:text-pink-400"}`} />
+                    </button>
+
+                    <button
+                      onClick={() => toggleWatched({ 
+                        title: movie.title, 
+                        poster: movie.poster, 
+                        rating: movie.rating, 
+                        release_date: movie.release_date 
+                      })}
+                      title={watched ? "Mark as Unwatched" : "Mark as Watched"}
+                      className="p-3 rounded-full bg-white/5 border border-white/10 hover:bg-emerald-500/20 hover:border-emerald-500/50 transition-all shrink-0 group/eye"
+                    >
+                      <Eye className={`w-6 h-6 transition-all ${watched ? "text-emerald-500 scale-110" : "text-white group-hover/eye:text-emerald-400"}`} />
+                    </button>
+                  </div>
                 </div>
 
                 <div className="mb-6 flex flex-wrap gap-4 text-gray-300 font-mono text-sm uppercase tracking-widest items-center">

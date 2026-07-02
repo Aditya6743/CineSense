@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles, ArrowRight, RefreshCcw, Loader2, X } from "lucide-react";
 import MovieCard from "./MovieCard";
+import { useWatched } from "../hooks/useWatched";
 
 const QUESTIONS = [
   {
@@ -32,6 +33,7 @@ export default function MoodRecommender({ isOpen, onClose, onMovieClick }: { isO
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any | null>(null);
   const [mounted, setMounted] = useState(false);
+  const { watchedList } = useWatched();
 
   useEffect(() => {
     setMounted(true);
@@ -79,7 +81,10 @@ export default function MoodRecommender({ isOpen, onClose, onMovieClick }: { isO
       const res = await fetch(`/api/recommend-mood`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(finalAnswers),
+        body: JSON.stringify({ 
+          ...finalAnswers,
+          watched_titles: watchedList.map(m => m.title)
+        }),
       });
       
       if (!res.ok) {

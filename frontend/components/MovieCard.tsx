@@ -2,9 +2,10 @@
 
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { Star, Heart } from "lucide-react";
+import { Star, Heart, Eye } from "lucide-react";
 import Tilt from "react-parallax-tilt";
 import { useWatchlist } from "../hooks/useWatchlist";
+import { useWatched } from "../hooks/useWatched";
 import { useUISound } from "../hooks/useUISound";
 
 type MovieCardProps = {
@@ -25,7 +26,9 @@ export default function MovieCard({
   onClick,
 }: MovieCardProps) {
   const { isInWatchlist, toggleWatchlist } = useWatchlist();
+  const { isWatched, toggleWatched } = useWatched();
   const saved = isInWatchlist(title);
+  const watched = isWatched(title);
   const { playHover, playClick } = useUISound();
 
   const handleCardClick = () => {
@@ -81,9 +84,24 @@ export default function MovieCard({
               toggleWatchlist({ title, poster, rating, release_date });
             }}
             className="absolute right-4 top-4 rounded-full bg-black/60 p-2.5 backdrop-blur-xl border border-white/10 hover:border-pink-500/50 hover:bg-pink-500/20 transition-all z-20 group/heart"
+            title={saved ? "Remove from Watchlist" : "Add to Watchlist"}
           >
             <Heart 
               className={`h-5 w-5 transition-all ${saved ? "fill-pink-500 text-pink-500" : "text-white group-hover/heart:text-pink-400"}`} 
+            />
+          </button>
+
+          {/* Watched Button */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleWatched({ title, poster, rating, release_date });
+            }}
+            className="absolute right-16 top-4 rounded-full bg-black/60 p-2.5 backdrop-blur-xl border border-white/10 hover:border-emerald-500/50 hover:bg-emerald-500/20 transition-all z-20 group/eye"
+            title={watched ? "Mark as Unwatched" : "Mark as Watched"}
+          >
+            <Eye 
+              className={`h-5 w-5 transition-all ${watched ? "text-emerald-500" : "text-white group-hover/eye:text-emerald-400"}`} 
             />
           </button>
 

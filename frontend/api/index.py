@@ -420,18 +420,20 @@ Return ONLY a raw JSON object (no markdown, no backticks) with exactly two keys:
             
             raw_text = response.text.strip()
             
-            # Try to find JSON block using regex if wrapped in markdown
-            json_match = re.search(r'\{.*\}', raw_text, re.DOTALL)
-            if json_match:
-                raw_text = json_match.group(0)
-                
+            # More robust JSON parsing
             try:
+                # Strip markdown code blocks explicitly
+                raw_text = raw_text.replace("```json", "").replace("```", "").strip()
+                start_idx = raw_text.find('{')
+                end_idx = raw_text.rfind('}')
+                if start_idx != -1 and end_idx != -1:
+                    raw_text = raw_text[start_idx:end_idx+1]
+                    
                 ai_data = json.loads(raw_text)
                 suggested_title = ai_data.get("title", "")
                 reason = ai_data.get("reason", "")
             except json.JSONDecodeError as e:
                 logger.error(f"Failed to parse AI JSON: {raw_text}")
-                # Fallback on parse failure
                 suggested_title = "Inception"
                 reason = "Our AI got a bit confused, but here is a mind-bending classic!"
                 
@@ -440,9 +442,11 @@ Return ONLY a raw JSON object (no markdown, no backticks) with exactly two keys:
                 reason = "A great watch for any occasion."
                 
         except Exception as ai_err:
+            import random
             logger.error(f"AI Generation Failed: {ai_err}")
-            suggested_title = "The Dark Knight"
-            reason = "Our AI is resting, but you can never go wrong with Batman."
+            fallback_list = ["The Dark Knight", "Inception", "Interstellar", "Dune", "The Matrix", "Mad Max: Fury Road"]
+            suggested_title = random.choice(fallback_list)
+            reason = "Our AI is resting due to high traffic, but here is an absolute cinematic masterpiece."
             
     try:
         # Clean up title by removing years in parentheses (e.g. "Interstellar (2014)" -> "Interstellar")
@@ -460,9 +464,11 @@ Return ONLY a raw JSON object (no markdown, no backticks) with exactly two keys:
         
         if not search_data.get("results"):
             logger.warning(f"AI suggested '{suggested_title}' but TMDB returned no results.")
-            # Fallback to a hardcoded popular movie if TMDB fails so the user doesn't just see an error
-            suggested_title = "The Dark Knight"
-            reason = "This is a fallback recommendation because the AI's obscure pick wasn't found on TMDB!"
+            import random
+            fallback_list = ["Parasite", "Everything Everywhere All at Once", "Spirited Away", "Whiplash", "Knives Out", "Arrival"]
+            suggested_title = random.choice(fallback_list)
+            reason = "The AI found an extremely obscure movie not available in the global database! So here is a phenomenal masterpiece instead."
+            
             search_res = await client.get(tmdb_search_url, headers=HEADERS, params={"query": suggested_title, "include_adult": "false", "language": "en-US", "page": 1})
             search_data = search_res.json()
             

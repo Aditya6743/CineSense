@@ -65,12 +65,12 @@ function InteractiveTunnelPoster({ movie, position, rotation, onClick }: any) {
     if (!groupRef.current || !meshRef.current || !backplateRef.current) return;
     
     // Global Entrance Animation (hides posters on front page)
-    // Map camera.z from -5 to -30 -> scale 0 to 1
+    // Start at a minimum scale so they appear much quicker
     let entranceScale = 1;
     if (camera.position.z > -30) {
       entranceScale = THREE.MathUtils.clamp((camera.position.z - -5) / (-30 - -5), 0, 1);
-      // Cinematic ease-in-out
-      entranceScale = entranceScale * entranceScale * (3 - 2 * entranceScale);
+      // More aggressive ease-out so it pops to size quickly
+      entranceScale = Math.max(0.2, entranceScale * (2 - entranceScale));
     }
     
     // Smooth Hover scaling and popping out
@@ -163,7 +163,7 @@ function InteractiveTunnelPoster({ movie, position, rotation, onClick }: any) {
 // -----------------------------------------------------
 // 3) Main Neon Tunnel
 // -----------------------------------------------------
-export default function NeonTunnel({ count: propCount = 60, length = 300, radius = 30, onMovieSelect }: { count?: number, length?: number, radius?: number, onMovieSelect?: (movie: any) => void }) {
+export default function NeonTunnel({ count: propCount = 60, length = 300, radius = 30, onMovieSelect, trendingMovies = [] }: { count?: number, length?: number, radius?: number, onMovieSelect?: (movie: any) => void, trendingMovies?: any[] }) {
   const groupRef = useRef<THREE.Group>(null);
   const lenis = useLenis();
   const [movies, setMovies] = useState<any[]>([]);
@@ -172,20 +172,14 @@ export default function NeonTunnel({ count: propCount = 60, length = 300, radius
   const count = isMobile ? 16 : propCount;
 
   useEffect(() => {
-    const fetchMovies = async () => {
-      try {
-        const res = await axios.get("/api/trending"); 
-        let results = res.data;
-        while (results.length > 0 && results.length < count) {
-          results = [...results, ...res.data];
-        }
-        setMovies(results.slice(0, count));
-      } catch (err) {
-        console.error("Failed to fetch tunnel movies", err);
+    if (trendingMovies.length > 0) {
+      let results = [...trendingMovies];
+      while (results.length > 0 && results.length < count) {
+        results = [...results, ...trendingMovies];
       }
-    };
-    fetchMovies();
-  }, [count]);
+      setMovies(results.slice(0, count));
+    }
+  }, [count, trendingMovies]);
 
   const positions = useMemo(() => {
     const pos = [];

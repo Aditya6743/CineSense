@@ -418,7 +418,7 @@ function WelcomeUniverse() {
   );
 }
 
-export default function Scene3D({ onMovieSelect }: { onMovieSelect?: (movie: unknown) => void }) {
+export default function Scene3D({ onMovieSelect, trendingMovies = [] }: { onMovieSelect?: (movie: unknown) => void, trendingMovies?: any[] }) {
   const [isMobile, setIsMobile] = useState(false);
   
   useEffect(() => {
@@ -441,10 +441,10 @@ export default function Scene3D({ onMovieSelect }: { onMovieSelect?: (movie: unk
       <CinematicDust />
       
       {/* Universes */}
-      <PosterSphere radius={25} onMovieSelect={onMovieSelect} />
+      <PosterSphere radius={25} onMovieSelect={onMovieSelect} trendingMovies={trendingMovies} />
       {/* Tunnel spans the entire remaining scroll distance (from -30 to -300) */}
       <group position={[0, 0, -30]}> 
-        <NeonTunnel count={isMobile ? 30 : 60} length={270} radius={25} onMovieSelect={onMovieSelect} />
+        <NeonTunnel count={isMobile ? 30 : 60} length={270} radius={25} onMovieSelect={onMovieSelect} trendingMovies={trendingMovies} />
       </group>
       
       <WelcomeUniverse />

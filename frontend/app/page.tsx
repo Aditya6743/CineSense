@@ -23,9 +23,14 @@ function MainContent() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [shouldShowPreloader, setShouldShowPreloader] = useState(true);
   const [selectedMovie, setSelectedMovie] = useState<any | null>(null);
+  const [trendingMovies, setTrendingMovies] = useState<any[]>([]);
   const { accentColor } = useTheme();
 
   useEffect(() => {
+    // Eagerly fetch trending movies while preloader runs so 3D elements are instant!
+    import('axios').then((axios) => {
+      axios.default.get("/api/trending").then(res => setTrendingMovies(res.data)).catch(console.error);
+    });
     // Check if we've already loaded the app in this session
     if (sessionStorage.getItem("cinesense_loaded") === "true") {
       setIsLoaded(true);
@@ -62,7 +67,7 @@ function MainContent() {
               >
                 <color attach="background" args={["#020305"]} />
                 <Suspense fallback={null}>
-                  <Scene3D onMovieSelect={setSelectedMovie} />
+                  <Scene3D onMovieSelect={setSelectedMovie} trendingMovies={trendingMovies} />
                 </Suspense>
               </Canvas>
             </ErrorBoundary>

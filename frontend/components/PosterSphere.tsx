@@ -8,7 +8,7 @@ import { Image } from "@react-three/drei";
 import axios from "axios";
 import { WebGLErrorBoundary } from "./WebGLErrorBoundary";
 
-export default function PosterSphere({ radius = 25, onMovieSelect }: { radius?: number, onMovieSelect?: (movie: any) => void }) {
+export default function PosterSphere({ radius = 25, onMovieSelect, trendingMovies = [] }: { radius?: number, onMovieSelect?: (movie: any) => void, trendingMovies?: any[] }) {
   const groupRef = useRef<THREE.Group>(null);
   const lenis = useLenis();
   const [movies, setMovies] = useState<any[]>([]);
@@ -17,30 +17,24 @@ export default function PosterSphere({ radius = 25, onMovieSelect }: { radius?: 
   const count = isMobile ? 12 : 30;
 
   useEffect(() => {
-    const fetchMovies = async () => {
-      try {
-        const res = await axios.get("/api/trending");
-        // Duplicate array if we don't have enough movies to fill the sphere
-        let results = res.data;
-        while (results.length > 0 && results.length < count) {
-          results = [...results, ...res.data];
-        }
-        const finalMovies = results.slice(0, count);
-        setMovies(finalMovies);
-        
-        // Eagerly preload posters into browser cache to prevent 3D popping/late loading
-        finalMovies.forEach((m: any) => {
-          if (m.poster) {
-            const img = new globalThis.Image();
-            img.src = m.poster;
-          }
-        });
-      } catch (err) {
-        console.error("Failed to fetch trending for Sphere", err);
+    if (trendingMovies.length > 0) {
+      // Duplicate array if we don't have enough movies to fill the sphere
+      let results = [...trendingMovies];
+      while (results.length > 0 && results.length < count) {
+        results = [...results, ...trendingMovies];
       }
-    };
-    fetchMovies();
-  }, [count]);
+      const finalMovies = results.slice(0, count);
+      setMovies(finalMovies);
+      
+      // Eagerly preload posters into browser cache to prevent 3D popping/late loading
+      finalMovies.forEach((m: any) => {
+        if (m.poster) {
+          const img = new globalThis.Image();
+          img.src = m.poster;
+        }
+      });
+    }
+  }, [count, trendingMovies]);
 
   // Calculate positions
   const positions = useMemo(() => {

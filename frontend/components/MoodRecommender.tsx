@@ -25,7 +25,7 @@ const QUESTIONS = [
   },
   {
     id: "gimmick",
-    title: "Last one! Who's your movie buddy tonight?",
+    title: "Who would you want as your movie buddy?",
     funOnly: true,
     options: ["A cute dog 🐶", "A spooky ghost 👻", "An alien 👽", "A mad scientist 🧪", "Just me & pizza 🍕", "Me and my blanket 🛌"],
   }

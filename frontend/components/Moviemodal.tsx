@@ -32,6 +32,13 @@ type Props = {
   onClose: () => void;
 };
 
+const VIBES = [
+  "Make it Scarier 👻",
+  "Make it Funnier 😂",
+  "More Romantic 💖",
+  "Mind-Bender 🤯"
+];
+
 export default function MovieModal({ movie, searchedMovieTitle, onClose }: Props) {
   const { setAccentColor } = useTheme();
   const [pitch, setPitch] = useState<string | null>(null);
@@ -41,6 +48,9 @@ export default function MovieModal({ movie, searchedMovieTitle, onClose }: Props
   const { isInWatchlist, toggleWatchlist } = useWatchlist();
   const { isWatched, toggleWatched } = useWatched();
 
+  const [vibeLoading, setVibeLoading] = useState(false);
+  const [vibeResult, setVibeResult] = useState<any | null>(null);
+
   // Extract color from poster
   const { data: extractedColor } = useColor(movie?.poster || "", "hex", { crossOrigin: "anonymous" });
 
@@ -48,6 +58,7 @@ export default function MovieModal({ movie, searchedMovieTitle, onClose }: Props
     if (movie) {
       setPitch(null);
       setProviders([]);
+      setVibeResult(null);
       
       const fetchProviders = async () => {
         setProvidersLoading(true);
@@ -93,6 +104,34 @@ export default function MovieModal({ movie, searchedMovieTitle, onClose }: Props
 
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
+
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handleEsc);
+    return () => window.removeEventListener("keydown", handleEsc);
+  }, [onClose]);
+
+  const handleVibeShift = async (targetVibe: string) => {
+    if (!movie) return;
+    setVibeLoading(true);
+    try {
+      const res = await fetch(`/api/vibe-shift`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ base_movie: movie.title, target_vibe: targetVibe }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || data.error || "Failed to fetch");
+      setVibeResult(data);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to shift vibe. The AI might be taking a break!");
+    } finally {
+      setVibeLoading(false);
+    }
+  };
 
   if (!movie || !mounted) return null;
   const saved = isInWatchlist(movie.title);
@@ -255,6 +294,56 @@ export default function MovieModal({ movie, searchedMovieTitle, onClose }: Props
                       pitch
                     )}
                   </p>
+                </div>
+
+                {/* Vibe Shift Section */}
+                <div className="mb-8 p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm relative overflow-hidden group">
+                  <h3 className="mb-4 text-sm font-bold tracking-widest uppercase text-white/70 flex items-center gap-2 relative z-10">
+                    🌪️ Loved this? Shift the Vibe
+                  </h3>
+                  
+                  {!vibeResult && !vibeLoading && (
+                    <div className="flex flex-wrap gap-3 relative z-10">
+                      {VIBES.map((vibe) => (
+                        <button
+                          key={vibe}
+                          onClick={() => handleVibeShift(vibe)}
+                          className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-sm font-medium transition-colors"
+                        >
+                          {vibe}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  {vibeLoading && (
+                    <div className="flex items-center gap-3 text-white/70 relative z-10 py-4">
+                      <Loader2 className="w-5 h-5 animate-spin text-purple-400" />
+                      <span className="animate-pulse">Finding the perfect pivot...</span>
+                    </div>
+                  )}
+
+                  {vibeResult && !vibeLoading && (
+                    <div className="flex flex-col md:flex-row gap-4 relative z-10 mt-2 bg-black/40 p-4 rounded-xl border border-white/10">
+                      {vibeResult.poster && (
+                        <div className="w-24 shrink-0 rounded-lg overflow-hidden border border-white/10">
+                          <img src={vibeResult.poster} alt={vibeResult.title} className="w-full h-auto object-cover" />
+                        </div>
+                      )}
+                      <div className="flex flex-col justify-center">
+                        <h4 className="text-xl font-bold text-white mb-2">{vibeResult.title}</h4>
+                        <p className="text-sm text-gray-300 leading-relaxed bg-white/5 p-3 rounded-lg border-l-2 border-purple-500 italic">
+                          "{vibeResult.reason}"
+                        </p>
+                        <button 
+                          onClick={() => setVibeResult(null)}
+                          className="mt-3 text-xs text-gray-500 hover:text-white self-start underline underline-offset-4"
+                        >
+                          Try another vibe
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <h3 className="mb-3 text-sm font-bold uppercase tracking-widest text-gray-500">

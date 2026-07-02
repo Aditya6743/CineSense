@@ -376,6 +376,10 @@ async def generate_pitch(query: str, recommended: str):
         logger.error(f"GenAI Error: {e}")
         return {"pitch": fallback_pitch}
 
+class VibeShiftRequest(BaseModel):
+    base_movie: str
+    target_vibe: str
+
 class MoodRequest(BaseModel):
     feeling: str
     vibe: str
@@ -640,3 +644,86 @@ async def debug_models():
         return {"models": models}
     except Exception as e:
         return {"error": str(e)}
+
+@app.post("/api/vibe-shift")
+async def vibe_shift(req: VibeShiftRequest):
+    api_key = os.getenv("GEMINI_API_KEY")
+    if not api_key:
+        raise HTTPException(status_code=500, detail="Gemini API Key missing")
+        
+    try:
+        genai_client = genai.Client(api_key=api_key)
+        
+        prompt = f"""
+The user just watched and loved the movie "{req.base_movie}".
+They want to watch something similar in terms of quality or general themes, BUT they want to "{req.target_vibe}".
+
+Search your vast internal database and find EXACTLY ONE perfect movie that pivots to this new vibe.
+Do not recommend the same movie. Do not default to generic popular movies if a lesser-known movie fits the constraint perfectly.
+
+Return ONLY a raw JSON object (no markdown, no backticks) with exactly two keys:
+"title": "The exact movie title"
+"reason": "A 1-sentence explanation of why it fits their new vibe perfectly."
+"""
+        models_to_try = [
+            'gemini-2.5-flash-lite',
+            'gemini-flash-lite-latest',
+            'gemini-2.0-flash-lite',
+            'gemini-flash-latest',
+            'gemini-2.5-flash',
+            'gemini-3.5-flash'
+        ]
+        
+        response = None
+        last_err = None
+        for model_name in models_to_try:
+            try:
+                response = genai_client.models.generate_content(
+                    model=model_name,
+                    contents=prompt,
+                )
+                break
+            except Exception as e:
+                last_err = e
+                logger.warning(f"Vibe Shift model {model_name} failed: {e}")
+                continue
+                
+        if not response:
+            raise Exception(f"All models failed. Last error: {last_err}")
+            
+        raw_text = response.text.strip()
+        raw_text = raw_text.replace("```json", "").replace("```", "").strip()
+        start_idx = raw_text.find('{')
+        end_idx = raw_text.rfind('}')
+        if start_idx != -1 and end_idx != -1:
+            raw_text = raw_text[start_idx:end_idx+1]
+            
+        ai_data = json.loads(raw_text)
+        suggested_title = ai_data.get("title", "")
+        reason = ai_data.get("reason", "")
+        
+        if not suggested_title:
+            raise ValueError("AI did not return a valid title.")
+
+        # Fetch details from TMDB
+        client = await get_http_client()
+        search_res = await client.get(
+            f"https://api.themoviedb.org/3/search/movie",
+            params={"query": suggested_title, "include_adult": "false", "language": "en-US", "page": 1},
+            headers=HEADERS
+        )
+        search_res.raise_for_status()
+        search_data = search_res.json()
+        
+        if search_data.get("results") and len(search_data["results"]) > 0:
+            movie_id = search_data["results"][0]["id"]
+            # Fetch full details
+            movie_details = await fetch_movie_details(client, {"movie_id": movie_id, "title": suggested_title, "score": 100, "similarity": 1.0})
+            movie_details["reason"] = reason
+            return movie_details
+            
+        return {"error": f"Could not find details for the suggested movie: {suggested_title}"}
+
+    except Exception as e:
+        logger.error(f"Error in vibe-shift: {e}")
+        raise HTTPException(status_code=500, detail=str(e))

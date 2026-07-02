@@ -9,10 +9,10 @@
     <br />
     <br />
     <a href="https://nextjs.org/"><img src="https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white" alt="Next.js" /></a>
+    <a href="https://supabase.com/"><img src="https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white" alt="Supabase" /></a>
     <a href="https://threejs.org/"><img src="https://img.shields.io/badge/Three.js-000000?style=for-the-badge&logo=threedotjs&logoColor=white" alt="Three.js" /></a>
-    <a href="https://tailwindcss.com/"><img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS" /></a>
-    <a href="https://www.framer.com/motion/"><img src="https://img.shields.io/badge/Framer_Motion-0055FF?style=for-the-badge&logo=framer&logoColor=white" alt="Framer Motion" /></a>
-    <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" /></a>
+    <a href="https://fastapi.tiangolo.com/"><img src="https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI" /></a>
+    <a href="https://ai.google.dev/"><img src="https://img.shields.io/badge/Gemini_AI-4285F4?style=for-the-badge&logo=google&logoColor=white" alt="Gemini AI" /></a>
   </p>
 </div>
 
@@ -22,41 +22,48 @@
 
 *"Why should movies be displayed on a boring, flat grid when they can be explored in a physical, three-dimensional space?"*
 
-**CineSense** is an ultra-premium, interactive 3D movie discovery platform. It abandons traditional UI patterns used by modern streaming services in favor of an immersive, spatial environment. Navigating CineSense isn't just about finding a movie; it's a cinematic journey through a futuristic digital art gallery.
+**CineSense** is an ultra-premium, interactive 3D movie discovery platform. It abandons traditional UI patterns used by modern streaming services in favor of an immersive, spatial environment powered by AI. Navigating CineSense isn't just about finding a movie; it's a cinematic journey through a futuristic digital art gallery.
 
 <br />
 
 ## ✨ Jaw-Dropping Features
 
-### 🚀 The Neon Tunnel (Core USP)
+### 🧠 Gemini AI Mood Matcher
+Don't know what to watch? Tell the AI your vibe, how much time you have, and your favorite cinema era. The integrated Google Gemini AI engine will analyze your inputs and recommend the *perfect* movie, completely bypassing the endless scrolling paradox.
+
+### 🎬 Real-time Movie Sync
+Watching with friends but can't agree on a movie? Create a **Movie Sync** session, share the unique link with your group (up to any size), and swipe through AI-generated recommendations in real-time. When everyone votes "Yes" on the same movie, the room ignites with confetti! Powered by Supabase Realtime.
+
+### 🚀 The Neon Tunnel (3D Core)
 Scroll through a massive, continuously rotating corridor of glowing neon accelerator rings. As you fly through the tunnel:
 - **Spatial Emergence:** Movie posters dynamically scale and materialize out of the rings as you scroll forward.
 - **Interactive Backplates:** Hovering over any poster makes it pop out in 3D (Z-axis) while its metallic backplate ignites with an intense neon bloom.
-- **Cinematic Dissolve:** Posters gracefully fade into transparency as they pass the camera, keeping the view clean and immersive.
 
 ### 🔮 Interactive Poster Sphere
 An interactive, draggable 3D sphere of trending movie posters floating in the void. Users can grab, spin, and interact with movies in a zero-gravity environment.
 
-### ✨ Premium Particle Engine
-Standard web typography is dead. CineSense features text ("Aditya says hello to you") and UI elements (like the scroll chevron) that dynamically assemble from hundreds of shiny, metallic 3D particles.
+### 📚 Seamless Library Management
+- **Watchlist & Watched Tracking:** Securely store the movies you want to see and the ones you've already conquered. Persistent sessions keep you logged in.
+- **Supabase Auth:** Fast, secure, passwordless magic-link and Google OAuth integration.
 
 ### 🎞️ Cinematic UI & Scroll
 - **Lenis Smooth Scroll:** Buttery 120 FPS scroll hijacking that perfectly maps your mouse wheel to camera velocity in 3D space.
 - **Hardware-Accelerated Transitions:** Framer Motion handles gorgeous UI pop-outs, scale entrances, and parallax effects entirely on the GPU.
-- **Deep Bloom Post-Processing:** Heavy GPU bloom effects for that rich, high-end sci-fi aesthetic without sacrificing performance.
 
 <br />
 
-## 🛠️ Architecture & Performance
+## 🛠️ Architecture & Tech Stack
 
-Despite rendering hundreds of 3D objects and heavy post-processing filters, CineSense is strictly optimized to hit **120 FPS**:
-- **Geometry Instancing & Re-use:** Custom `PlaneGeometry` usage minimizes vertex load.
-- **Smart Culling:** Off-screen geometry is culled, and transparent elements dissolve before clipping the camera.
-- **Zero-Paint Layouts:** UI animations use strict `will-change: transform, opacity` to prevent main-thread layout thrashing.
+CineSense bridges the gap between high-performance 3D graphics on the client and robust AI processing on the server.
+
+- **Frontend:** Next.js 16 (App Router), React Three Fiber, Tailwind CSS, Framer Motion, GSAP, Lenis Scroll.
+- **Backend:** Embedded FastAPI (Python) for API routes seamlessly integrated with Next.js on Vercel.
+- **Database & Auth:** Supabase (PostgreSQL) for user management, real-time voting sessions, and library storage.
+- **AI & Data:** Google Gemini 2.5 Flash for natural language recommendation processing, and TMDB API for rich cinematic metadata.
 
 <br />
 
-## 💻 Getting Started
+## 💻 Getting Started Locally
 
 To run CineSense locally and experience the 3D web:
 
@@ -71,17 +78,27 @@ To run CineSense locally and experience the 3D web:
    npm install
    ```
 
-3. **Ignite the server:**
+3. **Set up Environment Variables:**
+   Create a `.env` file in the `frontend/` directory with your keys:
+   ```env
+   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+   DATABASE_URL=your_postgres_url
+   TMDB_API_TOKEN=your_tmdb_read_access_token
+   GEMINI_API_KEY=your_gemini_api_key
+   ```
+
+4. **Ignite the server:**
    ```bash
    npm run dev
    ```
 
-4. **Experience the magic:** 
+5. **Experience the magic:** 
    Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 <br />
 
 ---
 <div align="center">
-  <p>Crafted with ❤️ for the love of cinema & cutting-edge web technology.</p>
+  <p>Crafted with ❤️ for the love of cinema, AI, & cutting-edge web technology.</p>
 </div>

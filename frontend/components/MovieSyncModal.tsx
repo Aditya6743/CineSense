@@ -19,7 +19,7 @@ const VIBES = [
 ];
 
 const LANGUAGES = ["Any", "English", "Hindi"];
-const GROUP_SIZES = [2, 3, 4, 5, 6, 8, 10];
+
 
 export default function MovieSyncModal({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) {
   const { user, loading: authLoading, setAuthModalOpen } = useAuth();
@@ -178,21 +178,21 @@ export default function MovieSyncModal({ isOpen, onClose }: { isOpen: boolean, o
                       <label className="block text-sm font-bold tracking-widest text-gray-400 uppercase mb-4">
                         1. Group Size (How many people voting?)
                       </label>
-                      <div className="flex flex-wrap gap-2">
-                        {GROUP_SIZES.map(size => (
-                          <button
-                            key={size}
-                            onClick={() => setTargetVotes(size)}
-                            className={`px-5 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                              targetVotes === size 
-                                ? "bg-emerald-500 text-white shadow-[0_0_15px_rgba(16,185,129,0.4)] border border-emerald-400" 
-                                : "bg-white/5 hover:bg-white/10 text-gray-300 border border-white/10"
-                            }`}
-                          >
-                            {size} People
-                          </button>
-                        ))}
-                      </div>
+                      <input
+                        type="number"
+                        min={2}
+                        max={50}
+                        value={targetVotes}
+                        onChange={(e) => {
+                          const val = parseInt(e.target.value);
+                          if (!isNaN(val)) setTargetVotes(val);
+                        }}
+                        onBlur={() => {
+                          if (targetVotes < 2) setTargetVotes(2);
+                        }}
+                        className="w-full bg-[#0a0f16] text-white rounded-xl border border-white/10 p-4 font-bold text-lg focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all"
+                        placeholder="Enter number of people (min 2)"
+                      />
                     </div>
 
                     {/* Vibe Selection */}

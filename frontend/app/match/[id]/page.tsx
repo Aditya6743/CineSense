@@ -63,7 +63,8 @@ export default function MatchSwipePage() {
         const counts: Record<string, number> = {};
         data.forEach((v: any) => {
           counts[v.movie_title] = (counts[v.movie_title] || 0) + 1;
-          if (counts[v.movie_title] >= 2) {
+          const target = session.target_votes || 2;
+          if (counts[v.movie_title] >= target) {
             // MATCH FOUND!
             const matchedMovie = session.movies.find((m: any) => m.title === v.movie_title);
             if (matchedMovie) setMatchResult(matchedMovie);

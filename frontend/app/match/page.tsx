@@ -16,6 +16,7 @@ export default function MatchSetupPage() {
   
   const [vibe, setVibe] = useState("Surprise Us");
   const [language, setLanguage] = useState("Any");
+  const [targetVotes, setTargetVotes] = useState(2);
   const [loading, setLoading] = useState(false);
 
   const VIBES = [
@@ -29,6 +30,7 @@ export default function MatchSetupPage() {
   ];
 
   const LANGUAGES = ["Any", "English", "Hindi"];
+  const GROUP_SIZES = [2, 3, 4, 5, 6, 10];
 
   const handleCreateSession = async () => {
     if (!user) {
@@ -56,6 +58,7 @@ export default function MatchSetupPage() {
           creator_id: user.id,
           vibe,
           language,
+          target_votes: targetVotes,
           movies: data.movies
         }])
         .select()
@@ -105,10 +108,32 @@ export default function MatchSetupPage() {
             transition={{ delay: 0.1 }}
             className="bg-white/5 backdrop-blur-xl border border-white/10 p-8 rounded-3xl shadow-2xl"
           >
+            {/* Group Size Selection */}
+            <div className="mb-8">
+              <label className="block text-sm font-bold tracking-widest text-gray-400 uppercase mb-4">
+                1. Group Size (How many people voting?)
+              </label>
+              <div className="flex flex-wrap gap-3">
+                {GROUP_SIZES.map(size => (
+                  <button
+                    key={size}
+                    onClick={() => setTargetVotes(size)}
+                    className={`px-6 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                      targetVotes === size 
+                        ? "bg-emerald-500 text-white shadow-[0_0_15px_rgba(16,185,129,0.4)] border border-emerald-400" 
+                        : "bg-white/5 hover:bg-white/10 text-gray-300 border border-white/10"
+                    }`}
+                  >
+                    {size} People
+                  </button>
+                ))}
+              </div>
+            </div>
+
             {/* Vibe Selection */}
             <div className="mb-8">
               <label className="block text-sm font-bold tracking-widest text-gray-400 uppercase mb-4">
-                1. Pick a Vibe
+                2. Pick a Vibe
               </label>
               <div className="flex flex-wrap gap-3">
                 {VIBES.map(v => (
@@ -130,7 +155,7 @@ export default function MatchSetupPage() {
             {/* Language Selection */}
             <div className="mb-10">
               <label className="block text-sm font-bold tracking-widest text-gray-400 uppercase mb-4">
-                2. Preferred Language
+                3. Preferred Language
               </label>
               <div className="flex flex-wrap gap-3">
                 {LANGUAGES.map(l => (

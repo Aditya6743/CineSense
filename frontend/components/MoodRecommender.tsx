@@ -25,7 +25,8 @@ const QUESTIONS = [
 
 export default function MoodRecommender({ isOpen, onClose, onMovieClick }: { isOpen: boolean, onClose: () => void, onMovieClick: (movie: any) => void }) {
   const [currentStep, setCurrentStep] = useState(0);
-  const [answers, setAnswers] = useState({ feeling: "", vibe: "", gimmick: "" });
+  const [answers, setAnswers] = useState({ feeling: "", vibe: "", gimmick: "", custom: "" });
+  const [customInput, setCustomInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any | null>(null);
 
@@ -44,11 +45,12 @@ export default function MoodRecommender({ isOpen, onClose, onMovieClick }: { isO
     const key = QUESTIONS[currentStep].id as keyof typeof answers;
     setAnswers({ ...answers, [key]: option });
     
-    if (currentStep < QUESTIONS.length - 1) {
-      setTimeout(() => setCurrentStep(currentStep + 1), 300);
-    } else {
-      fetchRecommendation({ ...answers, [key]: option });
-    }
+    // Move to next step (including custom text step)
+    setTimeout(() => setCurrentStep(currentStep + 1), 300);
+  };
+
+  const handleCustomSubmit = () => {
+    fetchRecommendation({ ...answers, custom: customInput });
   };
 
   const fetchRecommendation = async (finalAnswers: typeof answers) => {
@@ -81,7 +83,8 @@ export default function MoodRecommender({ isOpen, onClose, onMovieClick }: { isO
   };
 
   const reset = () => {
-    setAnswers({ feeling: "", vibe: "", gimmick: "" });
+    setAnswers({ feeling: "", vibe: "", gimmick: "", custom: "" });
+    setCustomInput("");
     setCurrentStep(0);
     setResult(null);
   };
@@ -141,25 +144,45 @@ export default function MoodRecommender({ isOpen, onClose, onMovieClick }: { isO
                     >
                       <div className="flex justify-between items-center mb-8">
                         <h3 className="text-2xl md:text-3xl font-bold text-white">
-                          {QUESTIONS[currentStep].title}
+                          {currentStep < QUESTIONS.length ? QUESTIONS[currentStep].title : "Any specific details? (Optional)"}
                         </h3>
                         <span className="text-gray-500 font-mono text-sm">
-                          {currentStep + 1} / {QUESTIONS.length}
+                          {currentStep + 1} / {QUESTIONS.length + 1}
                         </span>
                       </div>
                       
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                        {QUESTIONS[currentStep].options.map((opt) => (
-                          <button
-                            key={opt}
-                            onClick={() => handleSelect(opt)}
-                            className="p-4 rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 hover:border-fuchsia-500/30 text-white font-medium transition-colors flex items-center justify-between group"
-                          >
-                            {opt}
-                            <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity text-fuchsia-400 -translate-x-2 group-hover:translate-x-0 transform duration-300" />
-                          </button>
-                        ))}
-                      </div>
+                      {currentStep < QUESTIONS.length ? (
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                          {QUESTIONS[currentStep].options.map((opt) => (
+                            <button
+                              key={opt}
+                              onClick={() => handleSelect(opt)}
+                              className="p-4 rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 hover:border-fuchsia-500/30 text-white font-medium transition-colors flex items-center justify-between group"
+                            >
+                              {opt}
+                              <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity text-fuchsia-400 -translate-x-2 group-hover:translate-x-0 transform duration-300" />
+                            </button>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="flex flex-col items-center">
+                          <textarea 
+                            value={customInput}
+                            onChange={(e) => setCustomInput(e.target.value)}
+                            placeholder="e.g. A movie with a huge plot twist at the end, set in space, and something that makes me think..."
+                            className="w-full h-32 bg-white/5 border border-white/10 rounded-xl p-4 text-white focus:outline-none focus:border-fuchsia-500/50 resize-none mb-6 placeholder:text-gray-500"
+                          />
+                          <div className="flex gap-4 w-full sm:w-auto">
+                            <button 
+                              onClick={handleCustomSubmit} 
+                              className="flex-1 sm:flex-none px-8 py-3 rounded-xl bg-gradient-to-r from-fuchsia-600 to-violet-600 hover:from-fuchsia-500 hover:to-violet-500 text-white font-bold transition-all flex items-center justify-center gap-2 group"
+                            >
+                              <Sparkles className="w-4 h-4" />
+                              {customInput.trim() ? "Find My Movie" : "Skip & Find Movie"}
+                            </button>
+                          </div>
+                        </div>
+                      )}
                     </motion.div>
                   )}
 

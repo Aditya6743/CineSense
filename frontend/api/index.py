@@ -361,6 +361,7 @@ class MoodRequest(BaseModel):
     feeling: str
     vibe: str
     gimmick: str
+    custom: str = ""
 
 @app.post("/recommend-mood")
 @app.post("/api/recommend-mood")
@@ -395,12 +396,15 @@ async def recommend_mood(request: Request, req: MoodRequest):
     else:
         try:
             genai_client = genai.Client(api_key=api_key)
+            
+            custom_instruction = f"- User's specific details: {req.custom}\n" if req.custom.strip() else ""
+            
             prompt = f"""
 You are an expert movie recommender. The user says:
 - Feeling: {req.feeling}
 - Vibe: {req.vibe}
 - Ideal movie companion: {req.gimmick}
-
+{custom_instruction}
 Based on this, suggest EXACTLY ONE perfect movie. 
 Return ONLY a raw JSON object (no markdown, no backticks) with exactly two keys:
 "title": "The exact movie title"

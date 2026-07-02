@@ -347,7 +347,7 @@ async def generate_pitch(query: str, recommended: str):
         prompt = f"Write a short, engaging, 2-sentence movie pitch explaining why a fan of '{query}' would absolutely love '{recommended}'. Be enthusiastic and focus on thematic similarities. Do not use quotes or introductory phrases, just give the pitch."
         
         response = client.models.generate_content(
-            model='gemini-2.5-flash',
+            model='gemini-2.0-flash',
             contents=prompt,
         )
         
@@ -414,7 +414,7 @@ Return ONLY a raw JSON object (no markdown, no backticks) with exactly two keys:
 "reason": "A 1-sentence explanation of why it fits their mood and constraints perfectly."
 """
             response = genai_client.models.generate_content(
-                model='gemini-2.5-flash',
+                model='gemini-2.0-flash',
                 contents=prompt,
             )
             
@@ -581,3 +581,18 @@ async def get_movie_providers(title: str):
 async def debug_env():
     # Only return keys for security
     return {"env_keys": list(os.environ.keys())}
+
+@app.get("/debug-models")
+@app.get("/api/debug-models")
+async def debug_models():
+    api_key = os.getenv("GEMINI_API_KEY")
+    if not api_key:
+        return {"error": "No API key"}
+    try:
+        genai_client = genai.Client(api_key=api_key)
+        models = []
+        for m in genai_client.models.list():
+            models.append(m.name)
+        return {"models": models}
+    except Exception as e:
+        return {"error": str(e)}

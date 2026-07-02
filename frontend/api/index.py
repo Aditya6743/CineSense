@@ -395,7 +395,7 @@ class MatchGenerateRequest(BaseModel):
 class MoodRequest(BaseModel):
     feeling: str
     vibe: str
-    gimmick: str
+    era: str = ""
     custom: str = ""
     watched_titles: list[str] = []
 
@@ -425,9 +425,8 @@ async def recommend_mood(request: Request, req: MoodRequest):
         # Clean up the emoji tags to make a natural sentence
         clean_feeling = req.feeling.split()[0].lower()
         clean_vibe = req.vibe.split()[0].lower()
-        clean_gimmick = req.gimmick.lower().replace("just ", "").replace("a ", "")
         
-        reason = f"Since you're feeling {clean_feeling} and want a {clean_vibe} vibe, this is a perfect pick to watch with {clean_gimmick}!"
+        reason = f"Since you're feeling {clean_feeling} and want a {clean_vibe} vibe, this is a perfect pick for you!"
         
     else:
         try:
@@ -443,10 +442,10 @@ You are an expert movie recommender with an encyclopedic knowledge of cinema, co
 The user says:
 - Feeling: {req.feeling}
 - Vibe: {req.vibe}
-- Ideal movie companion: {req.gimmick}
+- Preferred era: {req.era}
 {custom_instruction}{watched_instruction}
 
-Search your vast internal database and be EXTREMELY PRECISE. Choose EXACTLY ONE perfect movie that perfectly matches ALL the provided constraints and inputs above. Do not default to popular movies if a lesser-known movie fits the constraints better.
+Search your vast internal database and be EXTREMELY PRECISE. Choose EXACTLY ONE perfect movie that perfectly matches ALL the provided constraints and inputs above. If an era preference is given (e.g. "Latest Hits", "90s Classics"), strictly pick a movie from that time period. Do not default to popular movies if a lesser-known movie fits the constraints better.
 
 Return ONLY a raw JSON object (no markdown, no backticks) with exactly two keys:
 "title": "The exact movie title"

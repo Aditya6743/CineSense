@@ -19,8 +19,14 @@ const QUESTIONS = [
     options: ["Mind-Bending 🤯", "Lighthearted 😂", "Action-Packed 💥", "Scary 👻", "Inspiring ✨", "Mystery 🔍"],
   },
   {
+    id: "era",
+    title: "What era of cinema are you in the mood for?",
+    options: ["Latest Hits 🍿", "2010s Gems 💎", "2000s Nostalgia 📀", "90s Classics 📼", "Old-School Legends 🎬", "Surprise Me 🎲"],
+  },
+  {
     id: "gimmick",
-    title: "Who's your ideal movie companion?",
+    title: "Last one! Who's your movie buddy tonight?",
+    funOnly: true,
     options: ["A cute dog 🐶", "A spooky ghost 👻", "An alien 👽", "A mad scientist 🧪", "Just me & pizza 🍕", "Me and my blanket 🛌"],
   }
 ];
@@ -28,7 +34,7 @@ const QUESTIONS = [
 export default function MoodRecommender({ isOpen, onClose, onMovieClick }: { isOpen: boolean, onClose: () => void, onMovieClick: (movie: any) => void }) {
   const [mode, setMode] = useState<"select" | "questions" | "describe">("select");
   const [currentStep, setCurrentStep] = useState(0);
-  const [answers, setAnswers] = useState({ feeling: "", vibe: "", gimmick: "", custom: "" });
+  const [answers, setAnswers] = useState({ feeling: "", vibe: "", era: "", gimmick: "", custom: "" });
   const [customInput, setCustomInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any | null>(null);
@@ -63,7 +69,7 @@ export default function MoodRecommender({ isOpen, onClose, onMovieClick }: { isO
   };
 
   const handleCustomSubmit = () => {
-    fetchRecommendation({ feeling: "", vibe: "", gimmick: "", custom: customInput });
+    fetchRecommendation({ feeling: "", vibe: "", era: "", gimmick: "", custom: customInput });
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -78,11 +84,13 @@ export default function MoodRecommender({ isOpen, onClose, onMovieClick }: { isO
   const fetchRecommendation = async (finalAnswers: typeof answers) => {
     setLoading(true);
     try {
+      // Send only useful answers to API (exclude gimmick which is fun-only)
+      const { gimmick: _gimmick, ...usefulAnswers } = finalAnswers;
       const res = await fetch(`/api/recommend-mood`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
-          ...finalAnswers,
+          ...usefulAnswers,
           watched_titles: watchedList.map(m => m.title)
         }),
       });
@@ -109,7 +117,7 @@ export default function MoodRecommender({ isOpen, onClose, onMovieClick }: { isO
 
   const reset = () => {
     setMode("select");
-    setAnswers({ feeling: "", vibe: "", gimmick: "", custom: "" });
+    setAnswers({ feeling: "", vibe: "", era: "", gimmick: "", custom: "" });
     setCustomInput("");
     setCurrentStep(0);
     setResult(null);

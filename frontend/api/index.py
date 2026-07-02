@@ -12,6 +12,7 @@ from cachetools import TTLCache
 from google import genai
 import asyncpg
 import json
+import re
 
 # Setup Structured Logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
@@ -368,12 +369,18 @@ Return ONLY a raw JSON object (no markdown, no backticks) with exactly two keys:
         )
         
         raw_text = response.text.strip()
-        if raw_text.startswith("```json"):
-            raw_text = raw_text[7:]
-        if raw_text.endswith("```"):
-            raw_text = raw_text[:-3]
         
-        ai_data = json.loads(raw_text.strip())
+        # Try to find JSON block using regex if wrapped in markdown
+        json_match = re.search(r'\{.*\}', raw_text, re.DOTALL)
+        if json_match:
+            raw_text = json_match.group(0)
+            
+        try:
+            ai_data = json.loads(raw_text)
+        except json.JSONDecodeError as e:
+            logger.error(f"Failed to parse AI JSON: {raw_text}")
+            raise ValueError(f"AI returned invalid JSON: {e}")
+            
         suggested_title = ai_data.get("title", "")
         reason = ai_data.get("reason", "")
         
@@ -391,7 +398,12 @@ Return ONLY a raw JSON object (no markdown, no backticks) with exactly two keys:
         search_data = search_res.json()
         
         if not search_data.get("results"):
-            raise HTTPException(status_code=404, detail="AI suggested a movie but it was not found on TMDB.")
+            logger.warning(f"AI suggested '{suggested_title}' but TMDB returned no results.")
+            # Fallback to a hardcoded popular movie if TMDB fails so the user doesn't just see an error
+            suggested_title = "The Dark Knight"
+            reason = "This is a fallback recommendation because the AI's obscure pick wasn't found on TMDB!"
+            search_res = await client.get(tmdb_search_url, headers=HEADERS, params={"query": suggested_title, "include_adult": "false", "language": "en-US", "page": 1})
+            search_data = search_res.json()
             
         best_match = search_data["results"][0]
         
@@ -411,7 +423,7 @@ Return ONLY a raw JSON object (no markdown, no backticks) with exactly two keys:
         }
         
     except Exception as e:
-        logger.error(f"Mood Recommender Error: {e}")
+        logger.error(f"Mood Recommender Error: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/debug-env")

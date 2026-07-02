@@ -34,6 +34,8 @@ export default function MovieModal({ movie, searchedMovieTitle, onClose }: Props
   const { setAccentColor } = useTheme();
   const [pitch, setPitch] = useState<string | null>(null);
   const [loadingPitch, setLoadingPitch] = useState(false);
+  const [providers, setProviders] = useState<{name: string, logo: string | null}[]>([]);
+  const [providersLoading, setProvidersLoading] = useState(false);
   const { isInWatchlist, toggleWatchlist } = useWatchlist();
 
   // Extract color from poster
@@ -42,9 +44,28 @@ export default function MovieModal({ movie, searchedMovieTitle, onClose }: Props
   useEffect(() => {
     if (movie) {
       setPitch(null);
+      setProviders([]);
       
+      const fetchProviders = async () => {
+        setProvidersLoading(true);
+        try {
+          const res = await fetch(`/api/movie/providers?title=${encodeURIComponent(movie.title)}`);
+          const data = await res.json();
+          if (data.providers) {
+            setProviders(data.providers);
+          }
+        } catch (err) {
+          console.error(err);
+        }
+        setProvidersLoading(false);
+      };
+
+      fetchProviders();
+
       // Fetch AI Pitch
-      if (searchedMovieTitle) {
+      if (movie.ai_reason) {
+        setPitch(movie.ai_reason);
+      } else if (searchedMovieTitle) {
         setLoadingPitch(true);
         axios.get(`/api/generate-pitch?query=${encodeURIComponent(searchedMovieTitle)}&recommended=${encodeURIComponent(movie.title)}`)
           .then(res => setPitch(res.data.pitch))
@@ -156,6 +177,32 @@ export default function MovieModal({ movie, searchedMovieTitle, onClose }: Props
                     </span>
                   )}
                 </div>
+
+                {/* Watch Providers Section */}
+                {providersLoading ? (
+                  <div className="flex items-center gap-2 mb-6 text-sm text-gray-500">
+                    <Loader2 className="w-4 h-4 animate-spin" /> Checking where to watch...
+                  </div>
+                ) : providers.length > 0 ? (
+                  <div className="mb-6 p-4 rounded-xl border border-white/10 bg-white/5 backdrop-blur-md">
+                    <h4 className="text-xs font-bold text-gray-400 mb-3 uppercase tracking-widest flex items-center gap-2">
+                      <Play className="w-3 h-3" /> Available to stream on
+                    </h4>
+                    <div className="flex flex-wrap gap-3">
+                      {providers.map((p) => (
+                        <div key={p.name} title={p.name} className="flex flex-col items-center gap-1">
+                          <div className="w-10 h-10 rounded-xl overflow-hidden border border-white/10 bg-black shadow-md flex items-center justify-center">
+                            {p.logo ? (
+                              <img src={p.logo} alt={p.name} className="w-full h-full object-cover" />
+                            ) : (
+                              <span className="text-xs text-white">{p.name.substring(0, 2)}</span>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
 
                 {/* Genres */}
                 {movie.genres && movie.genres.length > 0 && (

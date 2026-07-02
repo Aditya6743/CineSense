@@ -484,6 +484,55 @@ Return ONLY a raw JSON object (no markdown, no backticks) with exactly two keys:
         logger.error(f"Mood Recommender Error: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.get("/movie/providers")
+@app.get("/api/movie/providers")
+async def get_movie_providers(title: str):
+    """Fetches where to watch (streaming providers) for a given movie title."""
+    client = await get_http_client()
+    try:
+        # Clean up title by removing years in parentheses (e.g. "Interstellar (2014)" -> "Interstellar")
+        clean_title = re.sub(r'\s*\(\d{4}\)', '', title).strip()
+        
+        # 1. Search for the movie ID
+        search_url = "https://api.themoviedb.org/3/search/movie"
+        search_res = await client.get(
+            search_url,
+            headers=HEADERS,
+            params={"query": clean_title, "include_adult": "false"},
+            timeout=5
+        )
+        search_data = search_res.json()
+        
+        if not search_data.get("results"):
+            return {"providers": []}
+            
+        movie_id = search_data["results"][0]["id"]
+        
+        # 2. Fetch providers
+        prov_url = f"https://api.themoviedb.org/3/movie/{movie_id}/watch/providers"
+        prov_res = await client.get(prov_url, headers=HEADERS, timeout=5)
+        prov_data = prov_res.json()
+        
+        results = prov_data.get("results", {})
+        # Prefer India, then US
+        country_data = results.get("IN") or results.get("US") or {}
+        
+        # We only care about flatrate (streaming like Netflix, Amazon, etc.)
+        flatrate = country_data.get("flatrate", [])
+        
+        providers = []
+        for p in flatrate[:5]: # Top 5 platforms max
+            providers.append({
+                "name": p.get("provider_name"),
+                "logo": f"https://image.tmdb.org/t/p/original{p.get('logo_path')}" if p.get('logo_path') else None
+            })
+            
+        return {"providers": providers}
+        
+    except Exception as e:
+        logger.error(f"Failed to fetch providers for {title}: {e}")
+        return {"providers": []}
+
 @app.get("/debug-env")
 @app.get("/api/debug-env")
 async def debug_env():

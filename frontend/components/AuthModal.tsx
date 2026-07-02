@@ -187,11 +187,11 @@ export default function AuthModal({ isOpen, onClose }: { isOpen: boolean; onClos
                   <div className="h-[1px] flex-1 bg-white/10" />
                 </div>
 
-                <button
-                  onClick={handleGoogleAuth}
-                  disabled={isGoogleLoading}
+                <a
+                  href={`${process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder.supabase.co"}/auth/v1/authorize?provider=google&redirect_to=${typeof window !== 'undefined' ? window.location.origin : ''}`}
+                  onClick={() => { playClick(); setIsGoogleLoading(true); }}
                   onMouseEnter={playHover}
-                  className="flex w-full items-center justify-center gap-3 rounded-xl border border-white/10 bg-white/5 py-3 font-medium text-white hover:bg-white/10 transition-all disabled:opacity-50"
+                  className="flex w-full items-center justify-center gap-3 rounded-xl border border-white/10 bg-white/5 py-3 font-medium text-white hover:bg-white/10 transition-all"
                 >
                   {isGoogleLoading ? (
                     <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
@@ -204,7 +204,7 @@ export default function AuthModal({ isOpen, onClose }: { isOpen: boolean; onClos
                     </svg>
                   )}
                   {isGoogleLoading ? "Connecting..." : "Google"}
-                </button>
+                </a>
 
                 <p className="mt-8 text-center text-sm text-gray-400">
                   {isLogin ? "Don't have an account? " : "Already have an account? "}

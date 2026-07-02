@@ -380,6 +380,10 @@ class VibeShiftRequest(BaseModel):
     base_movie: str
     target_vibe: str
 
+class MatchGenerateRequest(BaseModel):
+    vibe: str
+    language: str
+
 class MoodRequest(BaseModel):
     feeling: str
     vibe: str
@@ -726,4 +730,86 @@ Return ONLY a raw JSON object (no markdown, no backticks) with exactly two keys:
 
     except Exception as e:
         logger.error(f"Error in vibe-shift: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/match/generate")
+async def generate_match_movies(req: MatchGenerateRequest):
+    api_key = os.getenv("GEMINI_API_KEY")
+    if not api_key:
+        raise HTTPException(status_code=500, detail="Gemini API Key missing")
+        
+    try:
+        genai_client = genai.Client(api_key=api_key)
+        
+        prompt = f"""
+Provide EXACTLY 10 highly rated movie recommendations that perfectly fit this vibe: "{req.vibe}".
+The preferred language of the movies is: "{req.language}".
+
+Return ONLY a raw JSON array of strings containing the movie titles. Do not include markdown, backticks, or any other text.
+Example: ["Movie 1", "Movie 2", "Movie 3", "Movie 4", "Movie 5", "Movie 6", "Movie 7", "Movie 8", "Movie 9", "Movie 10"]
+"""
+        models_to_try = [
+            'gemini-2.5-flash-lite',
+            'gemini-flash-lite-latest',
+            'gemini-2.0-flash-lite',
+            'gemini-2.5-flash'
+        ]
+        
+        response = None
+        for model_name in models_to_try:
+            try:
+                response = genai_client.models.generate_content(
+                    model=model_name,
+                    contents=prompt,
+                )
+                break
+            except Exception as e:
+                logger.warning(f"Match Generate model {model_name} failed: {e}")
+                continue
+                
+        if not response:
+            raise Exception("All models failed to generate match movies.")
+            
+        raw_text = response.text.strip()
+        raw_text = raw_text.replace("```json", "").replace("```", "").strip()
+        start_idx = raw_text.find('[')
+        end_idx = raw_text.rfind(']')
+        if start_idx != -1 and end_idx != -1:
+            raw_text = raw_text[start_idx:end_idx+1]
+            
+        movie_titles = json.loads(raw_text)
+        if not isinstance(movie_titles, list) or len(movie_titles) == 0:
+            raise ValueError("AI did not return a valid list of movies.")
+            
+        # Ensure we only process up to 10 to save TMDB calls
+        movie_titles = movie_titles[:10]
+
+        client = await get_http_client()
+        movies_data = []
+        
+        for title in movie_titles:
+            try:
+                search_res = await client.get(
+                    f"https://api.themoviedb.org/3/search/movie",
+                    params={"query": title, "include_adult": "false", "page": 1},
+                    headers=HEADERS
+                )
+                search_data = search_res.json()
+                if search_data.get("results") and len(search_data["results"]) > 0:
+                    best_match = search_data["results"][0]
+                    # We just need enough data for the swiping cards (title, poster, overview, release_date, rating)
+                    movies_data.append({
+                        "title": best_match.get("title", title),
+                        "poster": f"https://image.tmdb.org/t/p/w500{best_match.get('poster_path')}" if best_match.get("poster_path") else None,
+                        "overview": best_match.get("overview"),
+                        "release_date": best_match.get("release_date"),
+                        "rating": best_match.get("vote_average")
+                    })
+            except Exception as e:
+                logger.error(f"Error fetching TMDB for {title}: {e}")
+                
+        return {"movies": movies_data}
+
+    except Exception as e:
+        logger.error(f"Error in match generate: {e}")
         raise HTTPException(status_code=500, detail=str(e))

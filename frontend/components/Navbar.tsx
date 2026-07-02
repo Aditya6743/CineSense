@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useScroll, useMotionValueEvent, AnimatePresence } from "framer-motion";
-import { Search, Bell, User, Menu, X, Sparkles } from "lucide-react";
+import { Search, Bell, User, Menu, X, Sparkles, Heart } from "lucide-react";
 import { FaGithub, FaLinkedin } from "react-icons/fa";
 import Link from "next/link";
 import MagneticButton from "./MagneticButton";
@@ -87,6 +87,17 @@ export default function Navbar() {
 
         {/* Action Buttons & Social Links & Mobile Toggle */}
         <div className="flex items-center gap-2 md:gap-4">
+          <MagneticButton className="hidden lg:block relative group">
+            <Link
+              href="/match"
+              onClick={playClick}
+              className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-pink-600/20 to-rose-600/20 hover:from-pink-500/40 hover:to-rose-500/40 border border-pink-500/30 transition-colors shadow-[0_0_15px_rgba(236,72,153,0.15)] group-hover:shadow-[0_0_20px_rgba(236,72,153,0.3)]"
+            >
+              <Heart className="w-4 h-4 text-pink-400" />
+              <span className="text-sm font-bold text-pink-100">Movie Match</span>
+            </Link>
+          </MagneticButton>
+
           <MagneticButton className="hidden lg:block relative group">
             <button
               onClick={() => { playClick(); setIsMoodModalOpen(true); }}

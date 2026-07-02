@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import re
 from dotenv import load_dotenv
+from pathlib import Path
 import httpx
 import asyncio
 import os
@@ -18,7 +19,12 @@ import json
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger("CineSenseAPI")
 
-load_dotenv()
+# Load .env from backend/ dir explicitly
+_env_path = Path(__file__).parent / ".env"
+if _env_path.exists():
+    load_dotenv(_env_path)
+else:
+    load_dotenv()
 
 TMDB_TOKEN = os.getenv("TMDB_API_TOKEN")
 HEADERS = {

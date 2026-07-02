@@ -104,20 +104,20 @@ export default function MatchSwipePage() {
     return (
       <div className="min-h-screen bg-[#020305] flex flex-col items-center justify-center text-white p-6">
         <div className="w-full max-w-md bg-white/5 p-8 rounded-3xl border border-white/10 backdrop-blur-xl text-center shadow-2xl">
-          <Popcorn className="w-12 h-12 text-pink-500 mx-auto mb-4" />
-          <h1 className="text-3xl font-black mb-2">Join Movie Match</h1>
-          <p className="text-gray-400 mb-8">Enter your name to start swiping!</p>
+          <Popcorn className="w-12 h-12 text-blue-500 mx-auto mb-4" />
+          <h1 className="text-3xl font-black mb-2">Join Movie Sync</h1>
+          <p className="text-gray-400 mb-8">Enter your name to start voting on movies!</p>
           <form onSubmit={handleJoin} className="space-y-4">
             <input
               type="text"
               placeholder="Your Name"
               value={userName}
               onChange={(e) => setUserName(e.target.value)}
-              className="w-full bg-black/40 border border-white/20 rounded-xl px-4 py-3 text-white outline-none focus:border-pink-500 transition-colors"
+              className="w-full bg-black/40 border border-white/20 rounded-xl px-4 py-3 text-white outline-none focus:border-blue-500 transition-colors"
               required
             />
-            <button type="submit" className="w-full bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-500 hover:to-rose-500 text-white font-bold py-3 rounded-xl shadow-[0_0_15px_rgba(236,72,153,0.4)]">
-              Start Swiping
+            <button type="submit" className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold py-3 rounded-xl shadow-[0_0_15px_rgba(59,130,246,0.4)]">
+              Start Voting
             </button>
           </form>
         </div>
@@ -128,7 +128,7 @@ export default function MatchSwipePage() {
   if (matchResult) {
     return (
       <div className="min-h-screen bg-[#020305] flex flex-col items-center justify-center text-white p-6 relative overflow-hidden">
-        <Confetti width={width} height={height} recycle={false} numberOfPieces={500} colors={['#ec4899', '#f43f5e', '#ffffff']} />
+        <Confetti width={width} height={height} recycle={false} numberOfPieces={500} colors={['#3b82f6', '#6366f1', '#10b981', '#f59e0b', '#ffffff']} />
         
         <motion.div 
           initial={{ scale: 0.8, opacity: 0, y: 50 }}
@@ -136,14 +136,14 @@ export default function MatchSwipePage() {
           transition={{ type: "spring", damping: 15 }}
           className="text-center z-10 w-full max-w-md"
         >
-          <div className="inline-block px-6 py-2 rounded-full bg-pink-500/20 border border-pink-500 text-pink-400 font-black tracking-widest uppercase mb-6 animate-pulse">
-            IT'S A MATCH! ❤️
+          <div className="inline-block px-6 py-2 rounded-full bg-blue-500/20 border border-blue-500 text-blue-400 font-black tracking-widest uppercase mb-6 animate-pulse">
+            WE HAVE A WINNER! 🎉
           </div>
           <h1 className="text-4xl md:text-5xl font-black mb-8 leading-tight">
-            You are watching <br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-rose-400">{matchResult.title}</span> tonight!
+            You're watching <br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">{matchResult.title}</span> tonight!
           </h1>
 
-          <div className="relative w-full aspect-[2/3] rounded-3xl overflow-hidden border border-white/20 shadow-[0_0_50px_rgba(236,72,153,0.3)] mb-8">
+          <div className="relative w-full aspect-[2/3] rounded-3xl overflow-hidden border border-white/20 shadow-[0_0_50px_rgba(59,130,246,0.3)] mb-8">
             <img src={matchResult.poster || ""} alt={matchResult.title} className="w-full h-full object-cover" />
             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
           </div>

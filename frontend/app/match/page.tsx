@@ -23,7 +23,7 @@ export default function MatchSetupPage() {
     "Spine-chilling Horror 👻",
     "Laugh Out Loud Comedy 😂",
     "Mind-bending Sci-Fi 🤯",
-    "Heartwarming Romance 💖",
+    "Heartwarming Drama 💖",
     "High-Octane Action 💥",
     "Deep Psychological Thriller 🕵️"
   ];
@@ -68,7 +68,7 @@ export default function MatchSetupPage() {
 
     } catch (err: any) {
       console.error(err);
-      alert("Failed to create match session: " + err.message);
+      alert("Failed to create sync session: " + err.message);
     } finally {
       setLoading(false);
     }
@@ -88,14 +88,14 @@ export default function MatchSetupPage() {
             animate={{ opacity: 1, y: 0 }}
             className="text-center mb-12"
           >
-            <div className="inline-flex items-center justify-center p-3 rounded-2xl bg-gradient-to-br from-pink-500/20 to-rose-500/20 border border-pink-500/30 mb-6">
-              <Heart className="w-8 h-8 text-pink-400" />
+            <div className="inline-flex items-center justify-center p-3 rounded-2xl bg-gradient-to-br from-blue-500/20 to-indigo-500/20 border border-blue-500/30 mb-6">
+              <Users className="w-8 h-8 text-blue-400" />
             </div>
             <h1 className="text-4xl md:text-5xl font-black tracking-tight text-white mb-4">
-              Movie Match <span className="bg-gradient-to-r from-pink-400 to-rose-400 bg-clip-text text-transparent">Night</span>
+              Movie <span className="bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">Sync</span>
             </h1>
             <p className="text-lg text-gray-400 max-w-lg mx-auto">
-              Stop arguing about what to watch. Generate a link, swipe on 10 AI-curated movies with a friend, and find your perfect match.
+              Stop arguing about what to watch with your friends or family. Generate a link, vote on 10 AI-curated movies together, and sync up on the perfect choice!
             </p>
           </motion.div>
 
@@ -117,7 +117,7 @@ export default function MatchSetupPage() {
                     onClick={() => setVibe(v)}
                     className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
                       vibe === v 
-                        ? "bg-pink-500 text-white shadow-[0_0_15px_rgba(236,72,153,0.4)] border border-pink-400" 
+                        ? "bg-blue-500 text-white shadow-[0_0_15px_rgba(59,130,246,0.4)] border border-blue-400" 
                         : "bg-white/5 hover:bg-white/10 text-gray-300 border border-white/10"
                     }`}
                   >
@@ -139,7 +139,7 @@ export default function MatchSetupPage() {
                     onClick={() => setLanguage(l)}
                     className={`px-6 py-2.5 rounded-xl text-sm font-medium transition-all ${
                       language === l 
-                        ? "bg-blue-500 text-white shadow-[0_0_15px_rgba(59,130,246,0.4)] border border-blue-400" 
+                        ? "bg-purple-500 text-white shadow-[0_0_15px_rgba(168,85,247,0.4)] border border-purple-400" 
                         : "bg-white/5 hover:bg-white/10 text-gray-300 border border-white/10"
                     }`}
                   >
@@ -155,7 +155,7 @@ export default function MatchSetupPage() {
                 onClick={() => setAuthModalOpen(true)}
                 className="w-full py-4 rounded-xl font-bold text-lg bg-white/10 hover:bg-white/20 border border-white/20 transition-all flex items-center justify-center gap-2"
               >
-                <Users className="w-5 h-5" /> Sign in to Create Match
+                <Users className="w-5 h-5" /> Sign in to Create Sync Session
               </button>
             ) : (
               <button
@@ -163,8 +163,8 @@ export default function MatchSetupPage() {
                 disabled={loading}
                 className={`w-full py-4 rounded-xl font-bold text-lg text-white shadow-xl transition-all flex items-center justify-center gap-2 ${
                   loading 
-                    ? "bg-pink-500/50 cursor-not-allowed" 
-                    : "bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-500 hover:to-rose-500 hover:shadow-[0_0_20px_rgba(236,72,153,0.4)]"
+                    ? "bg-blue-500/50 cursor-not-allowed" 
+                    : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 hover:shadow-[0_0_20px_rgba(59,130,246,0.4)]"
                 }`}
               >
                 {loading ? (

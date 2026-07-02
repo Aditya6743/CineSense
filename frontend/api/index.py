@@ -345,14 +345,30 @@ class MoodRequest(BaseModel):
 @app.post("/api/recommend-mood")
 async def recommend_mood(request: Request, req: MoodRequest):
     api_key = os.getenv("GEMINI_API_KEY")
-    if not api_key:
-        raise HTTPException(status_code=500, detail="Gemini API Key missing")
-        
     client = await get_http_client()
     
-    try:
-        genai_client = genai.Client(api_key=api_key)
-        prompt = f"""
+    suggested_title = ""
+    reason = ""
+    
+    if not api_key:
+        logger.warning("Gemini API Key missing. Using hardcoded fallback recommendations.")
+        # Fallback database if AI is unavailable
+        fallback_db = {
+            "Happy 😊": {"title": "La La Land", "reason": "A joyful and colorful musical to match your happy mood!"},
+            "Sad 😢": {"title": "Inside Out", "reason": "A beautiful exploration of emotions that might help you process yours."},
+            "Adventurous 🧗": {"title": "Indiana Jones and the Raiders of the Lost Ark", "reason": "The ultimate adventure movie for your adventurous spirit!"},
+            "Chill 🛋️": {"title": "The Big Lebowski", "reason": "The ultimate chill movie. The Dude abides."},
+            "Stressed 😫": {"title": "Spirited Away", "reason": "A mesmerizing and relaxing journey to take your mind off things."},
+            "Romantic 💖": {"title": "Before Sunrise", "reason": "A classic romance to sweep you off your feet."}
+        }
+        fallback = fallback_db.get(req.feeling, {"title": "The Matrix", "reason": "A perfect movie to escape reality."})
+        suggested_title = fallback["title"]
+        reason = fallback["reason"]
+        
+    else:
+        try:
+            genai_client = genai.Client(api_key=api_key)
+            prompt = f"""
 You are an expert movie recommender. The user says:
 - Feeling: {req.feeling}
 - Vibe: {req.vibe}
@@ -363,30 +379,38 @@ Return ONLY a raw JSON object (no markdown, no backticks) with exactly two keys:
 "title": "The exact movie title"
 "reason": "A 1-sentence explanation of why it fits their mood perfectly."
 """
-        response = genai_client.models.generate_content(
-            model='gemini-2.5-flash',
-            contents=prompt,
-        )
-        
-        raw_text = response.text.strip()
-        
-        # Try to find JSON block using regex if wrapped in markdown
-        json_match = re.search(r'\{.*\}', raw_text, re.DOTALL)
-        if json_match:
-            raw_text = json_match.group(0)
+            response = genai_client.models.generate_content(
+                model='gemini-2.5-flash',
+                contents=prompt,
+            )
             
-        try:
-            ai_data = json.loads(raw_text)
-        except json.JSONDecodeError as e:
-            logger.error(f"Failed to parse AI JSON: {raw_text}")
-            raise ValueError(f"AI returned invalid JSON: {e}")
+            raw_text = response.text.strip()
             
-        suggested_title = ai_data.get("title", "")
-        reason = ai_data.get("reason", "")
-        
-        if not suggested_title:
-            raise ValueError("No title returned from AI")
+            # Try to find JSON block using regex if wrapped in markdown
+            json_match = re.search(r'\{.*\}', raw_text, re.DOTALL)
+            if json_match:
+                raw_text = json_match.group(0)
+                
+            try:
+                ai_data = json.loads(raw_text)
+                suggested_title = ai_data.get("title", "")
+                reason = ai_data.get("reason", "")
+            except json.JSONDecodeError as e:
+                logger.error(f"Failed to parse AI JSON: {raw_text}")
+                # Fallback on parse failure
+                suggested_title = "Inception"
+                reason = "Our AI got a bit confused, but here is a mind-bending classic!"
+                
+            if not suggested_title:
+                suggested_title = "The Truman Show"
+                reason = "A great watch for any occasion."
+                
+        except Exception as ai_err:
+            logger.error(f"AI Generation Failed: {ai_err}")
+            suggested_title = "The Dark Knight"
+            reason = "Our AI is resting, but you can never go wrong with Batman."
             
+    try:
         # Clean up title by removing years in parentheses (e.g. "Interstellar (2014)" -> "Interstellar")
         suggested_title = re.sub(r'\s*\(\d{4}\)', '', suggested_title).strip()
             

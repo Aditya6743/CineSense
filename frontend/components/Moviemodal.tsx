@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useColor } from "color-thief-react";
 import { useTheme } from "./ThemeProvider";
 import axios from "axios";
-import { Heart, Play, Clock, Globe } from "lucide-react";
+import { Heart, Play, Clock, Globe, Loader2 } from "lucide-react";
 import { useWatchlist } from "../hooks/useWatchlist";
 
 type Movie = {
@@ -22,6 +22,7 @@ type Movie = {
   cast?: string[];
   trailer_url?: string | null;
   language?: string | null;
+  ai_reason?: string | null;
 };
 
 type Props = {

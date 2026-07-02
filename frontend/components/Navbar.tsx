@@ -1,17 +1,22 @@
 "use client";
 
 import { motion, useScroll, useMotionValueEvent, AnimatePresence } from "framer-motion";
-import { Search, Bell, User, Menu, X } from "lucide-react";
+import { Search, Bell, User, Menu, X, Sparkles } from "lucide-react";
 import { FaGithub, FaLinkedin } from "react-icons/fa";
 import Link from "next/link";
 import MagneticButton from "./MagneticButton";
 import { useState } from "react";
 import { useUISound } from "../hooks/useUISound";
 import { useAuth } from "./AuthContext";
+import MoodRecommender from "./MoodRecommender";
+import MovieModal from "./Moviemodal";
+
 export default function Navbar() {
   const { scrollY } = useScroll();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isMoodModalOpen, setIsMoodModalOpen] = useState(false);
+  const [selectedMovie, setSelectedMovie] = useState<any | null>(null);
   const { playHover, playClick } = useUISound();
   const { user, signOut, isAuthModalOpen, setAuthModalOpen } = useAuth();
 
@@ -79,9 +84,19 @@ export default function Navbar() {
           ))}
         </div>
 
-        {/* Social Links & Mobile Toggle */}
+        {/* Action Buttons & Social Links & Mobile Toggle */}
         <div className="flex items-center gap-2 md:gap-4">
-          <MagneticButton className="rounded-xl border border-white/10 bg-white/5 backdrop-blur-xl hover:bg-white/10 transition-colors shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
+          <MagneticButton className="hidden lg:block relative group">
+            <button
+              onClick={() => { playClick(); setIsMoodModalOpen(true); }}
+              className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-fuchsia-600/20 to-violet-600/20 hover:from-fuchsia-500/40 hover:to-violet-500/40 border border-fuchsia-500/30 transition-colors shadow-[0_0_15px_rgba(217,70,239,0.15)] group-hover:shadow-[0_0_20px_rgba(217,70,239,0.3)]"
+            >
+              <Sparkles className="w-4 h-4 text-fuchsia-400" />
+              <span className="text-sm font-bold text-fuchsia-100">Mood Matcher</span>
+            </button>
+          </MagneticButton>
+
+          <MagneticButton className="hidden md:block rounded-xl border border-white/10 bg-white/5 backdrop-blur-xl hover:bg-white/10 transition-colors shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
             <a
               href="https://github.com/Aditya6743"
               target="_blank"
@@ -183,6 +198,13 @@ export default function Navbar() {
                   {item.name}
                 </Link>
               ))}
+              
+              <button
+                onClick={() => { playClick(); setMobileMenuOpen(false); setIsMoodModalOpen(true); }}
+                className="text-left text-lg font-bold text-fuchsia-400 hover:text-fuchsia-300 transition-colors border-b border-white/5 pb-2 flex items-center gap-2"
+              >
+                <Sparkles className="w-5 h-5" /> Mood Matcher
+              </button>
               {user && (
                 <div className="flex flex-col gap-2 pt-4 mt-2 border-t border-white/10">
                   <p className="text-xs text-gray-400 font-medium">{user.email}</p>
@@ -206,6 +228,19 @@ export default function Navbar() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <MoodRecommender 
+        isOpen={isMoodModalOpen} 
+        onClose={() => setIsMoodModalOpen(false)} 
+        onMovieClick={(movie) => {
+          setSelectedMovie(movie);
+        }}
+      />
+      
+      <MovieModal 
+        movie={selectedMovie}
+        onClose={() => setSelectedMovie(null)}
+      />
     </motion.nav>
   );
 }

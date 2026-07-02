@@ -335,6 +335,85 @@ async def generate_pitch(query: str, recommended: str):
         logger.error(f"GenAI Error: {e}")
         return {"pitch": fallback_pitch}
 
+class MoodRequest(BaseModel):
+    feeling: str
+    vibe: str
+    time: str
+
+@app.post("/recommend-mood")
+@app.post("/api/recommend-mood")
+async def recommend_mood(request: Request, req: MoodRequest):
+    api_key = os.getenv("GEMINI_API_KEY")
+    if not api_key:
+        raise HTTPException(status_code=500, detail="Gemini API Key missing")
+        
+    client = await get_http_client()
+    
+    try:
+        genai_client = genai.Client(api_key=api_key)
+        prompt = f"""
+You are an expert movie recommender. The user says:
+- Feeling: {req.feeling}
+- Vibe: {req.vibe}
+- Time available: {req.time}
+
+Based on this, suggest EXACTLY ONE perfect movie. 
+Return ONLY a raw JSON object (no markdown, no backticks) with exactly two keys:
+"title": "The exact movie title"
+"reason": "A 1-sentence explanation of why it fits their mood perfectly."
+"""
+        response = genai_client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=prompt,
+        )
+        
+        raw_text = response.text.strip()
+        if raw_text.startswith("```json"):
+            raw_text = raw_text[7:]
+        if raw_text.endswith("```"):
+            raw_text = raw_text[:-3]
+        
+        ai_data = json.loads(raw_text.strip())
+        suggested_title = ai_data.get("title", "")
+        reason = ai_data.get("reason", "")
+        
+        if not suggested_title:
+            raise ValueError("No title returned from AI")
+            
+        tmdb_search_url = "https://api.themoviedb.org/3/search/movie"
+        search_res = await client.get(
+            tmdb_search_url,
+            headers=HEADERS,
+            params={"query": suggested_title, "include_adult": "false", "language": "en-US", "page": 1},
+            timeout=10
+        )
+        search_res.raise_for_status()
+        search_data = search_res.json()
+        
+        if not search_data.get("results"):
+            raise HTTPException(status_code=404, detail="AI suggested a movie but it was not found on TMDB.")
+            
+        best_match = search_data["results"][0]
+        
+        movie_info = {
+            "movie_id": best_match["id"],
+            "title": best_match["title"],
+            "score": 100, 
+            "similarity": 100
+        }
+        
+        full_movie = await fetch_movie_details(client, movie_info)
+        full_movie["ai_reason"] = reason
+        
+        return {
+            "movie": suggested_title,
+            "recommendations": [full_movie]
+        }
+        
+    except Exception as e:
+        logger.error(f"Mood Recommender Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.get("/debug-env")
 @app.get("/api/debug-env")
 async def debug_env():

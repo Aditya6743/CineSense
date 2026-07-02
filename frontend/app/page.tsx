@@ -5,7 +5,6 @@ import { Canvas } from "@react-three/fiber";
 import { motion } from "framer-motion";
 import Navbar from "../components/Navbar";
 import Hero from "../components/Hero";
-import MoodRecommender from "../components/MoodRecommender";
 import Trending from "../components/Trending";
 import Timeline from "../components/Timeline";
 import Testimonials from "../components/Testimonials";
@@ -89,10 +88,6 @@ function MainContent() {
             <div className="relative z-10 flex flex-col gap-12 pt-12">
               <BackgroundGraphic />
               
-              <div id="mood-recommender">
-                <MoodRecommender onMovieClick={setSelectedMovie} />
-              </div>
-
               <div id="trending">
                 <Trending />
               </div>

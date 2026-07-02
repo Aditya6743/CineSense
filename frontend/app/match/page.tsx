@@ -8,7 +8,8 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import BackgroundGraphic from "@/components/BackgroundGraphic";
 import { supabase } from "@/utils/supabase";
-import { Loader2, Link as LinkIcon, Heart, Users } from "lucide-react";
+import { Loader2, Link as LinkIcon, Heart, Users, Share2 } from "lucide-react";
+import { FaWhatsapp, FaTelegramPlane, FaTwitter } from "react-icons/fa";
 
 export default function MatchSetupPage() {
   const { user, loading: authLoading, setAuthModalOpen } = useAuth();
@@ -250,15 +251,48 @@ export default function MatchSetupPage() {
                     <button
                       onClick={copyToClipboard}
                       className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-4 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl transition-all font-bold"
+                      title="Copy Link"
                     >
                       {copied ? "Copied!" : "Copy"}
                     </button>
+                    
+                    <a
+                      href={`https://wa.me/?text=${encodeURIComponent("Join my Movie Sync! Let's pick a movie together: " + generatedLink)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center p-4 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-xl transition-all shadow-[0_0_15px_rgba(37,211,102,0.4)]"
+                      title="Share on WhatsApp"
+                    >
+                      <FaWhatsapp className="w-5 h-5" />
+                    </a>
+                    
+                    <a
+                      href={`https://t.me/share/url?url=${encodeURIComponent(generatedLink)}&text=${encodeURIComponent("Join my Movie Sync! Let's pick a movie together.")}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center p-4 bg-[#0088cc] hover:bg-[#007ab8] text-white rounded-xl transition-all shadow-[0_0_15px_rgba(0,136,204,0.4)]"
+                      title="Share on Telegram"
+                    >
+                      <FaTelegramPlane className="w-5 h-5" />
+                    </a>
+
+                    <a
+                      href={`https://twitter.com/intent/tweet?text=${encodeURIComponent("Join my Movie Sync! Let's pick a movie together.")}&url=${encodeURIComponent(generatedLink)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center p-4 bg-black hover:bg-gray-900 border border-white/20 text-white rounded-xl transition-all"
+                      title="Share on X"
+                    >
+                      <FaTwitter className="w-5 h-5" />
+                    </a>
+
                     {typeof navigator !== 'undefined' && 'share' in navigator && (
                       <button
                         onClick={nativeShare}
-                        className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-4 bg-blue-500 hover:bg-blue-400 text-white rounded-xl transition-all font-bold shadow-[0_0_15px_rgba(59,130,246,0.4)]"
+                        className="flex items-center justify-center p-4 bg-blue-500 hover:bg-blue-400 text-white rounded-xl transition-all shadow-[0_0_15px_rgba(59,130,246,0.4)]"
+                        title="More Share Options (Instagram, etc.)"
                       >
-                        Share
+                        <Share2 className="w-5 h-5" />
                       </button>
                     )}
                   </div>

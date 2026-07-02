@@ -149,7 +149,12 @@ export default function MatchSwipePage() {
             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
           </div>
 
-          <a href={`/search?q=${encodeURIComponent(matchResult.title)}`} className="inline-block w-full bg-white text-black font-bold py-4 rounded-xl hover:bg-gray-200 transition-colors">
+          <a 
+            href={`https://www.google.com/search?q=${encodeURIComponent(matchResult.title + " movie where to watch")}`} 
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block w-full bg-white text-black font-bold py-4 rounded-xl hover:bg-gray-200 transition-colors"
+          >
             See Details & Where to Watch
           </a>
         </motion.div>

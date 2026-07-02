@@ -24,6 +24,7 @@ const QUESTIONS = [
 ];
 
 export default function MoodRecommender({ isOpen, onClose, onMovieClick }: { isOpen: boolean, onClose: () => void, onMovieClick: (movie: any) => void }) {
+  const [mode, setMode] = useState<"select" | "questions" | "describe">("select");
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState({ feeling: "", vibe: "", gimmick: "", custom: "" });
   const [customInput, setCustomInput] = useState("");
@@ -45,12 +46,16 @@ export default function MoodRecommender({ isOpen, onClose, onMovieClick }: { isO
     const key = QUESTIONS[currentStep].id as keyof typeof answers;
     setAnswers({ ...answers, [key]: option });
     
-    // Move to next step (including custom text step)
-    setTimeout(() => setCurrentStep(currentStep + 1), 300);
+    if (currentStep < QUESTIONS.length - 1) {
+      setTimeout(() => setCurrentStep(currentStep + 1), 300);
+    } else {
+      // Finished questions, fetch now (no 4th step needed here anymore)
+      fetchRecommendation({ ...answers, [key]: option, custom: "" });
+    }
   };
 
   const handleCustomSubmit = () => {
-    fetchRecommendation({ ...answers, custom: customInput });
+    fetchRecommendation({ feeling: "", vibe: "", gimmick: "", custom: customInput });
   };
 
   const fetchRecommendation = async (finalAnswers: typeof answers) => {
@@ -83,6 +88,7 @@ export default function MoodRecommender({ isOpen, onClose, onMovieClick }: { isO
   };
 
   const reset = () => {
+    setMode("select");
     setAnswers({ feeling: "", vibe: "", gimmick: "", custom: "" });
     setCustomInput("");
     setCurrentStep(0);
@@ -142,43 +148,77 @@ export default function MoodRecommender({ isOpen, onClose, onMovieClick }: { isO
                       transition={{ duration: 0.3 }}
                       className="w-full"
                     >
-                      <div className="flex justify-between items-center mb-8">
-                        <h3 className="text-2xl md:text-3xl font-bold text-white">
-                          {currentStep < QUESTIONS.length ? QUESTIONS[currentStep].title : "Any specific details? (Optional)"}
-                        </h3>
-                        <span className="text-gray-500 font-mono text-sm">
-                          {currentStep + 1} / {QUESTIONS.length + 1}
-                        </span>
-                      </div>
                       
-                      {currentStep < QUESTIONS.length ? (
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                          {QUESTIONS[currentStep].options.map((opt) => (
-                            <button
-                              key={opt}
-                              onClick={() => handleSelect(opt)}
-                              className="p-4 rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 hover:border-fuchsia-500/30 text-white font-medium transition-colors flex items-center justify-between group"
-                            >
-                              {opt}
-                              <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity text-fuchsia-400 -translate-x-2 group-hover:translate-x-0 transform duration-300" />
-                            </button>
-                          ))}
+                      {mode === "select" && (
+                        <div className="flex flex-col items-center gap-6 w-full max-w-2xl mx-auto">
+                          <button
+                            onClick={() => setMode("questions")}
+                            className="w-full p-6 rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 hover:border-fuchsia-500/50 transition-all group flex flex-col items-center text-center gap-3"
+                          >
+                            <div className="p-3 rounded-full bg-fuchsia-500/20 text-fuchsia-400 group-hover:scale-110 transition-transform">
+                              <Sparkles className="w-6 h-6" />
+                            </div>
+                            <h3 className="text-xl font-bold text-white">Answer Quick Questions</h3>
+                            <p className="text-gray-400 text-sm">Pick from fun options and let the AI find your perfect match.</p>
+                          </button>
+                          
+                          <button
+                            onClick={() => setMode("describe")}
+                            className="w-full p-6 rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 hover:border-violet-500/50 transition-all group flex flex-col items-center text-center gap-3"
+                          >
+                            <div className="p-3 rounded-full bg-violet-500/20 text-violet-400 group-hover:scale-110 transition-transform">
+                              <RefreshCcw className="w-6 h-6" />
+                            </div>
+                            <h3 className="text-xl font-bold text-white">Describe it Yourself</h3>
+                            <p className="text-gray-400 text-sm">Type anything you want. E.g., "A funny road trip movie set in space."</p>
+                          </button>
                         </div>
-                      ) : (
+                      )}
+
+                      {mode === "questions" && (
+                        <>
+                          <div className="flex justify-between items-center mb-8">
+                            <h3 className="text-2xl md:text-3xl font-bold text-white">
+                              {QUESTIONS[currentStep].title}
+                            </h3>
+                            <span className="text-gray-500 font-mono text-sm">
+                              {currentStep + 1} / {QUESTIONS.length}
+                            </span>
+                          </div>
+                          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                            {QUESTIONS[currentStep].options.map((opt) => (
+                              <button
+                                key={opt}
+                                onClick={() => handleSelect(opt)}
+                                className="p-4 rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 hover:border-fuchsia-500/30 text-white font-medium transition-colors flex items-center justify-between group"
+                              >
+                                {opt}
+                                <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity text-fuchsia-400 -translate-x-2 group-hover:translate-x-0 transform duration-300" />
+                              </button>
+                            ))}
+                          </div>
+                        </>
+                      )}
+                      
+                      {mode === "describe" && (
                         <div className="flex flex-col items-center">
+                          <h3 className="text-2xl md:text-3xl font-bold text-white mb-6 text-center">
+                            What are you looking for?
+                          </h3>
                           <textarea 
                             value={customInput}
                             onChange={(e) => setCustomInput(e.target.value)}
-                            placeholder="e.g. A movie with a huge plot twist at the end, set in space, and something that makes me think..."
-                            className="w-full h-32 bg-white/5 border border-white/10 rounded-xl p-4 text-white focus:outline-none focus:border-fuchsia-500/50 resize-none mb-6 placeholder:text-gray-500"
+                            placeholder="Type anything... (e.g. A movie with a huge plot twist at the end, set in space, and something that makes me think...)"
+                            className="w-full h-40 bg-white/5 border border-white/10 rounded-xl p-5 text-white focus:outline-none focus:border-fuchsia-500/50 resize-none mb-6 placeholder:text-gray-500 text-lg"
                           />
                           <div className="flex gap-4 w-full sm:w-auto">
                             <button 
-                              onClick={handleCustomSubmit} 
-                              className="flex-1 sm:flex-none px-8 py-3 rounded-xl bg-gradient-to-r from-fuchsia-600 to-violet-600 hover:from-fuchsia-500 hover:to-violet-500 text-white font-bold transition-all flex items-center justify-center gap-2 group"
+                              onClick={handleCustomSubmit}
+                              disabled={!customInput.trim()}
+                              className="flex-1 sm:flex-none px-8 py-3 rounded-xl bg-gradient-to-r from-fuchsia-600 to-violet-600 hover:from-fuchsia-500 hover:to-violet-500 text-white font-bold transition-all flex items-center justify-center gap-2 group disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                               <Sparkles className="w-4 h-4" />
-                              {customInput.trim() ? "Find My Movie" : "Skip & Find Movie"}
+                              Find My Movie
                             </button>
                           </div>
                         </div>

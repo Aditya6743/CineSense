@@ -81,25 +81,38 @@ export default function MatchSwipePage() {
     if (userName.trim()) setHasJoined(true);
   };
 
+  const [isVoting, setIsVoting] = useState(false);
+
   const handleVote = async (movie: any, vote: boolean) => {
-    if (vote) setMyVotes(prev => [...prev, movie.title]);
-    setCurrentIndex(prev => prev + 1);
+    if (isVoting) return;
+    setIsVoting(true);
 
-    const { error } = await supabase.from("match_votes").insert([{
-      session_id: id,
-      user_identifier: userName,
-      movie_title: movie.title,
-      vote
-    }]);
-
-    if (error) {
-      // Retry once on failure
-      await supabase.from("match_votes").insert([{
+    try {
+      const { error } = await supabase.from("match_votes").insert([{
         session_id: id,
         user_identifier: userName,
         movie_title: movie.title,
         vote
       }]);
+
+      if (error) {
+        // Retry once on failure
+        const retry = await supabase.from("match_votes").insert([{
+          session_id: id,
+          user_identifier: userName,
+          movie_title: movie.title,
+          vote
+        }]);
+        if (retry.error) throw retry.error;
+      }
+      
+      if (vote) setMyVotes(prev => [...prev, movie.title]);
+      setCurrentIndex(prev => prev + 1);
+    } catch (err) {
+      console.error("Failed to vote:", err);
+      alert("Failed to submit vote. Please try again.");
+    } finally {
+      setIsVoting(false);
     }
   };
 
@@ -236,13 +249,15 @@ export default function MatchSwipePage() {
           <div className="absolute -bottom-6 left-0 w-full flex justify-center gap-6 px-4">
             <button
               onClick={() => handleVote(movie, false)}
-              className="w-16 h-16 rounded-full bg-[#0a0f16] border-2 border-red-500 flex items-center justify-center text-red-500 hover:bg-red-500 hover:text-white transition-all shadow-[0_0_20px_rgba(239,68,68,0.2)] hover:scale-110"
+              disabled={isVoting}
+              className={`w-16 h-16 rounded-full bg-[#0a0f16] border-2 border-red-500 flex items-center justify-center text-red-500 transition-all shadow-[0_0_20px_rgba(239,68,68,0.2)] ${isVoting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-red-500 hover:text-white hover:scale-110'}`}
             >
               <X className="w-8 h-8" />
             </button>
             <button
               onClick={() => handleVote(movie, true)}
-              className="w-16 h-16 rounded-full bg-[#0a0f16] border-2 border-emerald-500 flex items-center justify-center text-emerald-500 hover:bg-emerald-500 hover:text-white transition-all shadow-[0_0_20px_rgba(16,185,129,0.2)] hover:scale-110"
+              disabled={isVoting}
+              className={`w-16 h-16 rounded-full bg-[#0a0f16] border-2 border-emerald-500 flex items-center justify-center text-emerald-500 transition-all shadow-[0_0_20px_rgba(16,185,129,0.2)] ${isVoting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-emerald-500 hover:text-white hover:scale-110'}`}
             >
               <Heart className="w-8 h-8" />
             </button>

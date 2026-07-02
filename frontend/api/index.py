@@ -797,9 +797,8 @@ Example: ["Movie 1", "Movie 2", "Movie 3", "Movie 4", "Movie 5", "Movie 6", "Mov
         movie_titles = movie_titles[:10]
 
         client = await get_http_client()
-        movies_data = []
         
-        for title in movie_titles:
+        async def fetch_movie(title: str):
             try:
                 search_res = await client.get(
                     f"https://api.themoviedb.org/3/search/movie",
@@ -809,17 +808,21 @@ Example: ["Movie 1", "Movie 2", "Movie 3", "Movie 4", "Movie 5", "Movie 6", "Mov
                 search_data = search_res.json()
                 if search_data.get("results") and len(search_data["results"]) > 0:
                     best_match = search_data["results"][0]
-                    # We just need enough data for the swiping cards (title, poster, overview, release_date, rating)
-                    movies_data.append({
+                    return {
                         "title": best_match.get("title", title),
                         "poster": f"https://image.tmdb.org/t/p/w500{best_match.get('poster_path')}" if best_match.get("poster_path") else None,
                         "overview": best_match.get("overview"),
                         "release_date": best_match.get("release_date"),
                         "rating": best_match.get("vote_average")
-                    })
+                    }
             except Exception as e:
                 logger.error(f"Error fetching TMDB for {title}: {e}")
-                
+            return None
+
+        tasks = [fetch_movie(title) for title in movie_titles]
+        results = await asyncio.gather(*tasks)
+        movies_data = [m for m in results if m is not None]
+        
         return {"movies": movies_data}
 
     except Exception as e:

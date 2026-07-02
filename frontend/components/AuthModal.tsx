@@ -8,7 +8,6 @@ import { supabase } from "../utils/supabase";
 import { useUISound } from "../hooks/useUISound";
 
 export default function AuthModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
-  const { signInWithGoogle } = useAuth();
   const { playClick, playHover } = useUISound();
   
   const [isLogin, setIsLogin] = useState(true);
@@ -46,19 +45,6 @@ export default function AuthModal({ isOpen, onClose }: { isOpen: boolean; onClos
       setError((err as Error).message || "An error occurred");
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleGoogleAuth = async () => {
-    playClick();
-    setError("");
-    setIsGoogleLoading(true);
-    try {
-      await signInWithGoogle();
-      // We don't set loading to false here on success because the page will redirect to Google
-    } catch (err: any) {
-      setError(err.message || "Failed to initialize Google login. Check Supabase settings.");
-      setIsGoogleLoading(false);
     }
   };
 

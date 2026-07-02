@@ -11,7 +11,6 @@ type AuthContextType = {
   loading: boolean;
   isAuthModalOpen: boolean;
   setAuthModalOpen: (open: boolean) => void;
-  signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
 };
 
@@ -20,7 +19,6 @@ const AuthContext = createContext<AuthContextType>({
   loading: true,
   isAuthModalOpen: false,
   setAuthModalOpen: () => {},
-  signInWithGoogle: async () => {},
   signOut: async () => {},
 });
 
@@ -59,16 +57,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signInWithGoogle = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: window.location.origin,
-      },
-    });
-    if (error) throw error;
-  };
-
   const signOut = async () => {
     try {
       await supabase.auth.signOut();
@@ -78,7 +66,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, isAuthModalOpen, setAuthModalOpen, signInWithGoogle, signOut }}>
+    <AuthContext.Provider value={{ user, loading, isAuthModalOpen, setAuthModalOpen, signOut }}>
       {children}
       <AuthModal isOpen={isAuthModalOpen} onClose={() => setAuthModalOpen(false)} />
     </AuthContext.Provider>

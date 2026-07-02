@@ -50,7 +50,12 @@ export default function AuthModal({ isOpen, onClose }: { isOpen: boolean; onClos
 
   const handleGoogleAuth = async () => {
     playClick();
-    await signInWithGoogle();
+    setError("");
+    try {
+      await signInWithGoogle();
+    } catch (err: any) {
+      setError(err.message || "Failed to initialize Google login. Check Supabase settings.");
+    }
   };
 
   if (!isOpen) return null;

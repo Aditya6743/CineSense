@@ -9,14 +9,7 @@ try {
   if (!finalUrl.startsWith('http')) {
     finalUrl = `https://${finalUrl}`;
   }
-  supabase = createClient(finalUrl, supabaseAnonKey, {
-    auth: {
-      persistSession: true,
-      autoRefreshToken: true,
-      detectSessionInUrl: true,
-      storageKey: 'cinesense-auth-token',
-    }
-  });
+  supabase = createClient(finalUrl, supabaseAnonKey);
 } catch (e) {
   console.error("Failed to initialize Supabase client:", e);
   // Provide a robust dummy proxy so the app doesn't crash on load

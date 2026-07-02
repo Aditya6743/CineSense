@@ -20,7 +20,7 @@ export default function Navbar() {
   const [isMovieSyncModalOpen, setIsMovieSyncModalOpen] = useState(false);
   const [selectedMovie, setSelectedMovie] = useState<any | null>(null);
   const { playHover, playClick } = useUISound();
-  const { user, signOut, isAuthModalOpen, setAuthModalOpen } = useAuth();
+  const { user, loading, signOut, isAuthModalOpen, setAuthModalOpen } = useAuth();
 
   useMotionValueEvent(scrollY, "change", (latest) => {
     setScrolled(latest > 50);
@@ -110,7 +110,9 @@ export default function Navbar() {
           </MagneticButton>
 
           {/* Auth Button */}
-          {user ? (
+          {loading ? (
+             <div className="w-24 h-9 rounded-xl bg-white/5 animate-pulse" />
+          ) : user ? (
             <div className="relative group">
               <MagneticButton className="rounded-xl border border-white/10 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 transition-colors shadow-[0_0_15px_rgba(124,58,237,0.3)]">
                 <Link

@@ -61,19 +61,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signInWithGoogle = async () => {
     try {
-      const { data, error } = await supabase.auth.signInWithOAuth({
+      if (!supabase) {
+        window.alert("Supabase client not initialized.");
+        return;
+      }
+
+      const oauthPromise = supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: window.location.origin,
         },
       });
-      
+
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error("Request took too long (> 5s). Supabase is not responding.")), 5000)
+      );
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data, error } = await Promise.race([oauthPromise, timeoutPromise]) as any;
+
       if (error) {
-        window.alert(`OAuth Error: ${error.message}`);
+        window.alert(`Google Auth Failed: ${error.message}`);
         throw error;
       }
+      
+      // If we reach here and it's successful, Supabase JS should already be redirecting the browser.
+      // We will add a fallback redirect just in case the browser blocks the automatic one.
+      setTimeout(() => {
+        if (data?.url) {
+           window.location.assign(data.url);
+        }
+      }, 1000);
+
     } catch (e: any) {
-      window.alert(`Catch Error: ${e.message}`);
+      window.alert(`Error: ${e.message}`);
       throw e;
     }
   };

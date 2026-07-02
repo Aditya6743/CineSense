@@ -18,7 +18,20 @@ import re
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger("CineSenseAPI")
 
-load_dotenv()
+from pathlib import Path
+
+# Load .env from api/ dir, then frontend/ root, then backend/ — whichever is found first
+_env_paths = [
+    Path(__file__).parent / ".env",          # api/.env
+    Path(__file__).parent.parent / ".env",   # frontend/.env  ← normal local dev
+    Path(__file__).parent.parent.parent / "backend" / ".env",  # backend/.env fallback
+]
+for _p in _env_paths:
+    if _p.exists():
+        load_dotenv(_p)
+        break
+else:
+    load_dotenv()  # fallback: search CWD
 
 # --- Caching Configuration ---
 tmdb_cache = TTLCache(maxsize=1000, ttl=43200)

@@ -347,7 +347,7 @@ async def generate_pitch(query: str, recommended: str):
         prompt = f"Write a short, engaging, 2-sentence movie pitch explaining why a fan of '{query}' would absolutely love '{recommended}'. Be enthusiastic and focus on thematic similarities. Do not use quotes or introductory phrases, just give the pitch."
         
         response = client.models.generate_content(
-            model='gemini-2.0-flash',
+            model='gemini-2.5-flash-lite',
             contents=prompt,
         )
         
@@ -414,7 +414,7 @@ Return ONLY a raw JSON object (no markdown, no backticks) with exactly two keys:
 "reason": "A 1-sentence explanation of why it fits their mood and constraints perfectly."
 """
             response = genai_client.models.generate_content(
-                model='gemini-2.0-flash',
+                model='gemini-2.5-flash-lite',
                 contents=prompt,
             )
             

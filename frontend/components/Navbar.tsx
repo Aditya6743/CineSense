@@ -25,21 +25,22 @@ export default function Navbar() {
   });
 
   return (
-    <motion.nav
-      initial={{ y: -80, opacity: 0 }}
-      animate={{ 
-        y: 0, 
-        opacity: 1,
-        backgroundColor: scrolled ? "rgba(7, 11, 26, 0.6)" : "rgba(7, 11, 26, 0)",
-      }}
-      transition={{ duration: 0.6 }}
-      className={`fixed top-0 left-0 right-0 z-50 border-b transition-all duration-300 ${
-        scrolled 
-          ? "border-white/10 backdrop-blur-3xl shadow-[0_10px_30px_rgba(0,0,0,0.5)] py-2" 
-          : "border-transparent py-6"
-      }`}
-    >
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
+    <>
+      <motion.nav
+        initial={{ y: -80, opacity: 0 }}
+        animate={{ 
+          y: 0, 
+          opacity: 1,
+          backgroundColor: scrolled ? "rgba(7, 11, 26, 0.6)" : "rgba(7, 11, 26, 0)",
+        }}
+        transition={{ duration: 0.6 }}
+        className={`fixed top-0 left-0 right-0 z-50 border-b transition-all duration-300 ${
+          scrolled 
+            ? "border-white/10 backdrop-blur-3xl shadow-[0_10px_30px_rgba(0,0,0,0.5)] py-2" 
+            : "border-transparent py-6"
+        }`}
+      >
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
 
         {/* Logo */}
         <div 
@@ -229,6 +230,8 @@ export default function Navbar() {
         )}
       </AnimatePresence>
 
+      </motion.nav>
+
       <MoodRecommender 
         isOpen={isMoodModalOpen} 
         onClose={() => setIsMoodModalOpen(false)} 
@@ -241,6 +244,6 @@ export default function Navbar() {
         movie={selectedMovie}
         onClose={() => setSelectedMovie(null)}
       />
-    </motion.nav>
+    </>
   );
 }

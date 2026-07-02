@@ -183,7 +183,18 @@ export default function Navbar() {
                   {item.name}
                 </Link>
               ))}
-              <div className="flex items-center gap-4 pt-2">
+              {user && (
+                <div className="flex flex-col gap-2 pt-4 mt-2 border-t border-white/10">
+                  <p className="text-xs text-gray-400 font-medium">{user.email}</p>
+                  <button
+                    onClick={() => { playClick(); setMobileMenuOpen(false); signOut(); }}
+                    className="text-left text-lg font-bold text-red-400 hover:text-red-300 transition-colors"
+                  >
+                    Sign Out
+                  </button>
+                </div>
+              )}
+              <div className="flex items-center gap-4 pt-4 mt-2 border-t border-white/10">
                 <a href="https://github.com/Aditya6743" target="_blank" rel="noreferrer" className="p-2 bg-white/5 rounded-lg border border-white/10">
                   <FaGithub className="text-xl text-white" />
                 </a>

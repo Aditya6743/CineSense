@@ -400,15 +400,18 @@ async def recommend_mood(request: Request, req: MoodRequest):
             custom_instruction = f"- User's specific details: {req.custom}\n" if req.custom.strip() else ""
             
             prompt = f"""
-You are an expert movie recommender. The user says:
+You are an expert movie recommender with an encyclopedic knowledge of cinema, covering the vast global collection of movies from all eras, genres, and languages.
+The user says:
 - Feeling: {req.feeling}
 - Vibe: {req.vibe}
 - Ideal movie companion: {req.gimmick}
 {custom_instruction}
-Based on this, suggest EXACTLY ONE perfect movie. 
+
+Search your vast internal database and be EXTREMELY PRECISE. Choose EXACTLY ONE perfect movie that perfectly matches ALL the provided constraints and inputs above. Do not default to popular movies if a lesser-known movie fits the constraints better.
+
 Return ONLY a raw JSON object (no markdown, no backticks) with exactly two keys:
 "title": "The exact movie title"
-"reason": "A 1-sentence explanation of why it fits their mood perfectly."
+"reason": "A 1-sentence explanation of why it fits their mood and constraints perfectly."
 """
             response = genai_client.models.generate_content(
                 model='gemini-2.5-flash',

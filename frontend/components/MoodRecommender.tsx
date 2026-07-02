@@ -64,6 +64,15 @@ export default function MoodRecommender({ isOpen, onClose, onMovieClick }: { isO
     fetchRecommendation({ feeling: "", vibe: "", gimmick: "", custom: customInput });
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      if (customInput.trim()) {
+        handleCustomSubmit();
+      }
+    }
+  };
+
   const fetchRecommendation = async (finalAnswers: typeof answers) => {
     setLoading(true);
     try {
@@ -216,6 +225,7 @@ export default function MoodRecommender({ isOpen, onClose, onMovieClick }: { isO
                           <textarea 
                             value={customInput}
                             onChange={(e) => setCustomInput(e.target.value)}
+                            onKeyDown={handleKeyDown}
                             placeholder="Type anything... (e.g. A movie with a huge plot twist at the end, set in space, and something that makes me think...)"
                             className="w-full h-40 bg-white/5 border border-white/10 rounded-xl p-5 text-white focus:outline-none focus:border-fuchsia-500/50 resize-none mb-6 placeholder:text-gray-500 text-lg"
                           />

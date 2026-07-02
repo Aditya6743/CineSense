@@ -387,6 +387,9 @@ Return ONLY a raw JSON object (no markdown, no backticks) with exactly two keys:
         if not suggested_title:
             raise ValueError("No title returned from AI")
             
+        # Clean up title by removing years in parentheses (e.g. "Interstellar (2014)" -> "Interstellar")
+        suggested_title = re.sub(r'\s*\(\d{4}\)', '', suggested_title).strip()
+            
         tmdb_search_url = "https://api.themoviedb.org/3/search/movie"
         search_res = await client.get(
             tmdb_search_url,

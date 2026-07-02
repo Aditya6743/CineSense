@@ -9,6 +9,7 @@ import { useState } from "react";
 import { useUISound } from "../hooks/useUISound";
 import { useAuth } from "./AuthContext";
 import MoodRecommender from "./MoodRecommender";
+import MovieSyncModal from "./MovieSyncModal";
 import MovieModal from "./Moviemodal";
 
 export default function Navbar() {
@@ -16,6 +17,7 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isMoodModalOpen, setIsMoodModalOpen] = useState(false);
+  const [isMovieSyncModalOpen, setIsMovieSyncModalOpen] = useState(false);
   const [selectedMovie, setSelectedMovie] = useState<any | null>(null);
   const { playHover, playClick } = useUISound();
   const { user, signOut, isAuthModalOpen, setAuthModalOpen } = useAuth();
@@ -88,14 +90,13 @@ export default function Navbar() {
         {/* Action Buttons & Social Links & Mobile Toggle */}
         <div className="flex items-center gap-2 md:gap-4">
           <MagneticButton className="hidden lg:block relative group">
-            <Link
-              href="/match"
-              onClick={playClick}
+            <button
+              onClick={() => { playClick(); setIsMovieSyncModalOpen(true); }}
               className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600/20 to-indigo-600/20 hover:from-blue-500/40 hover:to-indigo-500/40 border border-blue-500/30 transition-colors shadow-[0_0_15px_rgba(59,130,246,0.15)] group-hover:shadow-[0_0_20px_rgba(59,130,246,0.3)]"
             >
               <Users className="w-4 h-4 text-blue-400" />
               <span className="text-sm font-bold text-blue-100">Movie Sync</span>
-            </Link>
+            </button>
           </MagneticButton>
 
           <MagneticButton className="hidden lg:block relative group">
@@ -249,14 +250,19 @@ export default function Navbar() {
 
       </motion.nav>
 
+      {/* Modals */}
       <MoodRecommender 
         isOpen={isMoodModalOpen} 
         onClose={() => setIsMoodModalOpen(false)} 
-        onMovieClick={(movie) => {
-          setSelectedMovie(movie);
-        }}
+        onMovieClick={(movie) => setSelectedMovie(movie)}
       />
-      
+
+      <MovieSyncModal
+        isOpen={isMovieSyncModalOpen}
+        onClose={() => setIsMovieSyncModalOpen(false)}
+      />
+
+      {/* Reused MovieModal for Mood Matcher results */}
       <MovieModal 
         movie={selectedMovie}
         onClose={() => setSelectedMovie(null)}

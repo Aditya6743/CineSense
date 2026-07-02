@@ -100,24 +100,45 @@ def home():
 @app.get("/search/suggestions")
 @app.get("/api/search/suggestions")
 async def get_suggestions(request: Request, query: str = ""):
-    """Returns autocomplete suggestions for movie titles from Postgres"""
+    """Returns autocomplete suggestions for movie titles from Postgres and TMDB"""
     if not query:
         return []
     
-    if not await get_db_pool():
-        return []
-
+    suggestions = []
+    
+    # 1. Try fetching from local database first
     try:
         db_pool = await get_db_pool()
-        async with db_pool.acquire() as conn:
-            records = await conn.fetch(
-                "SELECT title FROM movies WHERE title ILIKE $1 LIMIT 10",
-                f"%{query}%"
-            )
-            return [r['title'] for r in records]
+        if db_pool:
+            async with db_pool.acquire() as conn:
+                records = await conn.fetch(
+                    "SELECT title FROM movies WHERE title ILIKE $1 LIMIT 5",
+                    f"%{query}%"
+                )
+                suggestions.extend([r['title'] for r in records])
     except Exception as e:
-        logger.error(f"Search error: {e}")
-        return []
+        logger.error(f"Search DB error: {e}")
+        
+    # 2. Fetch from TMDB for global search
+    try:
+        client = await get_http_client()
+        tmdb_url = "https://api.themoviedb.org/3/search/movie"
+        res = await client.get(
+            tmdb_url, 
+            headers=HEADERS, 
+            params={"query": query, "include_adult": "false", "language": "en-US"}, 
+            timeout=5
+        )
+        if res.status_code == 200:
+            tmdb_data = res.json()
+            for movie in tmdb_data.get("results", [])[:7]:
+                title = movie.get("title")
+                if title and title not in suggestions:
+                    suggestions.append(title)
+    except Exception as e:
+        logger.error(f"Search TMDB error: {e}")
+        
+    return suggestions[:10]
 
 async def get_similar_movies_db(db_pool, movie: str):
     async with db_pool.acquire() as conn:

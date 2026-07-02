@@ -32,7 +32,7 @@ export default function WatchedPage() {
               <span className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">Already Watched</span>
             </h1>
             <p className="mt-4 text-lg text-gray-400 max-w-2xl">
-              Your personalized log of movies you've already seen. CineSense AI will automatically exclude these from your future recommendations.
+              Your personalized log of movies you've already seen. CineSense will automatically exclude these from your future recommendations.
             </p>
           </motion.div>
 

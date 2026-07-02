@@ -70,7 +70,7 @@ export default function MovieCard({
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent transition-opacity duration-300 group-hover:opacity-80" />
 
           {/* Rating Badge */}
-          <div className="absolute left-4 top-4 flex items-center gap-1 rounded-full bg-black/60 px-3 py-2 backdrop-blur-xl border border-white/10 group-hover:border-blue-400/30 transition-colors">
+          <div className="absolute left-4 top-4 flex items-center gap-1 rounded-full bg-black/20 px-3 py-2 backdrop-blur-md border border-white/20 group-hover:border-blue-400/50 transition-colors">
             <Star className="h-4 w-4 fill-violet-400 text-violet-400" />
             <span className="text-sm font-semibold text-white">
               {rating ? rating.toFixed(1) : "N/A"}
@@ -83,7 +83,7 @@ export default function MovieCard({
               e.stopPropagation();
               toggleWatchlist({ title, poster, rating, release_date });
             }}
-            className="absolute right-4 top-4 rounded-full bg-black/60 p-2.5 backdrop-blur-xl border border-white/10 hover:border-pink-500/50 hover:bg-pink-500/20 transition-all z-20 group/heart"
+            className="absolute right-4 top-4 rounded-full bg-black/20 p-2.5 backdrop-blur-md border border-white/20 hover:border-pink-500/60 hover:bg-pink-500/30 transition-all z-20 group/heart shadow-lg"
           >
             <Heart 
               className={`h-5 w-5 transition-all ${saved ? "fill-pink-500 text-pink-500" : "text-white group-hover/heart:text-pink-400"}`} 
@@ -99,7 +99,7 @@ export default function MovieCard({
               e.stopPropagation();
               toggleWatched({ title, poster, rating, release_date });
             }}
-            className="absolute right-16 top-4 rounded-full bg-black/60 p-2.5 backdrop-blur-xl border border-white/10 hover:border-emerald-500/50 hover:bg-emerald-500/20 transition-all z-20 group/eye"
+            className="absolute right-16 top-4 rounded-full bg-black/20 p-2.5 backdrop-blur-md border border-white/20 hover:border-emerald-500/60 hover:bg-emerald-500/30 transition-all z-20 group/eye shadow-lg"
           >
             <Eye 
               className={`h-5 w-5 transition-all ${watched ? "text-emerald-500" : "text-white group-hover/eye:text-emerald-400"}`} 

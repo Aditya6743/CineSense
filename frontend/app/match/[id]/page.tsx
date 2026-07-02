@@ -141,7 +141,7 @@ export default function MatchSwipePage() {
             WE HAVE A WINNER! 🎉
           </div>
           <h1 className="text-4xl md:text-5xl font-black mb-8 leading-tight">
-            You're watching <br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">{matchResult.title}</span> tonight!
+            Get ready to watch <br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">{matchResult.title}</span>
           </h1>
 
           <div className="relative w-full aspect-[2/3] rounded-3xl overflow-hidden border border-white/20 shadow-[0_0_50px_rgba(59,130,246,0.3)] mb-8">

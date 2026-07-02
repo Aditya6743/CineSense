@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/AuthContext";
 import Navbar from "@/components/Navbar";
@@ -18,6 +18,8 @@ export default function MatchSetupPage() {
   const [language, setLanguage] = useState("Any");
   const [targetVotes, setTargetVotes] = useState(2);
   const [loading, setLoading] = useState(false);
+  const [generatedLink, setGeneratedLink] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   const VIBES = [
     "Surprise Us 🎲",
@@ -66,14 +68,35 @@ export default function MatchSetupPage() {
 
       if (error) throw error;
 
-      // 3. Redirect to the swipe page
-      router.push(`/match/${sessionData.id}`);
+      // 3. Show the link to the user
+      const link = `${window.location.origin}/match/${sessionData.id}`;
+      setGeneratedLink(link);
 
     } catch (err: any) {
       console.error(err);
       alert("Failed to create sync session: " + err.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const copyToClipboard = () => {
+    if (generatedLink) {
+      navigator.clipboard.writeText(generatedLink);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  const nativeShare = () => {
+    if (generatedLink && 'share' in navigator) {
+      navigator.share({
+        title: 'Join my Movie Sync!',
+        text: 'Stop arguing about what to watch. Vote on these AI-curated movies with me!',
+        url: generatedLink,
+      }).catch(console.error);
+    } else {
+      copyToClipboard();
     }
   };
 
@@ -102,108 +125,156 @@ export default function MatchSetupPage() {
             </p>
           </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="bg-white/5 backdrop-blur-xl border border-white/10 p-8 rounded-3xl shadow-2xl"
-          >
-            {/* Group Size Selection */}
-            <div className="mb-8">
-              <label className="block text-sm font-bold tracking-widest text-gray-400 uppercase mb-4">
-                1. Group Size (How many people voting?)
-              </label>
-              <div className="flex flex-wrap gap-3">
-                {GROUP_SIZES.map(size => (
-                  <button
-                    key={size}
-                    onClick={() => setTargetVotes(size)}
-                    className={`px-6 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                      targetVotes === size 
-                        ? "bg-emerald-500 text-white shadow-[0_0_15px_rgba(16,185,129,0.4)] border border-emerald-400" 
-                        : "bg-white/5 hover:bg-white/10 text-gray-300 border border-white/10"
-                    }`}
-                  >
-                    {size} People
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Vibe Selection */}
-            <div className="mb-8">
-              <label className="block text-sm font-bold tracking-widest text-gray-400 uppercase mb-4">
-                2. Pick a Vibe
-              </label>
-              <div className="flex flex-wrap gap-3">
-                {VIBES.map(v => (
-                  <button
-                    key={v}
-                    onClick={() => setVibe(v)}
-                    className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                      vibe === v 
-                        ? "bg-blue-500 text-white shadow-[0_0_15px_rgba(59,130,246,0.4)] border border-blue-400" 
-                        : "bg-white/5 hover:bg-white/10 text-gray-300 border border-white/10"
-                    }`}
-                  >
-                    {v}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Language Selection */}
-            <div className="mb-10">
-              <label className="block text-sm font-bold tracking-widest text-gray-400 uppercase mb-4">
-                3. Preferred Language
-              </label>
-              <div className="flex flex-wrap gap-3">
-                {LANGUAGES.map(l => (
-                  <button
-                    key={l}
-                    onClick={() => setLanguage(l)}
-                    className={`px-6 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                      language === l 
-                        ? "bg-purple-500 text-white shadow-[0_0_15px_rgba(168,85,247,0.4)] border border-purple-400" 
-                        : "bg-white/5 hover:bg-white/10 text-gray-300 border border-white/10"
-                    }`}
-                  >
-                    {l}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Generate Button */}
-            {!user ? (
-              <button
-                onClick={() => setAuthModalOpen(true)}
-                className="w-full py-4 rounded-xl font-bold text-lg bg-white/10 hover:bg-white/20 border border-white/20 transition-all flex items-center justify-center gap-2"
+          <AnimatePresence mode="wait">
+            {!generatedLink ? (
+              <motion.div
+                key="setup"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20, scale: 0.95 }}
+                transition={{ duration: 0.3 }}
+                className="bg-white/5 backdrop-blur-xl border border-white/10 p-8 rounded-3xl shadow-2xl"
               >
-                <Users className="w-5 h-5" /> Sign in to Create Sync Session
-              </button>
-            ) : (
-              <button
-                onClick={handleCreateSession}
-                disabled={loading}
-                className={`w-full py-4 rounded-xl font-bold text-lg text-white shadow-xl transition-all flex items-center justify-center gap-2 ${
-                  loading 
-                    ? "bg-blue-500/50 cursor-not-allowed" 
-                    : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 hover:shadow-[0_0_20px_rgba(59,130,246,0.4)]"
-                }`}
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="w-5 h-5 animate-spin" /> Curating Movies via AI...
-                  </>
+                {/* Group Size Selection */}
+                <div className="mb-8">
+                  <label className="block text-sm font-bold tracking-widest text-gray-400 uppercase mb-4">
+                    1. Group Size (How many people voting?)
+                  </label>
+                  <div className="flex flex-wrap gap-3">
+                    {GROUP_SIZES.map(size => (
+                      <button
+                        key={size}
+                        onClick={() => setTargetVotes(size)}
+                        className={`px-6 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                          targetVotes === size 
+                            ? "bg-emerald-500 text-white shadow-[0_0_15px_rgba(16,185,129,0.4)] border border-emerald-400" 
+                            : "bg-white/5 hover:bg-white/10 text-gray-300 border border-white/10"
+                        }`}
+                      >
+                        {size} People
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Vibe Selection */}
+                <div className="mb-8">
+                  <label className="block text-sm font-bold tracking-widest text-gray-400 uppercase mb-4">
+                    2. Pick a Vibe
+                  </label>
+                  <div className="flex flex-wrap gap-3">
+                    {VIBES.map(v => (
+                      <button
+                        key={v}
+                        onClick={() => setVibe(v)}
+                        className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                          vibe === v 
+                            ? "bg-blue-500 text-white shadow-[0_0_15px_rgba(59,130,246,0.4)] border border-blue-400" 
+                            : "bg-white/5 hover:bg-white/10 text-gray-300 border border-white/10"
+                        }`}
+                      >
+                        {v}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Language Selection */}
+                <div className="mb-10">
+                  <label className="block text-sm font-bold tracking-widest text-gray-400 uppercase mb-4">
+                    3. Preferred Language
+                  </label>
+                  <div className="flex flex-wrap gap-3">
+                    {LANGUAGES.map(l => (
+                      <button
+                        key={l}
+                        onClick={() => setLanguage(l)}
+                        className={`px-6 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                          language === l 
+                            ? "bg-purple-500 text-white shadow-[0_0_15px_rgba(168,85,247,0.4)] border border-purple-400" 
+                            : "bg-white/5 hover:bg-white/10 text-gray-300 border border-white/10"
+                        }`}
+                      >
+                        {l}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Generate Button */}
+                {!user ? (
+                  <button
+                    onClick={() => setAuthModalOpen(true)}
+                    className="w-full py-4 rounded-xl font-bold text-lg bg-white/10 hover:bg-white/20 border border-white/20 transition-all flex items-center justify-center gap-2"
+                  >
+                    <Users className="w-5 h-5" /> Sign in to Create Sync Session
+                  </button>
                 ) : (
-                  <>
-                    <LinkIcon className="w-5 h-5" /> Generate Shareable Link
-                  </>
+                  <button
+                    onClick={handleCreateSession}
+                    disabled={loading}
+                    className={`w-full py-4 rounded-xl font-bold text-lg text-white shadow-xl transition-all flex items-center justify-center gap-2 ${
+                      loading 
+                        ? "bg-blue-500/50 cursor-not-allowed" 
+                        : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 hover:shadow-[0_0_20px_rgba(59,130,246,0.4)]"
+                    }`}
+                  >
+                    {loading ? (
+                      <>
+                        <Loader2 className="w-5 h-5 animate-spin" /> Curating Movies via AI...
+                      </>
+                    ) : (
+                      <>
+                        <LinkIcon className="w-5 h-5" /> Generate Shareable Link
+                      </>
+                    )}
+                  </button>
                 )}
-              </button>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="result"
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                className="bg-gradient-to-b from-blue-500/20 to-indigo-900/40 backdrop-blur-xl border border-blue-500/30 p-10 rounded-3xl shadow-[0_0_50px_rgba(59,130,246,0.15)] text-center relative overflow-hidden"
+              >
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-indigo-500" />
+                <h2 className="text-3xl font-black text-white mb-2">Room Created! 🍿</h2>
+                <p className="text-gray-300 mb-8">Share this link with your group. They don't need an account to join.</p>
+                
+                <div className="flex flex-col sm:flex-row items-center gap-3 mb-8">
+                  <div className="flex-1 w-full bg-black/40 border border-white/10 p-4 rounded-xl font-mono text-sm text-blue-200 truncate">
+                    {generatedLink}
+                  </div>
+                  <div className="flex gap-2 w-full sm:w-auto">
+                    <button
+                      onClick={copyToClipboard}
+                      className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-4 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl transition-all font-bold"
+                    >
+                      {copied ? "Copied!" : "Copy"}
+                    </button>
+                    {typeof navigator !== 'undefined' && 'share' in navigator && (
+                      <button
+                        onClick={nativeShare}
+                        className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-4 bg-blue-500 hover:bg-blue-400 text-white rounded-xl transition-all font-bold shadow-[0_0_15px_rgba(59,130,246,0.4)]"
+                      >
+                        Share
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                <div className="border-t border-white/10 pt-8">
+                  <button
+                    onClick={() => router.push(generatedLink.replace(window.location.origin, ''))}
+                    className="w-full sm:w-auto inline-flex items-center justify-center px-10 py-4 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white rounded-xl font-black text-lg transition-all shadow-[0_0_20px_rgba(16,185,129,0.4)]"
+                  >
+                    Join Room Now →
+                  </button>
+                </div>
+              </motion.div>
             )}
-          </motion.div>
+          </AnimatePresence>
         </div>
       </main>
       <Footer />

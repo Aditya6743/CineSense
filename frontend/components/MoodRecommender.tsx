@@ -21,7 +21,7 @@ const QUESTIONS = [
   {
     id: "gimmick",
     title: "Who's your ideal movie companion?",
-    options: ["A cute dog 🐶", "A spooky ghost 👻", "An alien 👽", "A mad scientist 🧪", "Just me & pizza 🍕"],
+    options: ["A cute dog 🐶", "A spooky ghost 👻", "An alien 👽", "A mad scientist 🧪", "Just me & pizza 🍕", "Me and my blanket 🛌"],
   }
 ];
 

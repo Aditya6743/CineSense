@@ -19,7 +19,7 @@ const VIBES = [
 ];
 
 const LANGUAGES = ["Any", "English", "Hindi"];
-const GROUP_SIZES = [2, 3, 4, 5, 6, 10];
+const GROUP_SIZES = [2, 3, 4, 5, 6, 8, 10];
 
 export default function MovieSyncModal({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) {
   const { user, loading: authLoading, setAuthModalOpen } = useAuth();

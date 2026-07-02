@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useScroll, useMotionValueEvent, AnimatePresence } from "framer-motion";
-import { Search, Bell, User, Menu, X, Sparkles, Heart, Users } from "lucide-react";
+import { Menu, X, Sparkles, User, Users } from "lucide-react";
 import { FaGithub, FaLinkedin } from "react-icons/fa";
 import Link from "next/link";
 import MagneticButton from "./MagneticButton";
@@ -221,6 +221,13 @@ export default function Navbar() {
               ))}
               
               <button
+                onClick={() => { playClick(); setMobileMenuOpen(false); setIsMovieSyncModalOpen(true); }}
+                className="text-left text-lg font-bold text-blue-400 hover:text-blue-300 transition-colors border-b border-white/5 pb-2 flex items-center gap-2"
+              >
+                <Users className="w-5 h-5" /> Movie Sync
+              </button>
+
+              <button
                 onClick={() => { playClick(); setMobileMenuOpen(false); setIsMoodModalOpen(true); }}
                 className="text-left text-lg font-bold text-fuchsia-400 hover:text-fuchsia-300 transition-colors border-b border-white/5 pb-2 flex items-center gap-2"
               >
@@ -229,6 +236,20 @@ export default function Navbar() {
               {user && (
                 <div className="flex flex-col gap-2 pt-4 mt-2 border-t border-white/10">
                   <p className="text-xs text-gray-400 font-medium">{user.email}</p>
+                  <Link
+                    href="/watchlist"
+                    onClick={() => { playClick(); setMobileMenuOpen(false); }}
+                    className="text-lg font-medium text-gray-300 hover:text-white transition-colors"
+                  >
+                    My Watchlist
+                  </Link>
+                  <Link
+                    href="/watched"
+                    onClick={() => { playClick(); setMobileMenuOpen(false); }}
+                    className="text-lg font-medium text-gray-300 hover:text-white transition-colors"
+                  >
+                    Already Watched
+                  </Link>
                   <button
                     onClick={() => { playClick(); setMobileMenuOpen(false); signOut(); }}
                     className="text-left text-lg font-bold text-red-400 hover:text-red-300 transition-colors"

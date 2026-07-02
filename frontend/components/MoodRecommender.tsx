@@ -171,7 +171,7 @@ export default function MoodRecommender({ isOpen, onClose, onMovieClick }: { isO
                 <AnimatePresence mode="wait">
                   {!loading && !result && (
                     <motion.div
-                      key={`step-${currentStep}`}
+                      key={`${mode}-step-${currentStep}`}
                       initial={{ opacity: 0, x: 20 }}
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -20 }}

@@ -85,12 +85,22 @@ export default function MatchSwipePage() {
     if (vote) setMyVotes(prev => [...prev, movie.title]);
     setCurrentIndex(prev => prev + 1);
 
-    await supabase.from("match_votes").insert([{
+    const { error } = await supabase.from("match_votes").insert([{
       session_id: id,
       user_identifier: userName,
       movie_title: movie.title,
       vote
     }]);
+
+    if (error) {
+      // Retry once on failure
+      await supabase.from("match_votes").insert([{
+        session_id: id,
+        user_identifier: userName,
+        movie_title: movie.title,
+        vote
+      }]);
+    }
   };
 
   if (loading || authLoading) {

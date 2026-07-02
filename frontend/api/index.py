@@ -20,22 +20,14 @@ logger = logging.getLogger("CineSenseAPI")
 
 load_dotenv()
 
-TMDB_TOKEN = os.getenv("TMDB_API_TOKEN")
-HEADERS = {
-    "Authorization": f"Bearer {TMDB_TOKEN}",
-    "accept": "application/json",
-}
 # --- Caching Configuration ---
 tmdb_cache = TTLCache(maxsize=1000, ttl=43200)
 pitch_cache = TTLCache(maxsize=2000, ttl=86400)
 trending_cache = TTLCache(maxsize=1, ttl=3600)
 
-# Load environment variables
-load_dotenv()
-
 # Use Vercel env vars
 DB_URL = os.getenv("DATABASE_URL")
-TMDB_API_TOKEN = os.getenv("TMDB_API_TOKEN", "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIwZDVkOTdhODY5YzQ5OTI1N2JmZTIwOTg0OGRiNGUzNyIsIm5iZiI6MTc4MjU3MDcxNi4zNjMwMDAyLCJzdWIiOiI2YTNmZGVkYzZhYmRhMDQxZjQ2NGRiYTciLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.KGeju7hvQ3kXaghvBzx4u8XMcOuFla8Y8V8l3O1NawA")
+TMDB_API_TOKEN = os.getenv("TMDB_API_TOKEN")
 
 if DB_URL and DB_URL.count("@") > 1 and "%40" not in DB_URL:
     # URL encode the password if it contains an unescaped @

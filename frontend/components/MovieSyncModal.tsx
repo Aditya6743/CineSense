@@ -25,7 +25,7 @@ export default function MovieSyncModal({ isOpen, onClose }: { isOpen: boolean, o
   const { user, loading: authLoading, setAuthModalOpen } = useAuth();
   const router = useRouter();
   
-  const [vibe, setVibe] = useState("Surprise Us");
+  const [vibe, setVibe] = useState("Surprise Us 🎲");
   const [language, setLanguage] = useState("Any");
   const [targetVotes, setTargetVotes] = useState(2);
   const [loading, setLoading] = useState(false);
@@ -45,7 +45,7 @@ export default function MovieSyncModal({ isOpen, onClose }: { isOpen: boolean, o
       document.body.style.overflow = "";
       setTimeout(() => {
         setGeneratedLink(null);
-        setVibe("Surprise Us");
+        setVibe("Surprise Us 🎲");
         setLanguage("Any");
         setTargetVotes(2);
       }, 300);
@@ -58,6 +58,10 @@ export default function MovieSyncModal({ isOpen, onClose }: { isOpen: boolean, o
       setAuthModalOpen(true);
       return;
     }
+
+    // Ensure targetVotes is at least 2
+    const safeTargetVotes = (!targetVotes || targetVotes < 2) ? 2 : targetVotes;
+    setTargetVotes(safeTargetVotes);
 
     setLoading(true);
     try {
@@ -79,7 +83,7 @@ export default function MovieSyncModal({ isOpen, onClose }: { isOpen: boolean, o
           creator_id: user.id,
           vibe,
           language,
-          target_votes: targetVotes,
+          target_votes: safeTargetVotes,
           movies: data.movies
         }])
         .select()

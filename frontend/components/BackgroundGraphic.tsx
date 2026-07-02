@@ -45,11 +45,11 @@ export default function BackgroundGraphic() {
       {/* Massive Geometric Mesh */}
       <motion.div 
         style={{ x: xRight, rotate }} 
-        className="absolute top-1/2 left-1/2 w-[150vw] h-[150vw] -translate-x-1/2 -translate-y-1/2 opacity-60"
+        className="absolute top-1/2 left-1/2 w-[150vw] h-[150vw] -translate-x-1/2 -translate-y-1/2 opacity-30"
       >
-        <svg viewBox="0 0 100 100" className="w-full h-full stroke-emerald-500/40 fill-transparent stroke-[0.2]">
-          {[...Array(30)].map((_, i) => (
-            <circle key={i} cx="50" cy="50" r={5 + i * 2.5} strokeDasharray={i % 2 === 0 ? "none" : `${1 + i} ${2 + i}`} />
+        <svg viewBox="0 0 100 100" className="w-full h-full stroke-emerald-500/30 fill-transparent stroke-[0.2]">
+          {[...Array(15)].map((_, i) => (
+            <circle key={i} cx="50" cy="50" r={5 + i * 4} strokeDasharray={i % 2 === 0 ? "none" : `${1 + i} ${2 + i}`} />
           ))}
           <path d="M50,0 L50,100 M0,50 L100,50 M15,15 L85,85 M15,85 L85,15" strokeDasharray="1 1" />
         </svg>

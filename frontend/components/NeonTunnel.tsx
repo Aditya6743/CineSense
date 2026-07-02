@@ -36,7 +36,7 @@ function NeonRings({ length, radius }: { length: number, radius: number }) {
     <group ref={groupRef}>
       {rings.map((ring, i) => (
         <mesh key={i} position={[0, 0, ring.z]} rotation={[0, 0, ring.rotationZ]}>
-          <torusGeometry args={[radius + 2, 0.02, 16, 100]} />
+          <torusGeometry args={[radius + 2, 0.02, 8, 30]} />
           {/* Intense emissive blue/purple to trigger Bloom */}
           <meshPhysicalMaterial 
             color="#4e5cff" 

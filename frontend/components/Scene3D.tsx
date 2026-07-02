@@ -405,20 +405,31 @@ function WelcomeUniverse() {
 
   return (
     <group>
-      <PremiumParticleLogo yOffset={isMobile ? 0 : 2} zOffset={-315} count={isMobile ? 5000 : 12000} scale={isMobile ? 0.6 : 1} />
+      <PremiumParticleLogo yOffset={isMobile ? 0 : 2} zOffset={-315} count={isMobile ? 1500 : 3000} scale={isMobile ? 0.6 : 1} />
       <PremiumParticleText 
         text="Discover Your Next Favorite Movie" 
         size={isMobile ? 0.6 : 1.2} 
         yOffset={isMobile ? -6 : -8} 
         zOffset={-315} 
-        count={isMobile ? 1500 : 3000} 
+        count={isMobile ? 800 : 1500} 
       />
-      <PremiumParticleArrow yOffset={isMobile ? -14 : -14} zOffset={-315} count={isMobile ? 800 : 1500} />
+      <PremiumParticleArrow yOffset={isMobile ? -14 : -14} zOffset={-315} count={isMobile ? 300 : 600} />
     </group>
   );
 }
 
 export default function Scene3D({ onMovieSelect }: { onMovieSelect?: (movie: unknown) => void }) {
+  const [isMobile, setIsMobile] = useState(false);
+  
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setIsMobile(window.innerWidth < 768);
+      const handleResize = () => setIsMobile(window.innerWidth < 768);
+      window.addEventListener("resize", handleResize);
+      return () => window.removeEventListener("resize", handleResize);
+    }
+  }, []);
+
   return (
     <>
       {/* Optimized Lighting */}
@@ -433,20 +444,22 @@ export default function Scene3D({ onMovieSelect }: { onMovieSelect?: (movie: unk
       <PosterSphere radius={25} onMovieSelect={onMovieSelect} />
       {/* Tunnel spans the entire remaining scroll distance (from -30 to -300) */}
       <group position={[0, 0, -30]}> 
-        <NeonTunnel count={60} length={270} radius={25} onMovieSelect={onMovieSelect} />
+        <NeonTunnel count={isMobile ? 30 : 60} length={270} radius={25} onMovieSelect={onMovieSelect} />
       </group>
       
       <WelcomeUniverse />
       
-      {/* Highly Optimized Post Processing - Removed ChromaticAberration for 120FPS */}
-      <EffectComposer multisampling={0}>
-        <Bloom 
-          luminanceThreshold={0.8} 
-          luminanceSmoothing={0.9} 
-          intensity={0.3} 
-          mipmapBlur={false} // Huge performance save
-        />
-      </EffectComposer>
+      {/* Highly Optimized Post Processing - Disabled completely on mobile for butter smooth performance */}
+      {!isMobile && (
+        <EffectComposer multisampling={0}>
+          <Bloom 
+            luminanceThreshold={0.8} 
+            luminanceSmoothing={0.9} 
+            intensity={0.3} 
+            mipmapBlur={false} 
+          />
+        </EffectComposer>
+      )}
     </>
   );
 }

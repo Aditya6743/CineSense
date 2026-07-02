@@ -347,12 +347,12 @@ async def generate_pitch(query: str, recommended: str):
         prompt = f"Write a short, engaging, 2-sentence movie pitch explaining why a fan of '{query}' would absolutely love '{recommended}'. Be enthusiastic and focus on thematic similarities. Do not use quotes or introductory phrases, just give the pitch."
         
         models_to_try = [
-            'gemini-3.5-flash',
-            'gemini-flash-lite-latest',
-            'gemini-flash-latest',
             'gemini-2.5-flash-lite',
+            'gemini-flash-lite-latest',
             'gemini-2.0-flash-lite',
-            'gemini-2.5-flash'
+            'gemini-flash-latest',
+            'gemini-2.5-flash',
+            'gemini-3.5-flash'
         ]
         
         response = None
@@ -433,12 +433,12 @@ Return ONLY a raw JSON object (no markdown, no backticks) with exactly two keys:
 "reason": "A 1-sentence explanation of why it fits their mood and constraints perfectly."
 """
             models_to_try = [
-                'gemini-3.5-flash',
-                'gemini-flash-lite-latest',
-                'gemini-flash-latest',
                 'gemini-2.5-flash-lite',
+                'gemini-flash-lite-latest',
                 'gemini-2.0-flash-lite',
-                'gemini-2.5-flash'
+                'gemini-flash-latest',
+                'gemini-2.5-flash',
+                'gemini-3.5-flash'
             ]
             
             response = None

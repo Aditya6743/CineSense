@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles, ArrowRight, RefreshCcw, Loader2, X } from "lucide-react";
 import MovieCard from "./MovieCard";
@@ -30,6 +31,11 @@ export default function MoodRecommender({ isOpen, onClose, onMovieClick }: { isO
   const [customInput, setCustomInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Prevent scroll when open
   useEffect(() => {
@@ -95,10 +101,12 @@ export default function MoodRecommender({ isOpen, onClose, onMovieClick }: { isO
     setResult(null);
   };
 
-  return (
+  if (!mounted) return null;
+
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
           {/* Backdrop */}
           <motion.div 
             initial={{ opacity: 0 }}
@@ -306,6 +314,7 @@ export default function MoodRecommender({ isOpen, onClose, onMovieClick }: { isO
           </motion.div>
         </div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }

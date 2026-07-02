@@ -182,13 +182,17 @@ export default function MovieSyncModal({ isOpen, onClose }: { isOpen: boolean, o
                         type="number"
                         min={2}
                         max={50}
-                        value={targetVotes}
+                        value={targetVotes || ""}
                         onChange={(e) => {
-                          const val = parseInt(e.target.value);
-                          if (!isNaN(val)) setTargetVotes(val);
+                          const val = e.target.value;
+                          if (val === "") {
+                             setTargetVotes(0 as any); // Temporarily allow empty
+                             return;
+                          }
+                          setTargetVotes(parseInt(val));
                         }}
                         onBlur={() => {
-                          if (targetVotes < 2) setTargetVotes(2);
+                          if (!targetVotes || targetVotes < 2) setTargetVotes(2);
                         }}
                         className="w-full bg-[#0a0f16] text-white rounded-xl border border-white/10 p-4 font-bold text-lg focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all"
                         placeholder="Enter number of people (min 2)"

@@ -253,8 +253,8 @@ export default function MoodRecommender({ isOpen, onClose, onMovieClick }: { isO
                       className="flex flex-col items-center text-center"
                     >
                       <Loader2 className="w-12 h-12 text-fuchsia-400 animate-spin mb-4" />
-                      <h3 className="text-2xl font-bold text-white mb-2">Searching for your perfect movie...</h3>
-                      <p className="text-gray-400 max-w-md mx-auto">This may take a moment. Our Multi-Gemini AI is scanning a vast global database to find the absolute best match for you.</p>
+                      <h3 className="text-2xl font-bold text-white mb-2">Analyzing your mood...</h3>
+                      <p className="text-gray-400">Searching millions of combinations for the perfect match.</p>
                     </motion.div>
                   )}
 

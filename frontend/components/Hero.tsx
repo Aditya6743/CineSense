@@ -57,17 +57,11 @@ export default function Hero() {
               }}
             >
               {word === "Favorite" || word === "Movie" ? (
-                <motion.span 
-                  className="bg-clip-text text-transparent inline-block drop-shadow-[0_0_15px_rgba(124,92,255,0.4)]"
-                  style={{
-                    backgroundImage: "linear-gradient(90deg, #7C5CFF, #4EA8FF, #00E5FF, #D946EF, #7C5CFF)",
-                    backgroundSize: "200% auto",
-                  }}
-                  animate={{ backgroundPosition: ["0% center", "200% center"] }}
-                  transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
+                <span 
+                  className="bg-clip-text text-transparent inline-block drop-shadow-[0_0_15px_rgba(124,92,255,0.4)] bg-gradient-to-r from-violet-400 via-blue-400 to-fuchsia-400"
                 >
                   {word}
-                </motion.span>
+                </span>
               ) : (
                 word
               )}

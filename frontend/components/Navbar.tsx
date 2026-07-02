@@ -108,28 +108,6 @@ export default function Navbar() {
             </button>
           </MagneticButton>
 
-          <MagneticButton className="hidden md:block rounded-xl border border-white/10 bg-white/5 backdrop-blur-xl hover:bg-white/10 transition-colors shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
-            <a
-              href="https://github.com/Aditya6743"
-              target="_blank"
-              rel="noreferrer"
-              className="flex items-center justify-center p-2.5 w-full h-full"
-            >
-              <FaGithub className="text-xl text-white" />
-            </a>
-          </MagneticButton>
-          
-          <MagneticButton className="hidden md:flex rounded-xl border border-white/10 bg-white/5 backdrop-blur-xl hover:bg-[#0A66C2]/20 hover:border-[#0A66C2]/50 transition-colors shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
-            <a
-              href="https://www.linkedin.com/in/aditya-tripathi-922a2429a/"
-              target="_blank"
-              rel="noreferrer"
-              className="flex items-center justify-center p-2.5 w-full h-full"
-            >
-              <FaLinkedin className="text-xl text-[#0A66C2]" />
-            </a>
-          </MagneticButton>
-
           {/* Auth Button */}
           {user ? (
             <div className="relative group">
@@ -173,9 +151,34 @@ export default function Navbar() {
             </MagneticButton>
           )}
 
+          {/* Social Links Divider & Container */}
+          <div className="hidden md:flex items-center gap-2 md:gap-3 ml-2 md:ml-4 pl-2 md:pl-4 border-l border-white/10">
+            <MagneticButton className="rounded-xl border border-white/10 bg-white/5 backdrop-blur-xl hover:bg-white/10 transition-colors shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
+              <a
+                href="https://github.com/Aditya6743"
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center justify-center p-2.5 w-full h-full"
+              >
+                <FaGithub className="text-xl text-white" />
+              </a>
+            </MagneticButton>
+            
+            <MagneticButton className="rounded-xl border border-white/10 bg-white/5 backdrop-blur-xl hover:bg-[#0A66C2]/20 hover:border-[#0A66C2]/50 transition-colors shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
+              <a
+                href="https://www.linkedin.com/in/aditya-tripathi-922a2429a/"
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center justify-center p-2.5 w-full h-full"
+              >
+                <FaLinkedin className="text-xl text-[#0A66C2]" />
+              </a>
+            </MagneticButton>
+          </div>
+
           {/* Mobile Menu Toggle */}
           <button 
-            className="md:hidden p-2 text-white/80 hover:text-white transition-colors"
+            className="md:hidden p-2 text-white/80 hover:text-white transition-colors ml-2"
             onClick={() => {
               playClick();
               setMobileMenuOpen(!mobileMenuOpen);

@@ -346,10 +346,29 @@ async def generate_pitch(query: str, recommended: str):
         client = genai.Client(api_key=api_key)
         prompt = f"Write a short, engaging, 2-sentence movie pitch explaining why a fan of '{query}' would absolutely love '{recommended}'. Be enthusiastic and focus on thematic similarities. Do not use quotes or introductory phrases, just give the pitch."
         
-        response = client.models.generate_content(
-            model='gemini-2.5-flash-lite',
-            contents=prompt,
-        )
+        models_to_try = [
+            'gemini-3.5-flash',
+            'gemini-flash-lite-latest',
+            'gemini-flash-latest',
+            'gemini-2.5-flash-lite',
+            'gemini-2.0-flash-lite',
+            'gemini-2.5-flash'
+        ]
+        
+        response = None
+        for model_name in models_to_try:
+            try:
+                response = client.models.generate_content(
+                    model=model_name,
+                    contents=prompt,
+                )
+                break
+            except Exception as e:
+                logger.warning(f"Pitch model {model_name} failed: {e}")
+                continue
+                
+        if not response:
+            raise Exception("All Gemini models failed for generate-pitch.")
         
         pitch_cache[cache_key] = response.text
         return {"pitch": response.text}
@@ -413,10 +432,31 @@ Return ONLY a raw JSON object (no markdown, no backticks) with exactly two keys:
 "title": "The exact movie title"
 "reason": "A 1-sentence explanation of why it fits their mood and constraints perfectly."
 """
-            response = genai_client.models.generate_content(
-                model='gemini-2.5-flash-lite',
-                contents=prompt,
-            )
+            models_to_try = [
+                'gemini-3.5-flash',
+                'gemini-flash-lite-latest',
+                'gemini-flash-latest',
+                'gemini-2.5-flash-lite',
+                'gemini-2.0-flash-lite',
+                'gemini-2.5-flash'
+            ]
+            
+            response = None
+            last_err = None
+            for model_name in models_to_try:
+                try:
+                    response = genai_client.models.generate_content(
+                        model=model_name,
+                        contents=prompt,
+                    )
+                    break
+                except Exception as e:
+                    last_err = e
+                    logger.warning(f"Mood model {model_name} failed: {e}")
+                    continue
+                    
+            if not response:
+                raise Exception(f"All models failed. Last error: {last_err}")
             
             raw_text = response.text.strip()
             

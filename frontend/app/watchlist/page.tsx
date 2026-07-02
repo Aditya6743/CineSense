@@ -19,7 +19,7 @@ export default function WatchlistPage() {
     <>
       <Navbar />
       
-      <main className="relative min-h-screen pt-32 pb-24">
+      <main className="relative min-h-screen bg-[#020305] pt-32 pb-24 text-white">
         <BackgroundGraphic />
         
         <div className="mx-auto max-w-7xl px-6 relative z-10">

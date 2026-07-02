@@ -106,9 +106,9 @@ export default function Hero() {
           <motion.div whileHover={{ y: -5, scale: 1.02 }} className="rounded-3xl border border-white/5 bg-[#0a0f16]/60 p-8 backdrop-blur-2xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)] relative overflow-hidden group">
             <div className="absolute inset-0 bg-gradient-to-br from-violet-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             <h2 className="text-4xl md:text-5xl font-black bg-gradient-to-br from-white to-gray-500 bg-clip-text text-transparent">
-              <AnimatedCounter value={20000} suffix="+" />
+              <AnimatedCounter value={800} suffix="K+" />
             </h2>
-            <p className="mt-3 text-xs text-violet-400 font-mono tracking-widest uppercase opacity-80">Curated Movies</p>
+            <p className="mt-3 text-xs text-violet-400 font-mono tracking-widest uppercase opacity-80">Movies Worldwide</p>
           </motion.div>
           
           <motion.div whileHover={{ y: -5, scale: 1.02 }} className="rounded-3xl border border-white/5 bg-[#0a0f16]/60 p-8 backdrop-blur-2xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)] relative overflow-hidden group">

@@ -177,7 +177,7 @@ async def fetch_movie_details(client: httpx.AsyncClient, movie_info: dict, max_r
             response = await client.get(
                 url,
                 headers=HEADERS,
-                params={"append_to_response": "credits,videos"},
+                params={"append_to_response": "credits,videos,watch/providers"},
                 timeout=10,
             )
             response.raise_for_status()
@@ -194,6 +194,12 @@ async def fetch_movie_details(client: httpx.AsyncClient, movie_info: dict, max_r
             if trailers:
                 trailer_url = f"https://www.youtube.com/watch?v={trailers[0]['key']}"
 
+            providers = []
+            watch_data = movie.get("watch/providers", {}).get("results", {})
+            in_providers = watch_data.get("IN", watch_data.get("US", {}))
+            if in_providers and "flatrate" in in_providers:
+                providers = [p["provider_name"] for p in in_providers["flatrate"]][:3]
+
             result = {
                 "movie_id": movie_id,
                 "title": movie.get("title", title),
@@ -205,7 +211,8 @@ async def fetch_movie_details(client: httpx.AsyncClient, movie_info: dict, max_r
                 "genres": genres,
                 "cast": cast,
                 "trailer_url": trailer_url,
-                "language": str(movie.get("original_language", "")).upper()
+                "language": str(movie.get("original_language", "")).upper(),
+                "providers": providers
             }
             
             tmdb_cache[movie_id] = result
@@ -234,7 +241,8 @@ async def fetch_movie_details(client: httpx.AsyncClient, movie_info: dict, max_r
                     "genres": [],
                     "cast": [],
                     "trailer_url": None,
-                    "language": None
+                    "language": None,
+                    "providers": []
                 }
 
 @app.get("/recommend/{movie_name}")

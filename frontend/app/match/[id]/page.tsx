@@ -149,14 +149,27 @@ export default function MatchSwipePage() {
             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
           </div>
 
-          <a 
-            href={`https://www.google.com/search?q=${encodeURIComponent(matchResult.title + " movie where to watch")}`} 
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-block w-full bg-white text-black font-bold py-4 rounded-xl hover:bg-gray-200 transition-colors"
-          >
-            See Details & Where to Watch
-          </a>
+          {matchResult.providers && matchResult.providers.length > 0 ? (
+            <div className="bg-white/10 p-4 rounded-xl border border-white/20 mb-8 backdrop-blur-md">
+              <p className="text-gray-300 text-sm font-bold uppercase tracking-wider mb-2">Available on</p>
+              <div className="flex flex-wrap justify-center gap-2">
+                {matchResult.providers.map((p: string) => (
+                  <span key={p} className="px-3 py-1 bg-white/20 text-white rounded-full text-sm font-medium">
+                    {p}
+                  </span>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <a 
+              href={`https://www.google.com/search?q=${encodeURIComponent(matchResult.title + " movie where to watch")}`} 
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block w-full bg-white text-black font-bold py-4 rounded-xl hover:bg-gray-200 transition-colors"
+            >
+              Search where to watch 🔍
+            </a>
+          )}
         </motion.div>
       </div>
     );

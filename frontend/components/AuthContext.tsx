@@ -60,13 +60,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const signInWithGoogle = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
+    const oauthPromise = supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
         redirectTo: window.location.origin,
+        skipBrowserRedirect: true,
       },
     });
+
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error("Supabase API timeout. Please check your network connection.")), 10000)
+    );
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await Promise.race([oauthPromise, timeoutPromise]) as any;
+    
     if (error) throw error;
+    if (data?.url) {
+      window.location.href = data.url;
+    } else {
+      throw new Error("No URL returned from Supabase for Google Auth");
+    }
   };
 
   const signOut = async () => {

@@ -446,7 +446,7 @@ Return ONLY a raw JSON object (no markdown, no backticks) with exactly two keys:
             logger.error(f"AI Generation Failed: {ai_err}")
             fallback_list = ["The Dark Knight", "Inception", "Interstellar", "Dune", "The Matrix", "Mad Max: Fury Road"]
             suggested_title = random.choice(fallback_list)
-            reason = "Our AI is resting due to high traffic, but here is an absolute cinematic masterpiece."
+            reason = f"Our AI encountered an error ({str(ai_err)}). Here is a cinematic masterpiece instead."
             
     try:
         # Clean up title by removing years in parentheses (e.g. "Interstellar (2014)" -> "Interstellar")

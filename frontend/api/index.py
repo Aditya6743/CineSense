@@ -521,10 +521,13 @@ async def get_movie_providers(title: str):
         seen = set()
         providers = []
         
+        # Ignored providers that confuse users (often rent/buy only, not true streaming subscriptions)
+        IGNORED_PROVIDERS = {"YouTube", "Google Play Movies"}
+        
         # 1. Try Flatrate (Streaming Subscriptions) for IN and US
         for p in in_data.get("flatrate", []) + us_data.get("flatrate", []):
             name = p.get("provider_name")
-            if name and name not in seen:
+            if name and name not in seen and name not in IGNORED_PROVIDERS:
                 seen.add(name)
                 providers.append({
                     "name": name,
@@ -535,7 +538,7 @@ async def get_movie_providers(title: str):
         if not providers:
             for p in in_data.get("rent", []) + in_data.get("buy", []) + us_data.get("rent", []) + us_data.get("buy", []):
                 name = p.get("provider_name")
-                if name and name not in seen:
+                if name and name not in seen and name not in IGNORED_PROVIDERS:
                     seen.add(name)
                     providers.append({
                         "name": f"{name} (Rent/Buy)",
@@ -547,7 +550,7 @@ async def get_movie_providers(title: str):
             for country, data in results.items():
                 for p in data.get("flatrate", []):
                     name = p.get("provider_name")
-                    if name and name not in seen:
+                    if name and name not in seen and name not in IGNORED_PROVIDERS:
                         seen.add(name)
                         providers.append({
                             "name": f"{name} ({country})",

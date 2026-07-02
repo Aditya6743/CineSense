@@ -351,19 +351,25 @@ async def recommend_mood(request: Request, req: MoodRequest):
     reason = ""
     
     if not api_key:
-        logger.warning("Gemini API Key missing. Using hardcoded fallback recommendations.")
-        # Fallback database if AI is unavailable
-        fallback_db = {
-            "Happy 😊": {"title": "La La Land", "reason": "A joyful and colorful musical to match your happy mood!"},
-            "Sad 😢": {"title": "Inside Out", "reason": "A beautiful exploration of emotions that might help you process yours."},
-            "Adventurous 🧗": {"title": "Indiana Jones and the Raiders of the Lost Ark", "reason": "The ultimate adventure movie for your adventurous spirit!"},
-            "Chill 🛋️": {"title": "The Big Lebowski", "reason": "The ultimate chill movie. The Dude abides."},
-            "Stressed 😫": {"title": "Spirited Away", "reason": "A mesmerizing and relaxing journey to take your mind off things."},
-            "Romantic 💖": {"title": "Before Sunrise", "reason": "A classic romance to sweep you off your feet."}
-        }
-        fallback = fallback_db.get(req.feeling, {"title": "The Matrix", "reason": "A perfect movie to escape reality."})
-        suggested_title = fallback["title"]
-        reason = fallback["reason"]
+        logger.warning("Gemini API Key missing. Using dynamic fallback recommendations.")
+        import random
+        
+        fallback_movies = [
+            "Inception", "The Dark Knight", "La La Land", "Interstellar", "Spider-Man: Across the Spider-Verse",
+            "Everything Everywhere All at Once", "The Truman Show", "Spirited Away", "Mad Max: Fury Road", 
+            "Parasite", "Whiplash", "The Matrix", "Dune", "Avatar", "Gladiator", "Pulp Fiction",
+            "The Big Lebowski", "Knives Out", "Catch Me If You Can", "Jurassic Park", "Before Sunrise",
+            "Inside Out", "Indiana Jones and the Raiders of the Lost Ark", "The Grand Budapest Hotel", "Arrival"
+        ]
+        
+        suggested_title = random.choice(fallback_movies)
+        
+        # Clean up the emoji tags to make a natural sentence
+        clean_feeling = req.feeling.split()[0].lower()
+        clean_vibe = req.vibe.split()[0].lower()
+        clean_gimmick = req.gimmick.lower().replace("just ", "").replace("a ", "")
+        
+        reason = f"Since you're feeling {clean_feeling} and want a {clean_vibe} vibe, this is a perfect pick to watch with {clean_gimmick}!"
         
     else:
         try:

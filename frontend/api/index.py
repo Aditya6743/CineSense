@@ -339,7 +339,7 @@ async def generate_pitch(query: str, recommended: str):
 class MoodRequest(BaseModel):
     feeling: str
     vibe: str
-    time: str
+    gimmick: str
 
 @app.post("/recommend-mood")
 @app.post("/api/recommend-mood")
@@ -356,7 +356,7 @@ async def recommend_mood(request: Request, req: MoodRequest):
 You are an expert movie recommender. The user says:
 - Feeling: {req.feeling}
 - Vibe: {req.vibe}
-- Time available: {req.time}
+- Ideal movie companion: {req.gimmick}
 
 Based on this, suggest EXACTLY ONE perfect movie. 
 Return ONLY a raw JSON object (no markdown, no backticks) with exactly two keys:

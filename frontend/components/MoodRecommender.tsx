@@ -17,15 +17,15 @@ const QUESTIONS = [
     options: ["Mind-Bending 🤯", "Lighthearted 😂", "Action-Packed 💥", "Scary 👻", "Inspiring ✨", "Mystery 🔍"],
   },
   {
-    id: "time",
-    title: "How much time do you have?",
-    options: ["Quick (< 90 mins)", "Standard (~2 hours)", "Epic (3+ hours)"],
+    id: "gimmick",
+    title: "Who's your ideal movie companion?",
+    options: ["A cute dog 🐶", "A spooky ghost 👻", "An alien 👽", "A mad scientist 🧪", "Just me & pizza 🍕"],
   }
 ];
 
 export default function MoodRecommender({ isOpen, onClose, onMovieClick }: { isOpen: boolean, onClose: () => void, onMovieClick: (movie: any) => void }) {
   const [currentStep, setCurrentStep] = useState(0);
-  const [answers, setAnswers] = useState({ feeling: "", vibe: "", time: "" });
+  const [answers, setAnswers] = useState({ feeling: "", vibe: "", gimmick: "" });
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any | null>(null);
 
@@ -60,21 +60,28 @@ export default function MoodRecommender({ isOpen, onClose, onMovieClick }: { isO
         body: JSON.stringify(finalAnswers),
       });
       
-      if (!res.ok) throw new Error("Failed to fetch recommendation");
+      if (!res.ok) {
+        let errorMsg = "Couldn't find a match right now.";
+        try {
+          const errData = await res.json();
+          errorMsg = errData.detail || errorMsg;
+        } catch(e) {}
+        throw new Error(errorMsg);
+      }
       
       const data = await res.json();
       if (data.recommendations && data.recommendations.length > 0) {
         setResult(data.recommendations[0]);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      setResult({ error: "Couldn't find a match right now. Try again!" });
+      setResult({ error: `Error: ${err.message}` });
     }
     setLoading(false);
   };
 
   const reset = () => {
-    setAnswers({ feeling: "", vibe: "", time: "" });
+    setAnswers({ feeling: "", vibe: "", gimmick: "" });
     setCurrentStep(0);
     setResult(null);
   };
@@ -108,9 +115,9 @@ export default function MoodRecommender({ isOpen, onClose, onMovieClick }: { isO
                 <X className="w-6 h-6" />
               </button>
               
-              {/* Decorative elements */}
-              <div className="absolute top-0 right-0 w-64 h-64 bg-fuchsia-500/10 rounded-full blur-[80px] pointer-events-none" />
-              <div className="absolute bottom-0 left-0 w-64 h-64 bg-violet-500/10 rounded-full blur-[80px] pointer-events-none" />
+              {/* Decorative elements - Using opacity and fast CSS properties to avoid blur lag */}
+              <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-fuchsia-500/10 to-transparent rounded-full pointer-events-none" />
+              <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-violet-500/10 to-transparent rounded-full pointer-events-none" />
 
               <div className="text-center mb-8 relative z-10">
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-fuchsia-500/30 bg-fuchsia-500/10 text-fuchsia-400 text-sm font-semibold mb-4">
@@ -146,7 +153,7 @@ export default function MoodRecommender({ isOpen, onClose, onMovieClick }: { isO
                           <button
                             key={opt}
                             onClick={() => handleSelect(opt)}
-                            className="p-4 rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 hover:border-fuchsia-500/50 text-white font-medium transition-all active:scale-95 flex items-center justify-between group"
+                            className="p-4 rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 hover:border-fuchsia-500/30 text-white font-medium transition-colors flex items-center justify-between group"
                           >
                             {opt}
                             <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity text-fuchsia-400 -translate-x-2 group-hover:translate-x-0 transform duration-300" />

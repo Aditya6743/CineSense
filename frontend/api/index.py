@@ -514,20 +514,51 @@ async def get_movie_providers(title: str):
         prov_data = prov_res.json()
         
         results = prov_data.get("results", {})
-        # Prefer India, then US
-        country_data = results.get("IN") or results.get("US") or {}
         
-        # We only care about flatrate (streaming like Netflix, Amazon, etc.)
-        flatrate = country_data.get("flatrate", [])
+        in_data = results.get("IN", {})
+        us_data = results.get("US", {})
         
+        seen = set()
         providers = []
-        for p in flatrate[:5]: # Top 5 platforms max
-            providers.append({
-                "name": p.get("provider_name"),
-                "logo": f"https://image.tmdb.org/t/p/original{p.get('logo_path')}" if p.get('logo_path') else None
-            })
-            
-        return {"providers": providers}
+        
+        # 1. Try Flatrate (Streaming Subscriptions) for IN and US
+        for p in in_data.get("flatrate", []) + us_data.get("flatrate", []):
+            name = p.get("provider_name")
+            if name and name not in seen:
+                seen.add(name)
+                providers.append({
+                    "name": name,
+                    "logo": f"https://image.tmdb.org/t/p/original{p.get('logo_path')}" if p.get('logo_path') else None
+                })
+                
+        # 2. If no streaming in IN/US, try Rent/Buy in IN/US
+        if not providers:
+            for p in in_data.get("rent", []) + in_data.get("buy", []) + us_data.get("rent", []) + us_data.get("buy", []):
+                name = p.get("provider_name")
+                if name and name not in seen:
+                    seen.add(name)
+                    providers.append({
+                        "name": f"{name} (Rent/Buy)",
+                        "logo": f"https://image.tmdb.org/t/p/original{p.get('logo_path')}" if p.get('logo_path') else None
+                    })
+                    
+        # 3. If STILL nothing, check ALL other countries for streaming
+        if not providers:
+            for country, data in results.items():
+                for p in data.get("flatrate", []):
+                    name = p.get("provider_name")
+                    if name and name not in seen:
+                        seen.add(name)
+                        providers.append({
+                            "name": f"{name} ({country})",
+                            "logo": f"https://image.tmdb.org/t/p/original{p.get('logo_path')}" if p.get('logo_path') else None
+                        })
+                # Break early if we found global providers to avoid spam
+                if len(providers) >= 3:
+                    break
+                    
+        # Return top 5 maximum to avoid cluttering the UI
+        return {"providers": providers[:5]}
         
     except Exception as e:
         logger.error(f"Failed to fetch providers for {title}: {e}")

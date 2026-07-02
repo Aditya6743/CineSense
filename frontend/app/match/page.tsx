@@ -7,7 +7,7 @@ import { useAuth } from "@/components/AuthContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import BackgroundGraphic from "@/components/BackgroundGraphic";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/utils/supabase";
 import { Loader2, Link as LinkIcon, Heart, Users } from "lucide-react";
 
 export default function MatchSetupPage() {

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/utils/supabase";
 import { useAuth } from "@/components/AuthContext";
 import { Loader2, X, Heart, Popcorn } from "lucide-react";
 import Confetti from "react-confetti";
@@ -61,7 +61,7 @@ export default function MatchSwipePage() {
 
       if (data) {
         const counts: Record<string, number> = {};
-        data.forEach(v => {
+        data.forEach((v: any) => {
           counts[v.movie_title] = (counts[v.movie_title] || 0) + 1;
           if (counts[v.movie_title] >= 2) {
             // MATCH FOUND!

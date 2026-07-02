@@ -61,17 +61,21 @@ function InteractiveTunnelPoster({ movie, position, rotation, onClick }: any) {
   const lenis = useLenis();
   const { camera } = useThree();
 
+    const spawnTimeRef = useRef(0);
+
   useFrame((state) => {
     if (!groupRef.current || !meshRef.current || !backplateRef.current) return;
     
-    // Global Entrance Animation (hides posters on front page)
-    // Start at a minimum scale so they appear much quicker
-    let entranceScale = 1;
-    if (camera.position.z > -30) {
-      entranceScale = THREE.MathUtils.clamp((camera.position.z - -5) / (-30 - -5), 0, 1);
-      // More aggressive ease-out so it pops to size quickly
-      entranceScale = Math.max(0.2, entranceScale * (2 - entranceScale));
+    // Initialize spawn time once
+    if (spawnTimeRef.current === 0) {
+      spawnTimeRef.current = state.clock.elapsedTime;
     }
+    
+    // Smooth time-based entrance animation (grows over 1.5 seconds, independently of scroll)
+    const age = state.clock.elapsedTime - spawnTimeRef.current;
+    let entranceScale = THREE.MathUtils.clamp(age / 1.5, 0, 1);
+    // Smooth ease-out
+    entranceScale = entranceScale * (2 - entranceScale);
     
     // Smooth Hover scaling and popping out
     const targetScale = (hovered ? 1.15 : 1) * entranceScale;

@@ -61,9 +61,9 @@ function MainContent() {
           <div className="fixed inset-0 z-0 pointer-events-auto">
             <ErrorBoundary>
               <Canvas
-                camera={{ position: [0, 0, 5], fov: 75 }}
+                camera={{ position: [0, 0, 5], fov: 70 }}
                 gl={{ antialias: false, alpha: false, powerPreference: "high-performance" }}
-                dpr={[1, 1.5]} // Cap resolution on high-DPI displays to maintain 120FPS
+                dpr={typeof window !== "undefined" && window.innerWidth < 768 ? 1 : [1, 1.5]}
               >
                 <color attach="background" args={["#020305"]} />
                 <Suspense fallback={null}>

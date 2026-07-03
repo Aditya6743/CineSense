@@ -5,30 +5,30 @@ import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { useLenis } from "lenis/react";
 import { Image } from "@react-three/drei";
-import axios from "axios";
 import { WebGLErrorBoundary } from "./WebGLErrorBoundary";
+
+// Number of decorative rings — posters will sit exactly on these
+const RING_COUNT = 12;
 
 // -----------------------------------------------------
 // 1) Glowing Accelerator Rings
 // -----------------------------------------------------
-function NeonRings({ length, radius }: { length: number, radius: number }) {
-  const ringCount = 15; // 15 massive rings spanning the tunnel
+function NeonRings({ length, radius }: { length: number; radius: number }) {
+  const groupRef = useRef<THREE.Group>(null);
+
   const rings = useMemo(() => {
     const arr = [];
-    for (let i = 0; i < ringCount; i++) {
+    for (let i = 0; i < RING_COUNT; i++) {
       arr.push({
-        z: -(i / ringCount) * length,
-        rotationZ: Math.random() * Math.PI, // Random initial rotation
+        z: -(i / (RING_COUNT - 1)) * length,
+        rotationZ: (i * Math.PI * 0.37), // deterministic, no random so SSR safe
       });
     }
     return arr;
-  }, [length, ringCount]);
+  }, [length]);
 
-  const groupRef = useRef<THREE.Group>(null);
-  
-  useFrame((state) => {
+  useFrame(() => {
     if (!groupRef.current) return;
-    // Slowly rotate the entire ring system smoothly
     groupRef.current.rotation.z -= 0.0003;
   });
 
@@ -36,12 +36,11 @@ function NeonRings({ length, radius }: { length: number, radius: number }) {
     <group ref={groupRef}>
       {rings.map((ring, i) => (
         <mesh key={i} position={[0, 0, ring.z]} rotation={[0, 0, ring.rotationZ]}>
-          <torusGeometry args={[radius + 2, 0.02, 8, 30]} />
-          {/* Intense emissive blue/purple to trigger Bloom */}
-          <meshPhysicalMaterial 
-            color="#4e5cff" 
-            emissive={i % 2 === 0 ? "#4e5cff" : "#b04eff"} 
-            emissiveIntensity={3} 
+          <torusGeometry args={[radius + 2, 0.025, 8, 40]} />
+          <meshPhysicalMaterial
+            color="#4e5cff"
+            emissive={i % 2 === 0 ? "#4e5cff" : "#b04eff"}
+            emissiveIntensity={3}
             toneMapped={false}
           />
         </mesh>
@@ -60,117 +59,92 @@ function InteractiveTunnelPoster({ movie, position, rotation, onClick }: any) {
   const [hovered, setHovered] = useState(false);
   const lenis = useLenis();
   const { camera } = useThree();
-
-    const spawnTimeRef = useRef(0);
+  const spawnTimeRef = useRef(0);
 
   useFrame((state) => {
     if (!groupRef.current || !meshRef.current || !backplateRef.current) return;
-    
+
     // Initialize spawn time once
     if (spawnTimeRef.current === 0) {
       spawnTimeRef.current = state.clock.elapsedTime;
     }
-    
-    // Smooth time-based entrance animation (grows over 1.5 seconds on load)
+
+    // Smooth time-based entrance animation (1.5s)
     const age = state.clock.elapsedTime - spawnTimeRef.current;
     let spawnScale = THREE.MathUtils.clamp(age / 1.5, 0, 1);
     spawnScale = spawnScale * (2 - spawnScale); // ease-out
 
-    // Camera-driven size scale:
-    // When camera is at home (z > -20) → small (0.4)
-    // When camera is deep in tunnel (z < -60) → full size (1.0)
-    // Smoothly interpolates between the two
+    // Camera-driven size scale: small at home, full size in tunnel
     const camZ = camera.position.z;
-    const homeScale = 0.4;
-    const tunnelScale = 1.0;
     const sizeProgress = THREE.MathUtils.clamp((camZ - (-20)) / ((-60) - (-20)), 0, 1);
-    const cameraScale = THREE.MathUtils.lerp(homeScale, tunnelScale, sizeProgress);
-
+    const cameraScale = THREE.MathUtils.lerp(0.45, 1.0, sizeProgress);
     const entranceScale = spawnScale * cameraScale;
-    
-    // Smooth Hover scaling and popping out
-    const targetScale = (hovered ? 1.15 : 1) * entranceScale;
-    const targetZ = hovered ? 8 : 0; 
-    const targetEmissive = hovered ? 3.0 : 0.2; 
-    
+
+    // Hover
+    const targetScale = (hovered ? 1.12 : 1) * entranceScale;
+    const targetZ = hovered ? 6 : 0;
+    const targetEmissive = hovered ? 2.5 : 0.15;
+
     groupRef.current.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.07);
     groupRef.current.position.z = THREE.MathUtils.lerp(groupRef.current.position.z, position[2] + targetZ, 0.05);
-    
+
     const currentEmissive = backplateRef.current.material.emissiveIntensity;
     backplateRef.current.material.emissiveIntensity = THREE.MathUtils.lerp(currentEmissive, targetEmissive, 0.05);
-    
-    // Scroll tilting logic (smoother)
-    if (lenis && typeof lenis.velocity === 'number') {
-      const targetTilt = THREE.MathUtils.clamp(lenis.velocity * 0.1, -Math.PI / 4, Math.PI / 4);
+
+    // Scroll tilt
+    if (lenis && typeof lenis.velocity === "number") {
+      const targetTilt = THREE.MathUtils.clamp(lenis.velocity * 0.08, -Math.PI / 5, Math.PI / 5);
       groupRef.current.rotation.x = THREE.MathUtils.lerp(groupRef.current.rotation.x, rotation[0] + targetTilt, 0.05);
     } else {
       groupRef.current.rotation.x = THREE.MathUtils.lerp(groupRef.current.rotation.x, rotation[0], 0.05);
     }
-    
-    // Floating breathing effect (reduced amplitude so posters feel stable)
-    const floatOffset = Math.sin(state.clock.elapsedTime * 1.2 + position[2]) * 0.4;
+
+    // Gentle float
+    const floatOffset = Math.sin(state.clock.elapsedTime * 1.0 + position[2] * 0.5) * 0.3;
     groupRef.current.position.y = position[1] + floatOffset;
 
-    // Cinematic Fade out when camera passes it
+    // Fade out when camera passes
     const distToCamera = groupRef.current.position.z - camera.position.z;
     let fade = 1;
-    // distToCamera > 0 means poster is behind camera. distToCamera < 0 means in front.
-    if (distToCamera > -20) {
-       fade = 1 - (distToCamera + 20) / 20; 
-    }
+    if (distToCamera > -20) fade = 1 - (distToCamera + 20) / 20;
     fade = THREE.MathUtils.clamp(fade, 0, 1);
-    
+
     backplateRef.current.material.transparent = true;
     backplateRef.current.material.opacity = fade;
-    
     meshRef.current.material.transparent = true;
-    meshRef.current.material.opacity = hovered ? fade : fade * 0.8;
+    meshRef.current.material.opacity = hovered ? fade : fade * 0.85;
   });
 
-  let posterUrl = movie.poster || "https://via.placeholder.com/256x384/4e5cff/ffffff?text=No+Poster";
+  let posterUrl = movie.poster || "https://via.placeholder.com/200x300/4e5cff/ffffff?text=No+Poster";
   if (posterUrl.includes("/w500/")) {
     posterUrl = posterUrl.replace("/w500/", "/w200/");
   }
 
   return (
-    <group 
-      ref={groupRef} 
-      position={position} 
+    <group
+      ref={groupRef}
+      position={position}
       rotation={rotation}
-      onPointerOver={(e) => {
-        e.stopPropagation();
-        setHovered(true);
-        document.body.style.cursor = "pointer";
-      }}
-      onPointerOut={() => {
-        setHovered(false);
-        document.body.style.cursor = "auto";
-      }}
-      onClick={(e) => {
-        e.stopPropagation();
-        onClick();
-      }}
+      onPointerOver={(e) => { e.stopPropagation(); setHovered(true); document.body.style.cursor = "pointer"; }}
+      onPointerOut={() => { setHovered(false); document.body.style.cursor = "auto"; }}
+      onClick={(e) => { e.stopPropagation(); onClick(); }}
     >
-      {/* Glowing Backplate / Frame (Now a thin plane, only renders front) */}
+      {/* Glowing backplate */}
       <mesh ref={backplateRef} position={[0, 0, -0.1]}>
         <planeGeometry args={[7.5, 11]} />
-        <meshPhysicalMaterial 
-          color="#000000" 
+        <meshPhysicalMaterial
+          color="#000000"
           metalness={0.9}
           roughness={0.1}
-          emissive="#4e5cff" 
-          emissiveIntensity={0.2} 
+          emissive="#4e5cff"
+          emissiveIntensity={0.15}
           toneMapped={false}
           side={THREE.FrontSide}
         />
       </mesh>
-      
-      {/* Actual Poster Image */}
-      <Image
-        ref={meshRef}
-        url={posterUrl}
-        scale={[7, 10.5]} 
-      />
+
+      {/* Poster image */}
+      <Image ref={meshRef} url={posterUrl} scale={[7, 10.5]} />
     </group>
   );
 }
@@ -178,13 +152,28 @@ function InteractiveTunnelPoster({ movie, position, rotation, onClick }: any) {
 // -----------------------------------------------------
 // 3) Main Neon Tunnel
 // -----------------------------------------------------
-export default function NeonTunnel({ count: propCount = 60, length = 300, radius = 30, onMovieSelect, trendingMovies = [] }: { count?: number, length?: number, radius?: number, onMovieSelect?: (movie: any) => void, trendingMovies?: any[] }) {
+export default function NeonTunnel({
+  count: propCount = 60,
+  length = 300,
+  radius = 25,
+  onMovieSelect,
+  trendingMovies = [],
+}: {
+  count?: number;
+  length?: number;
+  radius?: number;
+  onMovieSelect?: (movie: any) => void;
+  trendingMovies?: any[];
+}) {
   const groupRef = useRef<THREE.Group>(null);
   const lenis = useLenis();
   const [movies, setMovies] = useState<any[]>([]);
-  const isMobile = typeof window !== 'undefined' ? window.innerWidth < 768 : false;
-  // Override the prop count on mobile to avoid GPU crashes
-  const count = isMobile ? 16 : propCount;
+  const isMobile = typeof window !== "undefined" ? window.innerWidth < 768 : false;
+
+  // On mobile: fewer posters, must be a multiple of postersPerRing so rings fill evenly
+  const postersPerRing = 5;
+  const ringCountToUse = isMobile ? 6 : RING_COUNT; // fewer rings on mobile
+  const count = ringCountToUse * postersPerRing;
 
   useEffect(() => {
     if (trendingMovies.length > 0) {
@@ -196,46 +185,37 @@ export default function NeonTunnel({ count: propCount = 60, length = 300, radius
     }
   }, [count, trendingMovies]);
 
+  // Poster positions aligned exactly with ring Z positions
   const positions = useMemo(() => {
     const pos = [];
-    // 5 items per ring for better coverage while still breathing
-    const itemsPerRing = 5;
-    const numRings = Math.ceil(count / itemsPerRing);
-    
-    for (let i = 0; i < count; i++) {
-      const ringIndex = Math.floor(i / itemsPerRing);
-      const itemIndex = i % itemsPerRing;
-      
-      // All items in the same ring share the exact same Z coordinate
-      // This prevents the "some at top, some at bottom missing" spiral effect
-      const z = -(ringIndex / numRings) * length;
-      
-      // Calculate angle in the ring, offset each ring slightly for a twist effect
-      const theta = (itemIndex * ((Math.PI * 2) / itemsPerRing)) + (ringIndex * 0.3); 
-      
-      const x = Math.cos(theta) * radius;
-      const y = Math.sin(theta) * radius;
-      
-      const position = new THREE.Vector3(x, y, z);
-      const dummyObj = new THREE.Object3D();
-      dummyObj.position.copy(position);
-      dummyObj.lookAt(0, 0, z); // Look exactly at center of tunnel at this Z slice
-      
-      pos.push({
-        position: [position.x, position.y, position.z] as [number, number, number],
-        rotation: [dummyObj.rotation.x, dummyObj.rotation.y, dummyObj.rotation.z] as [number, number, number]
-      });
+    for (let ringIdx = 0; ringIdx < ringCountToUse; ringIdx++) {
+      // Match the exact same formula used by NeonRings
+      const z = -(ringIdx / (RING_COUNT - 1)) * length;
+
+      for (let itemIdx = 0; itemIdx < postersPerRing; itemIdx++) {
+        // Evenly space the 5 posters around the ring circumference
+        // Offset each ring by a small angle for a gentle twist effect
+        const theta = (itemIdx * (Math.PI * 2)) / postersPerRing + ringIdx * 0.25;
+        const x = Math.cos(theta) * radius;
+        const y = Math.sin(theta) * radius;
+
+        const position = new THREE.Vector3(x, y, z);
+        const dummyObj = new THREE.Object3D();
+        dummyObj.position.copy(position);
+        dummyObj.lookAt(0, 0, z);
+
+        pos.push({
+          position: [position.x, position.y, position.z] as [number, number, number],
+          rotation: [dummyObj.rotation.x, dummyObj.rotation.y, dummyObj.rotation.z] as [number, number, number],
+        });
+      }
     }
     return pos;
-  }, [count, radius, length]);
+  }, [ringCountToUse, postersPerRing, radius, length]);
 
   useFrame(() => {
     if (!groupRef.current) return;
-    
-    // Constant cinematic slow rotation (match rings for synced smooth feel)
     groupRef.current.rotation.z -= 0.0003;
-    
-    // Accelerate rotation when scrolling really fast for warp-speed feeling
     if (lenis && lenis.velocity) {
       groupRef.current.rotation.z -= lenis.velocity * 0.00002;
     }
@@ -243,18 +223,14 @@ export default function NeonTunnel({ count: propCount = 60, length = 300, radius
 
   return (
     <group>
-      {/* The static but rotating structural rings */}
       <NeonRings length={length} radius={radius} />
-      
-      {/* The rotating posters tunnel */}
       <group ref={groupRef}>
         {movies.map((movie, i) => {
           const p = positions[i];
           if (!p) return null;
-          
           return (
             <WebGLErrorBoundary key={`${movie.title}-tunnel-${i}`}>
-              <InteractiveTunnelPoster 
+              <InteractiveTunnelPoster
                 movie={movie}
                 position={p.position}
                 rotation={p.rotation}

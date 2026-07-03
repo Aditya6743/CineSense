@@ -53,16 +53,15 @@ function CinematicDust() {
   
   const [particles] = useState(() => {
     const geometry = new THREE.BufferGeometry();
-    const count = 1500; // Increased count for better distribution
+    const count = typeof window !== 'undefined' && window.innerWidth < 768 ? 400 : 1500;
     const positions = new Float32Array(count * 3);
     const colors = new Float32Array(count * 3);
     
     const color = new THREE.Color();
     for (let i = 0; i < count; i++) {
-      // Spread evenly across a massive volume so it doesn't look clustered
-      positions[i * 3] = (Math.random() - 0.5) * 200; // x
-      positions[i * 3 + 1] = (Math.random() - 0.5) * 200; // y
-      positions[i * 3 + 2] = (Math.random() - 0.5) * 600 - 150; // z (from +150 to -450)
+      positions[i * 3] = (Math.random() - 0.5) * 200;
+      positions[i * 3 + 1] = (Math.random() - 0.5) * 200;
+      positions[i * 3 + 2] = (Math.random() - 0.5) * 600 - 150;
       
       color.setHSL(0.6 + Math.random() * 0.2, 0.8, 0.5 + Math.random() * 0.5);
       colors[i * 3] = color.r;
@@ -440,11 +439,11 @@ export default function Scene3D({ onMovieSelect, trendingMovies = [] }: { onMovi
       <CameraRig />
       <CinematicDust />
       
-      {/* Universes */}
-      <PosterSphere radius={25} onMovieSelect={onMovieSelect} trendingMovies={trendingMovies} />
+      {/* PosterSphere only on desktop — too GPU heavy for mobile */}
+      {!isMobile && <PosterSphere radius={25} onMovieSelect={onMovieSelect} trendingMovies={trendingMovies} />}
       {/* Tunnel spans the entire remaining scroll distance (from -30 to -300) */}
       <group position={[0, 0, -30]}> 
-        <NeonTunnel count={isMobile ? 30 : 60} length={270} radius={25} onMovieSelect={onMovieSelect} trendingMovies={trendingMovies} />
+        <NeonTunnel length={270} radius={25} onMovieSelect={onMovieSelect} trendingMovies={trendingMovies} />
       </group>
       
       <WelcomeUniverse />

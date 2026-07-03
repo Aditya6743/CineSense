@@ -2,7 +2,23 @@ venv/
 __pycache__/
 *.pyc
 .DS_Store
+
+# All env files - NEVER commit these
+.env
+.env.*
+.env.local
+.env.production
+.env.development
 backend/.env
+frontend/.env
+frontend/.env.local
+
+# Sensitive test/scratch files
+test_tmdb.py
+backend/test_tmdb.py
+frontend/api_app.py
+
+# Build artifacts
 models/similarity.pkl
 .vercel
-.env*
+.next/

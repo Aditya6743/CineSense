@@ -142,7 +142,7 @@ function InteractiveTunnelPoster({ movie, position, rotation, onClick }: any) {
     >
       {/* Glowing Backplate / Frame (Now a thin plane, only renders front) */}
       <mesh ref={backplateRef} position={[0, 0, -0.1]}>
-        <planeGeometry args={[12.5, 18.5]} />
+        <planeGeometry args={[7.5, 11]} />
         <meshPhysicalMaterial 
           color="#000000" 
           metalness={0.9}
@@ -158,7 +158,7 @@ function InteractiveTunnelPoster({ movie, position, rotation, onClick }: any) {
       <Image
         ref={meshRef}
         url={posterUrl}
-        scale={[12, 18]} 
+        scale={[7, 10.5]} 
       />
     </group>
   );

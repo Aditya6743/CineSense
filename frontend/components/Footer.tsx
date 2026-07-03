@@ -9,6 +9,7 @@ export default function Footer() {
       whileInView={{ opacity: 1 }}
       viewport={{ once: true }}
       className="relative overflow-hidden border-t border-white/10 bg-black pt-32 pb-16"
+      id="how-it-works"
     >
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-[2px] bg-gradient-to-r from-transparent via-emerald-500 to-transparent opacity-50" />
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/4 h-[1px] bg-white shadow-[0_0_20px_rgba(255,255,255,1)]" />
@@ -29,7 +30,7 @@ export default function Footer() {
             {[
               { name: 'Home', href: '/' },
               { name: 'Trending', href: '#trending' },
-              { name: 'How it Works', href: '#how-it-works' },
+              { name: 'How it Works', href: '/#features' },
               { name: 'FAQ', href: '#faq' },
               { name: 'License', href: '/license.txt' }
             ].map((link) => (

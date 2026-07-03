@@ -35,11 +35,11 @@ function CameraRig() {
     const targetZ = THREE.MathUtils.lerp(5, -285, localProgress);
     
     // Add extra smoothness to the camera movement (dampening)
-    camera.position.z = THREE.MathUtils.lerp(camera.position.z, targetZ, 0.08);
+    camera.position.z = THREE.MathUtils.lerp(camera.position.z, targetZ, 0.05);
     
     // Add subtle bobbing/breathing effect
-    camera.position.y = Math.sin(state.clock.elapsedTime * 0.5) * 0.2;
-    camera.position.x = Math.cos(state.clock.elapsedTime * 0.3) * 0.2;
+    camera.position.y = Math.sin(state.clock.elapsedTime * 0.4) * 0.1;
+    camera.position.x = Math.cos(state.clock.elapsedTime * 0.25) * 0.1;
     
     // Look ahead slightly down
     camera.lookAt(0, -1, camera.position.z - 5);

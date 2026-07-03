@@ -93,7 +93,7 @@ function InteractiveTunnelPoster({ movie, position, rotation, onClick }: any) {
     const targetZ = hovered ? 8 : 0; 
     const targetEmissive = hovered ? 3.0 : 0.2; 
     
-    groupRef.current.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.05);
+    groupRef.current.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.07);
     groupRef.current.position.z = THREE.MathUtils.lerp(groupRef.current.position.z, position[2] + targetZ, 0.05);
     
     const currentEmissive = backplateRef.current.material.emissiveIntensity;
@@ -107,8 +107,8 @@ function InteractiveTunnelPoster({ movie, position, rotation, onClick }: any) {
       groupRef.current.rotation.x = THREE.MathUtils.lerp(groupRef.current.rotation.x, rotation[0], 0.05);
     }
     
-    // Floating breathing effect
-    const floatOffset = Math.sin(state.clock.elapsedTime * 1.5 + position[2]) * 0.8;
+    // Floating breathing effect (reduced amplitude so posters feel stable)
+    const floatOffset = Math.sin(state.clock.elapsedTime * 1.2 + position[2]) * 0.4;
     groupRef.current.position.y = position[1] + floatOffset;
 
     // Cinematic Fade out when camera passes it
@@ -198,9 +198,8 @@ export default function NeonTunnel({ count: propCount = 60, length = 300, radius
 
   const positions = useMemo(() => {
     const pos = [];
-    // Only 4 items per ring, giving massive horizontal breathing room
-    // creating a sleek, highly curated premium gallery feel
-    const itemsPerRing = 4;
+    // 5 items per ring for better coverage while still breathing
+    const itemsPerRing = 5;
     const numRings = Math.ceil(count / itemsPerRing);
     
     for (let i = 0; i < count; i++) {

@@ -143,26 +143,30 @@ export default function MoodRecommender({ isOpen, onClose, onMovieClick }: { isO
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="w-full max-w-4xl relative z-10"
+            className="w-full max-w-4xl relative z-10 max-h-[92vh] flex flex-col"
           >
-            <div className="rounded-[40px] border border-white/10 bg-[#0a0f16] p-8 md:p-12 shadow-[0_0_80px_rgba(236,72,153,0.15)] relative overflow-hidden">
+            <div className="rounded-[40px] border border-white/10 bg-[#0a0f16] shadow-[0_0_80px_rgba(236,72,153,0.15)] relative overflow-hidden flex flex-col max-h-[92vh]">
               
-              <button 
-                onClick={onClose}
-                className="absolute top-6 right-6 p-2 rounded-full bg-white/5 hover:bg-white/10 text-white transition z-50"
-              >
-                <X className="w-6 h-6" />
-              </button>
-              
-              {/* Decorative elements - Using opacity and fast CSS properties to avoid blur lag */}
+              {/* Decorative elements */}
               <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-fuchsia-500/10 to-transparent rounded-full pointer-events-none" />
               <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-violet-500/10 to-transparent rounded-full pointer-events-none" />
 
-              <div className="text-center mb-8 relative z-10">
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-fuchsia-500/30 bg-fuchsia-500/10 text-fuchsia-400 text-sm font-semibold mb-4">
+              {/* Sticky close button always on top */}
+              <div className="flex justify-end px-6 pt-5 pb-0 shrink-0 relative z-50">
+                <button
+                  onClick={onClose}
+                  className="p-2 rounded-full bg-white/5 hover:bg-white/10 text-white transition"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              <div className="p-6 md:p-10 pt-2 overflow-y-auto flex-1">
+              <div className="text-center mb-6 relative z-10">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-fuchsia-500/30 bg-fuchsia-500/10 text-fuchsia-400 text-sm font-semibold mb-3">
                   <Sparkles className="w-4 h-4" /> AI Mood Matcher
                 </div>
-                <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight">
+                <h2 className="text-2xl md:text-4xl font-black text-white tracking-tight">
                   Can&apos;t Decide What to Watch?
                 </h2>
               </div>
@@ -276,7 +280,7 @@ export default function MoodRecommender({ isOpen, onClose, onMovieClick }: { isO
                       key="result"
                       initial={{ opacity: 0, scale: 0.9 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      className="w-full flex flex-col md:flex-row items-center gap-12"
+                      className="w-full flex flex-col items-center gap-6 md:flex-row md:items-start md:gap-12"
                     >
                       {result.error ? (
                         <div className="text-center w-full">
@@ -287,7 +291,8 @@ export default function MoodRecommender({ isOpen, onClose, onMovieClick }: { isO
                         </div>
                       ) : (
                         <>
-                          <div className="w-full md:w-1/3 max-w-[280px]">
+                          <div className="w-full flex justify-center md:w-1/3 md:max-w-[280px]">
+                            <div className="w-[180px] md:w-full">
                             <MovieCard
                               title={result.title}
                               poster={result.poster}
@@ -299,8 +304,9 @@ export default function MoodRecommender({ isOpen, onClose, onMovieClick }: { isO
                                 onClose();
                               }}
                             />
+                            </div>
                           </div>
-                          <div className="w-full md:w-2/3 text-left">
+                          <div className="w-full md:w-2/3 text-center md:text-left">
                             <div className="inline-block px-3 py-1 rounded-full bg-fuchsia-500/20 text-fuchsia-300 text-sm font-bold mb-4">
                               Your Perfect Match 🎯
                             </div>
@@ -309,7 +315,7 @@ export default function MoodRecommender({ isOpen, onClose, onMovieClick }: { isO
                               &quot;{result.ai_reason}&quot;
                             </p>
                             
-                            <div className="flex items-center gap-4">
+                            <div className="flex items-center justify-center md:justify-start gap-4">
                               <button 
                                 onClick={() => {
                                   onMovieClick(result);
@@ -333,7 +339,7 @@ export default function MoodRecommender({ isOpen, onClose, onMovieClick }: { isO
                   )}
                 </AnimatePresence>
               </div>
-            </div>
+              </div>
           </motion.div>
         </div>
       )}

@@ -71,11 +71,22 @@ function InteractiveTunnelPoster({ movie, position, rotation, onClick }: any) {
       spawnTimeRef.current = state.clock.elapsedTime;
     }
     
-    // Smooth time-based entrance animation (grows over 1.5 seconds, independently of scroll)
+    // Smooth time-based entrance animation (grows over 1.5 seconds on load)
     const age = state.clock.elapsedTime - spawnTimeRef.current;
-    let entranceScale = THREE.MathUtils.clamp(age / 1.5, 0, 1);
-    // Smooth ease-out
-    entranceScale = entranceScale * (2 - entranceScale);
+    let spawnScale = THREE.MathUtils.clamp(age / 1.5, 0, 1);
+    spawnScale = spawnScale * (2 - spawnScale); // ease-out
+
+    // Camera-driven size scale:
+    // When camera is at home (z > -20) → small (0.4)
+    // When camera is deep in tunnel (z < -60) → full size (1.0)
+    // Smoothly interpolates between the two
+    const camZ = camera.position.z;
+    const homeScale = 0.4;
+    const tunnelScale = 1.0;
+    const sizeProgress = THREE.MathUtils.clamp((camZ - (-20)) / ((-60) - (-20)), 0, 1);
+    const cameraScale = THREE.MathUtils.lerp(homeScale, tunnelScale, sizeProgress);
+
+    const entranceScale = spawnScale * cameraScale;
     
     // Smooth Hover scaling and popping out
     const targetScale = (hovered ? 1.15 : 1) * entranceScale;

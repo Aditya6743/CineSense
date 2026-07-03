@@ -74,10 +74,10 @@ function InteractiveTunnelPoster({ movie, position, rotation, onClick }: any) {
     let spawnScale = THREE.MathUtils.clamp(age / 1.5, 0, 1);
     spawnScale = spawnScale * (2 - spawnScale); // ease-out
 
-    // Camera-driven size scale: small at home, full size in tunnel
+    // Camera-driven size scale: small at home, bigger in tunnel
     const camZ = camera.position.z;
     const sizeProgress = THREE.MathUtils.clamp((camZ - (-20)) / ((-60) - (-20)), 0, 1);
-    const cameraScale = THREE.MathUtils.lerp(0.45, 1.0, sizeProgress);
+    const cameraScale = THREE.MathUtils.lerp(0.45, 1.3, sizeProgress);
     const entranceScale = spawnScale * cameraScale;
 
     // Hover

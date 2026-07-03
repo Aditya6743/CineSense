@@ -339,7 +339,8 @@ export default function MoodRecommender({ isOpen, onClose, onMovieClick }: { isO
                   )}
                 </AnimatePresence>
               </div>
-              </div>
+              </div>{/* end scrollable body */}
+            </div>{/* end rounded modal box */}
           </motion.div>
         </div>
       )}

@@ -3,9 +3,15 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import MagneticButton from "./MagneticButton";
-import { Sparkles } from "lucide-react";
+import { Sparkles, Brain } from "lucide-react";
+import { useState } from "react";
+import MoodRecommender from "./MoodRecommender";
+import MovieModal from "./Moviemodal";
 
 export default function CTA() {
+  const [isMoodOpen, setIsMoodOpen] = useState(false);
+  const [selectedMovie, setSelectedMovie] = useState<any | null>(null);
+
   return (
     <section className="relative w-full py-40 px-6 overflow-hidden">
       {/* Background Glow */}
@@ -35,8 +41,8 @@ export default function CTA() {
             viewport={{ once: true }}
             className="text-5xl md:text-7xl font-black tracking-tight mb-8"
           >
-            Ready to dive into the <br />
-            <span className="bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">cinematic future?</span>
+            Your perfect movie is <br />
+            <span className="bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">one click away.</span>
           </motion.h2>
 
           <motion.p 
@@ -46,7 +52,7 @@ export default function CTA() {
             transition={{ delay: 0.1 }}
             className="mx-auto max-w-2xl text-xl text-gray-400 mb-12"
           >
-            Join thousands of cinephiles using our neural recommendation engine to discover their next favorite masterpiece.
+            Stop endlessly scrolling. Tell us your mood and our AI finds the perfect film for you — instantly.
           </motion.p>
 
           <motion.div
@@ -58,17 +64,25 @@ export default function CTA() {
           >
             <MagneticButton className="rounded-full bg-emerald-500 text-black font-bold text-lg hover:bg-emerald-400 shadow-[0_0_40px_rgba(16,185,129,0.4)] transition-colors">
               <Link href="/explore" className="block w-full h-full px-10 py-5">
-                Start Searching Now
+                Start Exploring
               </Link>
             </MagneticButton>
-            <MagneticButton className="rounded-full bg-white/10 text-white font-bold text-lg hover:bg-white/20 border border-white/10 transition-colors">
-              <a href="https://github.com/Aditya6743/CineSense" target="_blank" rel="noreferrer" className="block w-full h-full px-10 py-5">
-                View Documentation
-              </a>
+            <MagneticButton className="rounded-full bg-gradient-to-r from-fuchsia-600/20 to-violet-600/20 hover:from-fuchsia-500/40 hover:to-violet-500/40 text-white font-bold text-lg border border-fuchsia-500/30 transition-colors shadow-[0_0_20px_rgba(217,70,239,0.15)]">
+              <button onClick={() => setIsMoodOpen(true)} className="flex items-center gap-3 px-10 py-5">
+                <Sparkles className="w-5 h-5 text-fuchsia-400" />
+                Try Mood Matcher
+              </button>
             </MagneticButton>
           </motion.div>
         </div>
       </div>
+
+      <MoodRecommender
+        isOpen={isMoodOpen}
+        onClose={() => setIsMoodOpen(false)}
+        onMovieClick={(movie) => setSelectedMovie(movie)}
+      />
+      <MovieModal movie={selectedMovie} onClose={() => setSelectedMovie(null)} />
     </section>
   );
 }

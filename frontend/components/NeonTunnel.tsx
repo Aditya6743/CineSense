@@ -32,17 +32,27 @@ function NeonRings({ length, radius }: { length: number; radius: number }) {
     groupRef.current.rotation.z -= 0.0003;
   });
 
+  const isMobile = typeof window !== "undefined" ? window.innerWidth < 768 : false;
+
   return (
     <group ref={groupRef}>
       {rings.map((ring, i) => (
         <mesh key={i} position={[0, 0, ring.z]} rotation={[0, 0, ring.rotationZ]}>
-          <torusGeometry args={[radius + 2, 0.025, 8, 40]} />
-          <meshPhysicalMaterial
-            color="#4e5cff"
-            emissive={i % 2 === 0 ? "#4e5cff" : "#b04eff"}
-            emissiveIntensity={3}
-            toneMapped={false}
-          />
+          {/* Fewer segments on mobile for lower geometry cost */}
+          <torusGeometry args={[radius + 2, 0.025, 6, isMobile ? 24 : 40]} />
+          {isMobile ? (
+            <meshBasicMaterial
+              color={i % 2 === 0 ? "#4e5cff" : "#b04eff"}
+              toneMapped={false}
+            />
+          ) : (
+            <meshPhysicalMaterial
+              color="#4e5cff"
+              emissive={i % 2 === 0 ? "#4e5cff" : "#b04eff"}
+              emissiveIntensity={3}
+              toneMapped={false}
+            />
+          )}
         </mesh>
       ))}
     </group>
@@ -132,12 +142,8 @@ function InteractiveTunnelPoster({ movie, position, rotation, onClick }: any) {
       {/* Glowing backplate */}
       <mesh ref={backplateRef} position={[0, 0, -0.1]}>
         <planeGeometry args={[7.5, 11]} />
-        <meshPhysicalMaterial
-          color="#000000"
-          metalness={0.9}
-          roughness={0.1}
-          emissive="#4e5cff"
-          emissiveIntensity={0.15}
+        <meshBasicMaterial
+          color="#0a0a1a"
           toneMapped={false}
           side={THREE.FrontSide}
         />
@@ -170,9 +176,9 @@ export default function NeonTunnel({
   const [movies, setMovies] = useState<any[]>([]);
   const isMobile = typeof window !== "undefined" ? window.innerWidth < 768 : false;
 
-  // On mobile: fewer posters, must be a multiple of postersPerRing so rings fill evenly
+  // Always use full ring count — same experience on mobile and desktop
   const postersPerRing = 5;
-  const ringCountToUse = isMobile ? 6 : RING_COUNT; // fewer rings on mobile
+  const ringCountToUse = RING_COUNT; // 12 rings on all devices
   const count = ringCountToUse * postersPerRing;
 
   useEffect(() => {

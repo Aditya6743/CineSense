@@ -1,3 +1,9 @@
+## 🌐 Live Demo
+
+Experience CineSense live here:
+
+**🔗https://cinesense-aditya.vercel.app/**
+
 <div align="center">
   <br />
   <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Clapper%20Board.png" alt="Clapper Board" width="80" height="80" />

@@ -59,18 +59,18 @@ An interactive, draggable 3D sphere of trending movie posters floating in the vo
 
 <br />
 
-## 🧠 The AI & Machine Learning Engine
+## 🧠 The NLP & Machine Learning Engine
 
-CineSense combines statistical metadata matching (**Scikit-Learn**) with natural language processing (**Google Gemini**).
+CineSense combines statistical **Natural Language Processing (NLP)** with generative conversational intelligence (**Google Gemini**).
 
-### 1. Metadata Similarity (Scikit-Learn + NLTK)
-- **Text Processing:** Movie overviews, genres, cast, and crew (from a 30,000 dataset) are normalized using NLTK's `PorterStemmer` to strip words to their base roots.
-- **Vectorization:** `CountVectorizer` converts movie tags into numerical coordinates in a 10,000-dimensional vector space.
+### 1. The NLP & Metadata Similarity Pipeline (Scikit-Learn + NLTK)
+- **NLP Text Normalization:** Movie overviews, genres, cast, and crew (from a 30,000 dataset) are tokenized and processed using NLTK's `PorterStemmer` to strip words to their base roots (e.g., "romance", "romantic" ➔ "romanc"), removing linguistic duplication.
+- **Vectorization:** `CountVectorizer` converts processed movie tags into numerical coordinates in a 10,000-dimensional vector space (text vectorization).
 - **Cosine Similarity:** The model calculates the mathematical angle between vectors to find related movies. We rank matches using a hybrid formula: **70% cosine similarity + 30% IMDb weighted rating popularity**.
 - **PostgreSQL JSONB Caching:** Top recommendations are pre-computed and seeded into a **Supabase** database so serverless functions can fetch them instantly without loading a massive ML model.
 
 ### 2. Semantic Brain (Google Gemini API)
-- **Context Understanding:** Translates unstructured user mood text (e.g., *"funny space movie with a dog"*) into matching database filters.
+- **Semantic Understanding:** Translates unstructured user mood text (e.g., *"funny space movie with a dog"*) into matching database filters.
 - **AI Reasoning:** Writes a personalized, contextual pitch explaining exactly why that film matches the user's current mood.
 
 <br />

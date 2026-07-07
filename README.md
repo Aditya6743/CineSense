@@ -18,6 +18,7 @@ Experience CineSense live here:
     <a href="https://supabase.com/"><img src="https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white" alt="Supabase" /></a>
     <a href="https://threejs.org/"><img src="https://img.shields.io/badge/Three.js-000000?style=for-the-badge&logo=threedotjs&logoColor=white" alt="Three.js" /></a>
     <a href="https://fastapi.tiangolo.com/"><img src="https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI" /></a>
+    <a href="https://scikit-learn.org/"><img src="https://img.shields.io/badge/scikit--learn-F7931E?style=for-the-badge&logo=scikitlearn&logoColor=white" alt="scikit-learn" /></a>
     <a href="https://ai.google.dev/"><img src="https://img.shields.io/badge/Gemini_AI-4285F4?style=for-the-badge&logo=google&logoColor=white" alt="Gemini AI" /></a>
   </p>
 </div>
@@ -58,6 +59,22 @@ An interactive, draggable 3D sphere of trending movie posters floating in the vo
 
 <br />
 
+## 🧠 The AI & Machine Learning Engine
+
+CineSense combines statistical metadata matching (**Scikit-Learn**) with natural language processing (**Google Gemini**).
+
+### 1. Metadata Similarity (Scikit-Learn + NLTK)
+- **Text Processing:** Movie overviews, genres, cast, and crew (from a 30,000 dataset) are normalized using NLTK's `PorterStemmer` to strip words to their base roots.
+- **Vectorization:** `CountVectorizer` converts movie tags into numerical coordinates in a 10,000-dimensional vector space.
+- **Cosine Similarity:** The model calculates the mathematical angle between vectors to find related movies. We rank matches using a hybrid formula: **70% cosine similarity + 30% IMDb weighted rating popularity**.
+- **PostgreSQL JSONB Caching:** Top recommendations are pre-computed and seeded into a **Supabase** database so serverless functions can fetch them instantly without loading a massive ML model.
+
+### 2. Semantic Brain (Google Gemini API)
+- **Context Understanding:** Translates unstructured user mood text (e.g., *"funny space movie with a dog"*) into matching database filters.
+- **AI Reasoning:** Writes a personalized, contextual pitch explaining exactly why that film matches the user's current mood.
+
+<br />
+
 ## 🛠️ Architecture & Tech Stack
 
 CineSense bridges the gap between high-performance 3D graphics on the client and robust AI processing on the server.
@@ -65,7 +82,7 @@ CineSense bridges the gap between high-performance 3D graphics on the client and
 - **Frontend:** Next.js 16 (App Router), React Three Fiber, Tailwind CSS, Framer Motion, GSAP, Lenis Scroll.
 - **Backend:** Embedded FastAPI (Python) for API routes seamlessly integrated with Next.js on Vercel.
 - **Database & Auth:** Supabase (PostgreSQL) for user management, real-time voting sessions, and library storage.
-- **AI & Data:** Google Gemini 2.5 Flash for natural language recommendation processing, and TMDB API for rich cinematic metadata.
+- **AI & Data:** Google Gemini 2.5 Flash, Scikit-learn (Machine Learning Engine), TMDB API.
 
 <br />
 

@@ -5,10 +5,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 
 const faqs = [
-  { question: "How does the AI recommendation work?", answer: "We use a TF-IDF vectorizer to extract metadata from over 5,000 movies. We then calculate the cosine similarity between your searched movie and the entire dataset to find mathematically perfect matches." },
-  { question: "Are the recommendations real-time?", answer: "Yes! Our FastAPI backend computes similarities on the fly and retrieves the latest posters and ratings asynchronously from the TMDB API in milliseconds." },
-  { question: "Is this free to use?", answer: "Absolutely. CineSense is an open-source demonstration of advanced UI/UX and Machine Learning capabilities." },
-  { question: "Why do some movies not show up?", answer: "Our current dataset is limited to 5,000 highly curated movies. If a movie is too obscure or very recent, it might not be in the vector database." }
+  { question: "How does the AI recommendation work?", answer: "We process a dataset of 30,000 movies using NLTK's stemming tool, convert metadata into vectors via Scikit-Learn's CountVectorizer, and calculate Cosine Similarity. Google Gemini AI acts as a semantic layer, translating natural language mood requests into database filters and writing custom pitches." },
+  { question: "Are the recommendations instant?", answer: "Yes! Instead of computing heavy vector similarities on the fly (which slows down serverless functions), we pre-compute the top nearest-neighbor recommendations and cache them as JSONB arrays in our Supabase PostgreSQL database for sub-second delivery." },
+  { question: "How does the Movie Sync room work?", answer: "Movie Sync creates a real-time WebSocket connection using Supabase Realtime. When group members join via a shared link and swipe on recommendations, the backend matches votes. Once a unanimous match occurs, a broadcast event triggers the winner display with a live confetti blast." },
+  { question: "Is CineSense free to use?", answer: "Absolutely. CineSense is a non-commercial portfolio project demonstrating modern WebGL/3D interfaces, Natural Language Processing (NLP), and real-time state synchronization." }
 ];
 
 export default function FAQ() {

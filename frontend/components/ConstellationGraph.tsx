@@ -24,16 +24,10 @@ interface Node {
   level: number;
 }
 
-// Helper to pre-verify if an image actually loads (to catch 404s from TMDB)
-const verifyImage = (url: string | null): Promise<boolean> => {
-  if (!url) return Promise.resolve(false);
-  return new Promise((resolve) => {
-    const img = new window.Image();
-    img.crossOrigin = "anonymous";
-    img.onload = () => resolve(true);
-    img.onerror = () => resolve(false);
-    img.src = url;
-  });
+// TMDB Image CORS query parameter to bypass browser caching issue
+const getCorsPosterUrl = (url: string | null): string => {
+  if (!url) return "";
+  return url.includes("?") ? `${url}&cors=1` : `${url}?cors=1`;
 };
 
 interface Edge {
@@ -79,7 +73,7 @@ function MovieNode({
         {/* Poster */}
         {hasPoster ? (
           <WebGLErrorBoundary fallback={<mesh><planeGeometry args={[2, 3]} /><meshBasicMaterial color="#1a1a2e" /></mesh>}>
-            <DreiImage url={node.data.poster!} scale={[2, 3]} transparent />
+            <DreiImage url={getCorsPosterUrl(node.data.poster)} scale={[2, 3]} transparent />
           </WebGLErrorBoundary>
         ) : (
           <mesh>
@@ -150,17 +144,8 @@ export default function ConstellationGraph() {
       const radius = 10 + sourceNode.level * 2; // Expand radius for deeper levels
       const phi = (1 + Math.sqrt(5)) / 2; // Golden ratio for spherical distribution
 
-      // Sequentially check recommendation posters until we find 5 working ones
-      // This prevents hitting the browser's parallel connection limit (usually 6) which causes mass failures
-      const validRecs: MovieData[] = [];
-      for (const rec of recommendations) {
-        if (validRecs.length >= 5) break;
-        if (!rec.poster) continue;
-        const valid = await verifyImage(rec.poster);
-        if (valid) {
-          validRecs.push(rec);
-        }
-      }
+      // Select first 5 recommendations that have a poster
+      const validRecs = recommendations.filter(rec => !!rec.poster).slice(0, 5);
 
       validRecs.forEach((rec, i) => {
         if (nodes.has(rec.title)) {
@@ -225,16 +210,8 @@ export default function ConstellationGraph() {
         const trendingMovies: MovieData[] = trendingRes.data;
         
         if (trendingMovies && trendingMovies.length > 0) {
-          // Sequentially check trending movies to avoid connection spam
-          const validTrending: MovieData[] = [];
-          for (const m of trendingMovies) {
-             if (validTrending.length >= 5) break;
-             if (!m.poster) continue;
-             const valid = await verifyImage(m.poster);
-             if (valid) {
-               validTrending.push(m);
-             }
-          }
+          // Select first 5 trending movies that have a poster
+          const validTrending = trendingMovies.filter(m => !!m.poster).slice(0, 5);
           
           let success = false;
           let attempts = 0;
@@ -266,9 +243,9 @@ export default function ConstellationGraph() {
             attempts++;
           }
           
-          if (!success && validTrending.length > 0) {
+          if (!success && trendingMovies.length > 0) {
              // If all attempts failed, just show the first one as fallback
-             const firstMovie = validTrending[0];
+             const firstMovie = trendingMovies[0];
              const initNode: Node = {
                id: firstMovie.title,
                data: firstMovie,
